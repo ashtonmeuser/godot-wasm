@@ -9,7 +9,7 @@ This [GDNative](https://docs.godotengine.org/en/stable/tutorials/scripting/gdnat
 
 ## Installation
 
-Installation involves simply downloading and installing a zip file from Godot's UI. Recompilation of the engine is *not* required.
+Installation in a Godot project involves simply downloading and installing a zip file from Godot's UI. Recompilation of the engine is *not* required.
 
 1. Download the Godot Wasm addon zip file from the [releases page](https://github.com/ashtonmeuser/godot-wasm/releases).
 1. In Godot's Asset Library tab, click Import and select the addon zip file. Follow prompts to complete installation of the addon.
@@ -29,7 +29,7 @@ Once installed as an addon in a Godot project, the Godot Wasm addon class can be
     wasm.load(buffer)
     file.close()
     ```
-1. Define an array containing the arguments to be supplied to your exported Wasm module function via `var args = [1, 2]`. Ensure the number of argument and argument types match those of the exported Wasm module function.
+1. Define an array containing the arguments to be supplied to your exported Wasm module function via `var args = [1, 2]`. Ensure the number of arguments and argument types match those expected by the exported Wasm module function.
 1. Call a function exported by your Wasm module via `wasm.fire("YOUR_FUNCTION_NAME", args)` replacing `YOUR_FUNCTION_NAME` with the name of the exported Wasm module function.
 
 ## Examples
@@ -45,13 +45,6 @@ A simple example of loading a Wasm module and calling its exported functions. Th
 An example [AssemblyScript](https://www.assemblyscript.org) project which creates a simple Wasm module with a single exported `add` function.
 
 Note that WebAssembly is a large topic and thoroughly documenting the creation of Wasm modules is beyond the scope of this project. AssemblyScript is just one of [many ways](https://github.com/appcypher/awesome-wasm-langs#awesome-webassembly-languages-) to create a Wasm module.
-
-## Known Issues
-
-1. No WASI binding are provided to the Wasm module. This means that the guest Wasm module has no access to the host machines filesystem, etc. Pros for this are simplicity and increased security. Cons include not being able to generate truly random numbers (without a workaround) or run Wasm modules created in ways that require WASI bindings e.g. [TinyGo](https://tinygo.org/docs/guides/webassembly/) (see relevant [issue](https://github.com/tinygo-org/tinygo/issues/3068)).
-1. No access to exported globals (see [roadmap](#roadmap)).
-1. No access to imported functions (see [roadmap](#roadmap)).
-1. No access to imported globals (see [roadmap](#roadmap)).
 
 ## Developing
 
@@ -69,6 +62,22 @@ These instructions are tailored to UNIX machines.
 1. Zip the addons directory via `zip -FSr addons.zip addons`. This allows the addon to be conveniently distributed and imported into Godot. This zip file can be imported directly into Godot (see [Installation](https://github.com/ashtonmeuser/godot-wasm#installation)).
 
 If frequently iterating on the addon using a Godot project, it may help to create a symlink from the Godot project to the compiled addon via `ln -s RELATIVE_PATH_TO_ADDONS addons` from the root directory of your Godot project.
+
+## Known Issues
+
+1. No WASI binding are provided to the Wasm module. This means that the guest Wasm module has no access to the host machines filesystem, etc. Pros for this are simplicity and increased security. Cons include not being able to generate truly random numbers (without a workaround) or run Wasm modules created in ways that require WASI bindings e.g. [TinyGo](https://tinygo.org/docs/guides/webassembly/) (see relevant [issue](https://github.com/tinygo-org/tinygo/issues/3068)).
+1. No access to exported globals (see [roadmap](#Roadmap)).
+1. No access to imported functions (see [roadmap](#Roadmap)).
+1. No access to imported globals (see [roadmap](#Roadmap)).
+1. Only `int` and `float` return values are supported. While workarounds could be used, this limitation is because the only [concrete types supported by Wasm](https://webassembly.github.io/spec/core/syntax/types.html#number-types) are integers and floating point.
+
+## Relevant discussion
+
+There have been numerous discussions around modding/sandboxing support for Godot. Some of those are included below.
+
+- [Proposal](https://github.com/godotengine/godot-proposals/issues/5010): Implement a sandbox mode
+- [Proposal](https://github.com/godotengine/godot-proposals/issues/4642): Add a method to disallow using all global classes in a particular GDScript
+- [Pull Request](https://github.com/godotengine/godot/pull/61831): Added globals disabled feature to GDScript class
 
 ## Roadmap
 
