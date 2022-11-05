@@ -1,0 +1,5 @@
+.DS_Store
+.sconsign.dblite
+wasmer/
+addons.zip
+*.os
