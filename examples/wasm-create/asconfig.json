@@ -1,0 +1,17 @@
+{
+  "targets": {
+    "debug": {
+      "outFile": "build/add.debug.wasm",
+      "textFile": "build/add.debug.wat",
+      "sourceMap": true,
+      "debug": true
+    },
+    "release": {
+      "outFile": "build/add.wasm",
+      "optimizeLevel": 3,
+      "shrinkLevel": 0,
+      "converge": false,
+      "noAssert": false
+    }
+  }
+}
