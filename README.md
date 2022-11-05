@@ -76,6 +76,8 @@ If frequently iterating on the addon using a Godot project, it may help to creat
 There have been numerous discussions around modding/sandboxing support for Godot. Some of those are included below.
 
 - [Proposal](https://github.com/godotengine/godot-proposals/issues/5010): Implement a sandbox mode
+- [Issue](https://github.com/godotengine/godot/issues/28303) Add support for WebAssembly plugins and scripts
+- [Proposal](https://github.com/godotengine/godot-proposals/issues/147) Add WASM (WASI) host support (including, but not limited to, the HTML5 target)
 - [Proposal](https://github.com/godotengine/godot-proposals/issues/4642): Add a method to disallow using all global classes in a particular GDScript
 - [Pull Request](https://github.com/godotengine/godot/pull/61831): Added globals disabled feature to GDScript class
 
