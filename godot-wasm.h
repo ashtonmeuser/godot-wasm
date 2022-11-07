@@ -16,6 +16,7 @@ private:
     wasm_instance_t* instance;
     Dictionary names;
     static Dictionary map_names(wasm_module_t* module);
+    static Variant extract_variant(wasm_val_t value);
 
 public:
     static void _register_methods();
@@ -23,7 +24,8 @@ public:
     ~Wasm();
     void _init();
     godot_error load(PoolByteArray bytecode);
-    Variant fire(String name, Array args);
+    Variant function(String name, Array args);
+    Variant global(String name);
 };
 }
 
