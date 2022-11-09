@@ -1,0 +1,28 @@
+name: Release
+on:
+  push:
+    tags: [v*]
+
+env:
+  LIBRARY_PATH: addons/godot-wasm/bin
+  RELEASE_ASSET: godot-wasm.zip
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build.yml
+          commit: ${{ github.sha }}
+          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
+
+      - name: Prepare Asset
+        run: zip -r ${{ env.RELEASE_ASSET }} .
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ github.workspace }}/${{ env.RELEASE_ASSET }}

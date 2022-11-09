@@ -1,11 +1,10 @@
 name: Build
 on:
   push:
-    tags: [v*]
+    branches: [master]
 
 env:
   LIBRARY_PATH: addons/godot-wasm/bin
-  RELEASE_ASSET: godot-wasm.zip
   WASMER_VERSION: '2.3.0'
 
 jobs:
@@ -55,10 +54,10 @@ jobs:
         if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
         run: |
           cd ${{ github.workspace }}/godot-cpp
-          scons platform=linux generate_bindings=yes -j4
+          scons platform=linux target=release generate_bindings=yes -j4
 
       - name: Compile Addon
-        run: scons platform=linux
+        run: scons platform=linux target=release
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
@@ -66,25 +65,3 @@ jobs:
           name: linux
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/linux
           if-no-files-found: error
-
-  release:
-    name: Release
-    needs: [build-linux]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v3
-        with:
-          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
-
-      - name: dummy
-        run: ls -R
-
-      - name: Prepare Asset
-        run: zip -r ${{ env.RELEASE_ASSET }} .
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: ${{ github.workspace }}/${{ env.RELEASE_ASSET }}
