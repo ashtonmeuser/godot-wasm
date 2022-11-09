@@ -1,7 +1,7 @@
 name: Build
 on:
   push:
-    branches: [master]
+    branches: [master, windows]
   workflow_dispatch:
     inputs:
       debug_enabled:
@@ -15,34 +15,135 @@ env:
   WASMER_VERSION: '2.3.0'
 
 jobs:
-  build-linux:
-    name: Build Linux
-    runs-on: ubuntu-latest
+  # build-linux:
+  #   name: Build Linux
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #       with:
+  #         submodules: recursive
+
+  #     - name: Install Dependencies
+  #       run: |
+  #         sudo apt update
+  #         sudo apt -y install build-essential pkg-config libx11-dev libxcursor-dev \
+  #           libxinerama-dev libgl1-mesa-dev libglu-dev libasound2-dev libpulse-dev \
+  #           libudev-dev libxi-dev libxrandr-dev yasm
+
+  #     - name: Setup Python
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: '3.10'
+
+  #     - name: Install Python Packages
+  #       run: python -m pip install scons
+
+  #     - name: Download Wasmer Library
+  #       run: |
+  #         mkdir ${{ github.workspace }}/wasmer
+  #         wget -c https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-linux-musl-amd64.tar.gz -O - | tar -xz -C wasmer
+
+  #     - name: Submodule Hash
+  #       run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_ENV
+
+  #     - name: Cache Godot Library
+  #       id: cache-godot-cpp
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           ${{ github.workspace }}/godot-cpp/bin
+  #           ${{ github.workspace }}/godot-cpp/include
+  #           ${{ github.workspace }}/godot-cpp/godot-headers/**/*.h
+  #         key: ${{ runner.os }}-${{ env.SUBMODULE_HASH }}-${{ secrets.GODOT_CPP_CACHE_VERSION }}
+
+  #     - name: Compile Godot Library
+  #       if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
+  #       run: |
+  #         cd ${{ github.workspace }}/godot-cpp
+  #         scons platform=linux target=release generate_bindings=yes -j2
+
+  #     - name: Compile Addon
+  #       run: scons platform=linux target=release
+
+  #     - name: Upload Artifact
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: linux
+  #         path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/linux
+  #         if-no-files-found: error
+
+  # build-osx:
+  #   name: Build OSX
+  #   runs-on: macos-11
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #       with:
+  #         submodules: recursive
+
+  #     - name: Setup Python
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: '3.10'
+
+  #     - name: Install Python Packages
+  #       run: python -m pip install scons
+
+  #     - name: Universal Wasmer Library
+  #       run: |
+  #         mkdir ${{ github.workspace }}/wasmer
+  #         wget -c https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-darwin-amd64.tar.gz -O - | tar -xz -C wasmer
+  #         mv ${{ github.workspace }}/wasmer/lib/libwasmer.dylib ${{ github.workspace }}/wasmer/lib/libwasmer-amd64.dylib
+  #         wget -c https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-darwin-arm64.tar.gz -O - | tar -xz -C wasmer
+  #         mv ${{ github.workspace }}/wasmer/lib/libwasmer.dylib ${{ github.workspace }}/wasmer/lib/libwasmer-arm64.dylib
+  #         lipo ${{ github.workspace }}/wasmer/lib/libwasmer*.dylib -output ${{ github.workspace }}/wasmer/lib/libwasmer.dylib -create
+
+  #     - name: Submodule Hash
+  #       run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_ENV
+
+  #     - name: Cache Godot Library
+  #       id: cache-godot-cpp
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           ${{ github.workspace }}/godot-cpp/bin
+  #           ${{ github.workspace }}/godot-cpp/include
+  #           ${{ github.workspace }}/godot-cpp/godot-headers/**/*.h
+  #         key: ${{ runner.os }}-${{ env.SUBMODULE_HASH }}-${{ secrets.GODOT_CPP_CACHE_VERSION }}
+
+  #     - name: Compile Godot Library
+  #       if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
+  #       run: |
+  #         cd ${{ github.workspace }}/godot-cpp
+  #         scons platform=osx target=release generate_bindings=yes -j3
+
+  #     - name: Compile Addon
+  #       run: scons platform=osx target=release
+
+  #     - name: Upload Artifact
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: osx
+  #         path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/osx
+  #         if-no-files-found: error
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: recursive
 
-      - name: Install Dependencies
-        run: |
-          sudo apt update
-          sudo apt -y install build-essential pkg-config libx11-dev libxcursor-dev \
-            libxinerama-dev libgl1-mesa-dev libglu-dev libasound2-dev libpulse-dev \
-            libudev-dev libxi-dev libxrandr-dev yasm
-
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
       - name: Install Python Packages
-        run: python -m pip install scons
-
-      - name: Download Wasmer Library
-        run: |
-          mkdir ${{ github.workspace }}/wasmer
-          wget -c https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-linux-musl-amd64.tar.gz -O - | tar -xz -C wasmer
+        run: python -m pip install scons pywin32
 
       - name: Submodule Hash
         run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_ENV
@@ -60,70 +161,62 @@ jobs:
       - name: Compile Godot Library
         if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
         run: |
-          cd ${{ github.workspace }}/godot-cpp
-          scons platform=linux target=release generate_bindings=yes -j4
+          cd ${{ github.workspace }}\godot-cpp
+          scons platform=windows target=release generate_bindings=yes -j3
 
       - name: Compile Addon
-        run: scons platform=linux target=release
+        run: scons platform=windows target=release
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: linux
-          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/linux
+          name: windows
+          path: ${{ github.workspace }}\${{ env.LIBRARY_PATH }}\windows
           if-no-files-found: error
 
-  build-osx:
-    name: Build OSX
-    runs-on: macos-11
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
+  # windows-cross-compilation:
+  #   name: Windows Cross Compilation
+  #   runs-on: "ubuntu-20.04"
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
+  #       with:
+  #         lfs: true
+  #         submodules: recursive
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+  #     # Install all packages (except scons)
+  #     - name: Configure dependencies
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install build-essential pkg-config libx11-dev libxcursor-dev \
+  #           libxinerama-dev libgl1-mesa-dev libglu-dev libasound2-dev libpulse-dev \
+  #           libudev-dev libxi-dev libxrandr-dev yasm mingw-w64
+  #     # Use python 3.x release (works cross platform; best to keep self contained in it's own step)
+  #     - name: Set up Python 3.x
+  #       uses: actions/setup-python@v2
+  #       with:
+  #         # Semantic version range syntax or exact version of a Python version
+  #         python-version: '3.x'
+  #         # Optional - x64 or x86 architecture, defaults to x64
+  #         architecture: 'x64'
 
-      - name: Install Python Packages
-        run: python -m pip install scons
-
-      - name: Universal Wasmer Library
-        run: |
-          mkdir ${{ github.workspace }}/wasmer
-          wget -c https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-darwin-amd64.tar.gz -O - | tar -xz -C wasmer
-          mv ${{ github.workspace }}/wasmer/lib/libwasmer.dylib ${{ github.workspace }}/wasmer/lib/libwasmer-amd64.dylib
-          wget -c https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-darwin-arm64.tar.gz -O - | tar -xz -C wasmer
-          mv ${{ github.workspace }}/wasmer/lib/libwasmer.dylib ${{ github.workspace }}/wasmer/lib/libwasmer-arm64.dylib
-          lipo ${{ github.workspace }}/wasmer/lib/libwasmer*.dylib -output ${{ github.workspace }}/wasmer/lib/libwasmer.dylib -create
-
-      - name: Submodule Hash
-        run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_ENV
-
-      - name: Cache Godot Library
-        id: cache-godot-cpp
-        uses: actions/cache@v3
-        with:
-          path: |
-            ${{ github.workspace }}/godot-cpp/bin
-            ${{ github.workspace }}/godot-cpp/include
-            ${{ github.workspace }}/godot-cpp/godot-headers/**/*.h
-          key: ${{ runner.os }}-${{ env.SUBMODULE_HASH }}-${{ secrets.GODOT_CPP_CACHE_VERSION }}
-
-      - name: Compile Godot Library
-        if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
-        run: |
-          cd ${{ github.workspace }}/godot-cpp
-          scons platform=osx target=release generate_bindings=yes -j4
-
-      - name: Compile Addon
-        run: scons platform=osx target=release
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: osx
-          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/osx
-          if-no-files-found: error
+  #     # Setup scons, print python version and scons version info, so if anything is broken it won't run the build.
+  #     - name: Configuring Python packages
+  #       run: |
+  #         python -c "import sys; print(sys.version)"
+  #         python -m pip install scons
+  #         python --version
+  #         scons --version
+  #     - name: Compilation
+  #       run: |
+  #         mkdir -v -p ${{env.PROJECT_FOLDER}}\${{env.TARGET_PATH}}
+  #         cd ${{env.PROJECT_FOLDER}}
+  #         cd godot-cpp
+  #         scons platform=windows bits=64 target=${{env.TARGET}} generate_bindings=yes -j4
+  #         cd ..
+  #         scons platform=windows target=${{env.TARGET}} target_path=${{env.TARGET_PATH}} target_name=${{env.TARGET_NAME}}.dll
+  #     - name: Upload Artifact
+  #       uses: actions/upload-artifact@v1
+  #       with:
+  #         name: win64-cross
+  #         path: ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
