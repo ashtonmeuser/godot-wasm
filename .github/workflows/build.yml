@@ -149,6 +149,7 @@ jobs:
         run: |
           Import-Module BitsTransfer
           Start-BitsTransfer -Source "https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-windows-amd64.tar.gz" -Destination "${{ github.workspace }}\wasmer-windows-amd64.tar.gz"
+          New-Item "${{ github.workspace }}\wasmer" -itemType Directory
           tar -xzf ${{ github.workspace }}\wasmer-windows-amd64.tar.gz -C wasmer
 
       - name: Submodule Hash
