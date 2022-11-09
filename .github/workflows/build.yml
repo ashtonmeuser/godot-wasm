@@ -86,9 +86,9 @@ jobs:
       - name: Universal Wasmer Library
         run: |
           mkdir ${{ github.workspace }}/wasmer
-          wget -c https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-darwin-amd64.tar.gz -O - | tar -xz -C wasmer-amd64
+          wget -c https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-darwin-amd64.tar.gz -O - | tar -xz -C wasmer
           mv ${{ github.workspace }}/wasmer/lib/libwasmer.dylib ${{ github.workspace }}/wasmer/lib/libwasmer-amd64.dylib
-          wget -c https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-darwin-arm64.tar.gz -O - | tar -xz -C wasmer-arm64
+          wget -c https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-darwin-arm64.tar.gz -O - | tar -xz -C wasmer
           mv ${{ github.workspace }}/wasmer/lib/libwasmer.dylib ${{ github.workspace }}/wasmer/lib/libwasmer-arm64.dylib
           lipo ${{ github.workspace }}/wasmer/lib/libwasmer*.dylib -output ${{ github.workspace }}/wasmer/lib/libwasmer.dylib -create
 
