@@ -107,7 +107,7 @@ Dictionary Wasm::map_names(wasm_module_t* module) {
   wasm_exporttype_vec_t exports;
   wasm_module_exports(module, &exports);
   Dictionary dict;
-  for (int i = 0; i < exports.size; i++) {
+  for (uint32_t i = 0; i < exports.size; i++) {
     const wasm_name_t* name = wasm_exporttype_name(exports.data[i]);
     dict[String(name->data)] = i;
   }
