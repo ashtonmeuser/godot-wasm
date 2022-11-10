@@ -151,31 +151,26 @@ jobs:
           Start-BitsTransfer -Source "https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-windows-amd64.tar.gz" -Destination "${{ github.workspace }}\wasmer-windows-amd64.tar.gz"
           New-Item "${{ github.workspace }}\wasmer" -itemType Directory
           tar -xzf ${{ github.workspace }}\wasmer-windows-amd64.tar.gz -C wasmer
+          Get-ChildItem -Recurse "${{ github.workspace }}" | Where { ! $_.PSIsContainer } | Select Name,FullName,Length
 
       - name: Submodule Hash
         run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_ENV
 
-      - name: Cache Godot Library
-        id: cache-godot-cpp
-        uses: actions/cache@v3
-        with:
-          path: |
-            ${{ github.workspace }}/godot-cpp/bin
-            ${{ github.workspace }}/godot-cpp/include
-            ${{ github.workspace }}/godot-cpp/godot-headers/**/*.h
-          key: ${{ runner.os }}-${{ env.SUBMODULE_HASH }}-${{ secrets.GODOT_CPP_CACHE_VERSION }}
+      # - name: Cache Godot Library
+      #   id: cache-godot-cpp
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: |
+      #       ${{ github.workspace }}/godot-cpp/bin
+      #       ${{ github.workspace }}/godot-cpp/include
+      #       ${{ github.workspace }}/godot-cpp/godot-headers/**/*.h
+      #     key: ${{ runner.os }}-${{ env.SUBMODULE_HASH }}-${{ secrets.GODOT_CPP_CACHE_VERSION }}
 
-      # - name: Setup Dev Tools
+      # - name: Compile Godot Library
+      #   if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
       #   run: |
-      #     ${VS_INST_PATH} = & "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe" -latest -property installationPath
-      #     Import-Module ${VS_INST_PATH}/Common7/Tools/Microsoft.VisualStudio.DevShell.dll
-      #     Enter-VsDevShell -VsInstallPath ${VS_INST_PATH} -SkipAutomaticLocation -DevCmdArguments '-arch=${{matrix.config.arch}} -no_logo'
-
-      - name: Compile Godot Library
-        if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
-        run: |
-          cd ${{ github.workspace }}\godot-cpp
-          scons platform=windows target=release generate_bindings=yes -j3
+      #     cd ${{ github.workspace }}\godot-cpp
+      #     scons platform=windows target=release generate_bindings=yes -j3
 
       - name: Compile Addon
         run: |
