@@ -89,14 +89,13 @@ else:
 cpp_library += '.' + str(bits)
 
 env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', wasmer_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/'])
-env.Append(LIBPATH=[cpp_bindings_path + 'bin/', wasmer_path + 'lib/'])
-env.Append(LIBS=[cpp_library, wasmer_library])
-
-print(env.Dump())
+env.Append(LIBPATH=[cpp_bindings_path + 'bin/'])
+lib = File('wasmer/lib/wasmer.lib')
+env.Append(LIBS=[cpp_library, lib])
 
 sources = Glob('*.cpp')
 
-library = env.SharedLibrary(target=target_path + target_name , source=sources)
+library = env.SharedLibrary(target=target_path + target_name, source=sources)
 
 if env['platform'] == 'osx':
     env.AddPostAction(library, rpath_fix)
