@@ -151,7 +151,6 @@ jobs:
           Start-BitsTransfer -Source "https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-windows-amd64.tar.gz" -Destination "${{ github.workspace }}\wasmer-windows-amd64.tar.gz"
           New-Item "${{ github.workspace }}\wasmer" -itemType Directory
           tar -xzf ${{ github.workspace }}\wasmer-windows-amd64.tar.gz -C wasmer
-          Get-ChildItem -Recurse "${{ github.workspace }}" | Where { ! $_.PSIsContainer } | Select Name,FullName,Length
 
       - name: Submodule Hash
         run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_ENV
@@ -176,7 +175,9 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Compile Addon
-        run: scons platform=windows target=release
+        run: |
+          Get-ChildItem -Recurse "wasmer/lib/" | Where { ! $_.PSIsContainer } | Select Name,FullName,Length
+          scons platform=windows target=release
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
