@@ -12,7 +12,7 @@ on:
 
 env:
   LIBRARY_PATH: addons/godot-wasm/bin
-  WASMER_VERSION: '3.0.0-rc.2'
+  WASMER_VERSION: 'v3.0.0-rc.2'
 
 jobs:
   # build-linux:
