@@ -72,7 +72,7 @@ elif env['platform'] == 'windows':
 
     env.Append(CPPDEFINES=['WIN32', '_WIN32', '_WINDOWS', '_CRT_SECURE_NO_WARNINGS'])
     env.Append(CCFLAGS=['-W3', '-GR'])
-    env.Append(CXXFLAGS='/std:c++latest')
+    env.Append(CXXFLAGS='/std:c++latest /LD')
     if env['target'] in ('debug', 'd'):
         env.Append(CPPDEFINES=['_DEBUG'])
         env.Append(CCFLAGS=['-EHsc', '-MDd', '-ZI'])
