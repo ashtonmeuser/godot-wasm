@@ -156,35 +156,35 @@ jobs:
       - name: Submodule Hash
         run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_ENV
 
-      # - name: Cache Godot Library
-      #   id: cache-godot-cpp
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: |
-      #       ${{ github.workspace }}/godot-cpp/bin
-      #       ${{ github.workspace }}/godot-cpp/include
-      #       ${{ github.workspace }}/godot-cpp/godot-headers/**/*.h
-      #     key: ${{ runner.os }}-${{ env.SUBMODULE_HASH }}-${{ secrets.GODOT_CPP_CACHE_VERSION }}
-
-      # - name: Compile Godot Library
-      #   if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
-      #   run: |
-      #     cd ${{ github.workspace }}\godot-cpp
-      #     scons platform=windows target=release generate_bindings=yes -j3
-
-      - name: Compile Addon
-        run: |
-          ${VS_INST_PATH} = & "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe" -latest -property installationPath
-          Import-Module ${VS_INST_PATH}/Common7/Tools/Microsoft.VisualStudio.DevShell.dll
-          Enter-VsDevShell -VsInstallPath ${VS_INST_PATH} -SkipAutomaticLocation -DevCmdArguments '-arch=x64 -no_logo'
-          scons platform=windows target=release
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+      - name: Cache Godot Library
+        id: cache-godot-cpp
+        uses: actions/cache@v3
         with:
-          name: windows
-          path: ${{ github.workspace }}\${{ env.LIBRARY_PATH }}\windows
-          if-no-files-found: error
+          path: |
+            ${{ github.workspace }}/godot-cpp/bin
+            ${{ github.workspace }}/godot-cpp/include
+            ${{ github.workspace }}/godot-cpp/godot-headers/**/*.h
+          key: ${{ runner.os }}-${{ env.SUBMODULE_HASH }}-${{ secrets.GODOT_CPP_CACHE_VERSION }}
+
+      - name: Compile Godot Library
+        if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
+        run: |
+          cd ${{ github.workspace }}\godot-cpp
+          scons platform=windows target=release generate_bindings=yes -j3
+
+      # - name: Compile Addon
+      #   run: |
+      #     ${VS_INST_PATH} = & "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe" -latest -property installationPath
+      #     Import-Module ${VS_INST_PATH}/Common7/Tools/Microsoft.VisualStudio.DevShell.dll
+      #     Enter-VsDevShell -VsInstallPath ${VS_INST_PATH} -SkipAutomaticLocation -DevCmdArguments '-arch=x64 -no_logo'
+      #     scons platform=windows target=release
+
+      # - name: Upload Artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: windows
+      #     path: ${{ github.workspace }}\${{ env.LIBRARY_PATH }}\windows
+      #     if-no-files-found: error
 
   # windows-cross-compilation:
   #   name: Windows Cross Compilation
