@@ -12,7 +12,7 @@ on:
 
 env:
   LIBRARY_PATH: addons/godot-wasm/bin
-  WASMER_VERSION: '2.3.0'
+  WASMER_VERSION: '3.0.0-rc.2'
 
 jobs:
   # build-linux:
@@ -173,9 +173,6 @@ jobs:
 
       - name: MSVC Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Inspect Libs
-        run: dumpbin wasmer\lib\wasmer.lib /headers
 
       - name: Compile Addon
         run: |
