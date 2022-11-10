@@ -172,8 +172,8 @@ jobs:
           cd ${{ github.workspace }}\godot-cpp
           scons platform=windows target=release generate_bindings=yes -j3
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
+      - name: MSVC Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Compile Addon
         run: scons platform=windows target=release
