@@ -172,12 +172,11 @@ jobs:
           cd ${{ github.workspace }}\godot-cpp
           scons platform=windows target=release generate_bindings=yes -j3
 
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
       - name: Compile Addon
-        run: |
-          ${VS_INST_PATH} = & "${env:ProgramFiles(x64)}/Microsoft Visual Studio/Installer/vswhere.exe" -latest -property installationPath
-          Import-Module ${VS_INST_PATH}/Common7/Tools/Microsoft.VisualStudio.DevShell.dll
-          Enter-VsDevShell -VsInstallPath ${VS_INST_PATH} -SkipAutomaticLocation -DevCmdArguments '-arch=x64 -no_logo'
-          scons platform=windows target=release
+        run: scons platform=windows target=release
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
