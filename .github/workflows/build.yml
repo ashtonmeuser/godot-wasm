@@ -151,8 +151,6 @@ jobs:
           Start-BitsTransfer -Source "https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-windows-amd64.tar.gz" -Destination "${{ github.workspace }}\wasmer-windows-amd64.tar.gz"
           New-Item "${{ github.workspace }}\wasmer" -itemType Directory
           tar -xzf ${{ github.workspace }}\wasmer-windows-amd64.tar.gz -C wasmer
-          "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" -arch=amd64
-          dumpbin wasmer\lib\wasmer.lib /headers
 
       - name: Submodule Hash
         run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_ENV
@@ -175,6 +173,9 @@ jobs:
 
       - name: MSVC Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Inspect Libs
+        run: dumpbin wasmer\lib\wasmer.lib /headers
 
       - name: Compile Addon
         run: |
