@@ -1,4 +1,5 @@
 #include "godot-wasm.h"
+#include "wasmer.h"
 
 using namespace godot;
 
