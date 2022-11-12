@@ -28,16 +28,16 @@ bits = 64
 # opts.Update(env)
 
 # Process some arguments
-if env['use_llvm']:
-    env['CC'] = 'clang'
-    env['CXX'] = 'clang++'
+# if env['use_llvm']:
+#     env['CC'] = 'clang'
+#     env['CXX'] = 'clang++'
 
-if env['p'] != '':
-    env['platform'] = env['p']
+# if env['p'] != '':
+#     env['platform'] = env['p']
 
-if env['platform'] == '':
-    print('No valid target platform selected.')
-    quit();
+# if env['platform'] == '':
+#     print('No valid target platform selected.')
+#     quit();
 
 # Fix needed on OSX
 def rpath_fix(target, source, env):
@@ -49,19 +49,13 @@ if env['platform'] == 'darwin':
     cpp_library += '.osx'
     env.Append(CCFLAGS=['-arch', 'x86_64', '-std=c++17'])
     env.Append(LINKFLAGS=['-arch', 'x86_64'])
-    if env['target'] in ('debug', 'd'):
-        env.Append(CCFLAGS=['-g', '-O2'])
-    else:
-        env.Append(CCFLAGS=['-g', '-O3'])
+    env.Append(CCFLAGS=['-g', '-O3'])
 
 elif env['platform'] == 'posix':
     target_path += 'linux/'
     cpp_library += '.linux'
     env.Append(CCFLAGS=['-fPIC', '-std=c++17'])
-    if env['target'] in ('debug', 'd'):
-        env.Append(CCFLAGS=['-g3', '-Og'])
-    else:
-        env.Append(CCFLAGS=['-g', '-O3'])
+    env.Append(CCFLAGS=['-g', '-O3'])
 
 elif env['platform'] == 'win32':
     target_path += 'windows/'
@@ -73,21 +67,14 @@ elif env['platform'] == 'win32':
     env.Append(CPPDEFINES=['WIN32', '_WIN32', '_WINDOWS', '_CRT_SECURE_NO_WARNINGS'])
     env.Append(CCFLAGS='/std:c++latest')
     env.Append(LIBS=['bcrypt', 'userenv', 'ws2_32', 'advapi32'])
-    if env['target'] in ('debug', 'd'):
-        env.Append(CPPDEFINES=['_DEBUG'])
-        env.Append(CCFLAGS=['-EHsc', '-MDd'])
-        env.Append(LINKFLAGS=['-DEBUG'])
-    else:
-        env.Append(CPPDEFINES=['NDEBUG'])
-        env.Append(CCFLAGS=['-O2', '-EHsc', '-MD'])
+    env.Append(CPPDEFINES=['NDEBUG'])
+    env.Append(CCFLAGS=['-O2', '-EHsc', '-MD'])
 
     if os.path.exists(wasmer_path): remove_tree(wasmer_path)
     copy_tree(os.path.join('wasmer-windows-amd64'), wasmer_path)
 
-if env['target'] in ('debug', 'd'):
-    cpp_library += '.debug'
-else:
-    cpp_library += '.release'
+
+cpp_library += '.release'
 
 cpp_library += '.' + str(bits)
 
@@ -99,7 +86,7 @@ sources = Glob('*.cpp')
 
 library = env.SharedLibrary(target=target_path + target_name, source=sources)
 
-if env['platform'] == 'osx':
+if env['platform'] == 'darwin':
     env.AddPostAction(library, rpath_fix)
 
 Default(library)
