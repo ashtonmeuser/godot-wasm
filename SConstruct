@@ -1,5 +1,7 @@
 #!python
 import os
+import sys
+from distutils.dir_util import copy_tree, remove_tree
 
 opts = Variables([], ARGUMENTS)
 
@@ -78,6 +80,9 @@ elif env['platform'] == 'windows':
     else:
         env.Append(CPPDEFINES=['NDEBUG'])
         env.Append(CCFLAGS=['-O2', '-EHsc', '-MD'])
+
+    if os.path.exists(wasmer_path): remove_tree(wasmer_path)
+    copy_tree(os.path.join('wasmer-windows-amd64'), wasmer_path)
 
 if env['target'] in ('debug', 'd'):
     cpp_library += '.debug'
