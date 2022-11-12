@@ -66,11 +66,11 @@ elif env['platform'] == 'windows':
     cpp_library += '.windows'
     # This makes sure to keep the session environment variables on windows,
     # that way you can run scons in a vs 2017 prompt and it will find all the required tools
-    env.Append(ENV=os.environ)
+    # env.Append(ENV=os.environ)
 
     env.Append(CPPDEFINES=['WIN32', '_WIN32', '_WINDOWS', '_CRT_SECURE_NO_WARNINGS'])
     env.Append(CCFLAGS='/std:c++latest')
-    env.Append(LIBS=['bcrypt', 'userenv', 'ws2_32', 'advapi32.lib'])
+    env.Append(LIBS=['bcrypt', 'userenv', 'ws2_32', 'advapi32'])
     if env['target'] in ('debug', 'd'):
         env.Append(CPPDEFINES=['_DEBUG'])
         env.Append(CCFLAGS=['-EHsc', '-MDd'])
