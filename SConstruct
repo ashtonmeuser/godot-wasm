@@ -23,7 +23,7 @@ cpp_library = 'libgodot-cpp'
 target_path = 'addons/godot-wasm/bin/'
 target_name = 'godot-wasm'
 bits = 64
-platform = env['PLATFROM']
+platform = env['PLATFORM']
 
 # Updates the environment with the option variables.
 # opts.Update(env)
