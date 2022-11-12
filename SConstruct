@@ -23,6 +23,7 @@ cpp_library = 'libgodot-cpp'
 target_path = 'addons/godot-wasm/bin/'
 target_name = 'godot-wasm'
 bits = 64
+platform = env['PLATFROM']
 
 # Updates the environment with the option variables.
 # opts.Update(env)
@@ -44,20 +45,20 @@ def rpath_fix(target, source, env):
     os.system('install_name_tool -change @rpath/libwasmer.dylib @loader_path/libwasmer.dylib {0}'.format(target[0]))
 
 # Check platform specifics
-if env['platform'] == 'darwin':
+if platform == 'darwin':
     target_path += 'osx/'
     cpp_library += '.osx'
     env.Append(CCFLAGS=['-arch', 'x86_64', '-std=c++17'])
     env.Append(LINKFLAGS=['-arch', 'x86_64'])
     env.Append(CCFLAGS=['-g', '-O3'])
 
-elif env['platform'] == 'posix':
+elif platform == 'posix':
     target_path += 'linux/'
     cpp_library += '.linux'
     env.Append(CCFLAGS=['-fPIC', '-std=c++17'])
     env.Append(CCFLAGS=['-g', '-O3'])
 
-elif env['platform'] == 'win32':
+elif platform == 'win32':
     target_path += 'windows/'
     cpp_library += '.windows'
     # This makes sure to keep the session environment variables on windows,
@@ -86,7 +87,7 @@ sources = Glob('*.cpp')
 
 library = env.SharedLibrary(target=target_path + target_name, source=sources)
 
-if env['platform'] == 'darwin':
+if platform == 'darwin':
     env.AddPostAction(library, rpath_fix)
 
 Default(library)
