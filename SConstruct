@@ -68,7 +68,7 @@ elif platform == 'win32':
     env.Append(CPPDEFINES=['WIN32', '_WIN32', '_WINDOWS', '_CRT_SECURE_NO_WARNINGS'])
     env.Append(CCFLAGS='/std:c++latest')
     env.Append(LIBS=['bcrypt', 'userenv', 'ws2_32', 'advapi32'])
-    env.Append(CPPDEFINES=['NDEBUG'])
+    # env.Append(CPPDEFINES=['NDEBUG'])
     env.Append(CCFLAGS=['-O2', '-EHsc', '-MD'])
 
     if os.path.exists(wasmer_path): remove_tree(wasmer_path)
@@ -83,7 +83,7 @@ env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', was
 env.Append(LIBPATH=[cpp_bindings_path + 'bin/', wasmer_path + 'lib/'])
 env.Append(LIBS=[cpp_library, wasmer_library])
 
-sources = Glob('*.cpp')
+sources = Glob('instance.cpp')
 
 library = env.SharedLibrary(target=target_path + target_name, source=sources)
 
