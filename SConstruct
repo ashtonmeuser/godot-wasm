@@ -25,7 +25,7 @@ target_name = 'godot-wasm'
 bits = 64
 
 # Updates the environment with the option variables.
-opts.Update(env)
+# opts.Update(env)
 
 # Process some arguments
 if env['use_llvm']:
@@ -44,7 +44,7 @@ def rpath_fix(target, source, env):
     os.system('install_name_tool -change @rpath/libwasmer.dylib @loader_path/libwasmer.dylib {0}'.format(target[0]))
 
 # Check platform specifics
-if env['platform'] == 'osx':
+if env['platform'] == 'darwin':
     target_path += 'osx/'
     cpp_library += '.osx'
     env.Append(CCFLAGS=['-arch', 'x86_64', '-std=c++17'])
@@ -54,7 +54,7 @@ if env['platform'] == 'osx':
     else:
         env.Append(CCFLAGS=['-g', '-O3'])
 
-elif env['platform'] in ('x11', 'linux'):
+elif env['platform'] == 'posix':
     target_path += 'linux/'
     cpp_library += '.linux'
     env.Append(CCFLAGS=['-fPIC', '-std=c++17'])
@@ -63,7 +63,7 @@ elif env['platform'] in ('x11', 'linux'):
     else:
         env.Append(CCFLAGS=['-g', '-O3'])
 
-elif env['platform'] == 'windows':
+elif env['platform'] == 'win32':
     target_path += 'windows/'
     cpp_library += '.windows'
     # This makes sure to keep the session environment variables on windows,
