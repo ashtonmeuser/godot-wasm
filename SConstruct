@@ -45,8 +45,7 @@ def rpath_fix(target, source, env):
 if env['platform'] == 'osx':
     target_path += 'osx/'
     cpp_library += '.osx'
-    env.Append(CCFLAGS=['-arch', 'x86_64'])
-    env.Append(CXXFLAGS=['-std=c++17'])
+    env.Append(CCFLAGS=['-arch', 'x86_64', '-std=c++17'])
     env.Append(LINKFLAGS=['-arch', 'x86_64'])
     if env['target'] in ('debug', 'd'):
         env.Append(CCFLAGS=['-g', '-O2'])
@@ -56,8 +55,7 @@ if env['platform'] == 'osx':
 elif env['platform'] in ('x11', 'linux'):
     target_path += 'linux/'
     cpp_library += '.linux'
-    env.Append(CCFLAGS=['-fPIC'])
-    env.Append(CXXFLAGS=['-std=c++17'])
+    env.Append(CCFLAGS=['-fPIC', '-std=c++17'])
     if env['target'] in ('debug', 'd'):
         env.Append(CCFLAGS=['-g3', '-Og'])
     else:
@@ -71,11 +69,11 @@ elif env['platform'] == 'windows':
     env.Append(ENV=os.environ)
 
     env.Append(CPPDEFINES=['WIN32', '_WIN32', '_WINDOWS', '_CRT_SECURE_NO_WARNINGS'])
-    env.Append(CCFLAGS=['-W3', '-GR'])
-    env.Append(CXXFLAGS='/std:c++latest /LD')
+    env.Append(CCFLAGS='/std:c++latest')
+    env.Append(LIBS=['bcrypt', 'userenv', 'ws2_32', 'advapi32.lib'])
     if env['target'] in ('debug', 'd'):
         env.Append(CPPDEFINES=['_DEBUG'])
-        env.Append(CCFLAGS=['-EHsc', '-MDd', '-ZI'])
+        env.Append(CCFLAGS=['-EHsc', '-MDd'])
         env.Append(LINKFLAGS=['-DEBUG'])
     else:
         env.Append(CPPDEFINES=['NDEBUG'])

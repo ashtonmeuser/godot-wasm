@@ -175,9 +175,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Compile Addon
-        run: |
-          Get-ChildItem -Recurse "wasmer/lib/" | Where { ! $_.PSIsContainer } | Select Name,FullName,Length
-          scons platform=windows target=release
+        run: scons platform=windows target=release
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
