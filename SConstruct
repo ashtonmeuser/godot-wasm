@@ -83,7 +83,7 @@ env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', was
 env.Append(LIBPATH=[cpp_bindings_path + 'bin/', wasmer_path + 'lib/'])
 env.Append(LIBS=[cpp_library, wasmer_library])
 
-sources = Glob('godot-wasm.cpp')
+sources = Glob('stub-*.cpp')
 
 library = env.SharedLibrary(target=target_path + target_name, source=sources)
 
