@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <Godot.hpp>
+#include "wasmer.h"
 
 namespace godot {
 class Wasm : public Reference {

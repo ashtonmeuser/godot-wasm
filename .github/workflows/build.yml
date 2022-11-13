@@ -174,6 +174,10 @@ jobs:
       - name: MSVC Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
 
+      - name: Setup tmate Session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+
       - name: Compile Addon
         run: scons platform=windows target=release
 
