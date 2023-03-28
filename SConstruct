@@ -96,7 +96,7 @@ env.Append(LIBS=[cpp_library, wasmer_library])
 
 sources = Glob('*.cpp')
 
-library = env.SharedLibrary(target=target_path + target_name , source=sources)
+library = env.SharedLibrary(target=target_path + target_name, source=sources)
 
 if env['platform'] == 'osx':
     env.AddPostAction(library, rpath_fix)
