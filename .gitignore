@@ -3,3 +3,6 @@
 wasmer/
 addons.zip
 *.os
+*.obj
+*.pdb
+*.idb

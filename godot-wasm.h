@@ -1,6 +1,7 @@
 #ifndef GODOT_WASM_H
 #define GODOT_WASM_H
 
+#include <string>
 #include <vector>
 #include <Godot.hpp>
 #include "wasmer.h"
