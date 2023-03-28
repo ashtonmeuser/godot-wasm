@@ -12,6 +12,12 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Clean Binaries
+        run: rm -rf ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
+
       - name: Download Artifact
         uses: dawidd6/action-download-artifact@v2
         with:
@@ -20,7 +26,7 @@ jobs:
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
 
       - name: Prepare Asset
-        run: zip -r ${{ env.RELEASE_ASSET }} .
+        run: zip -r ${{ env.RELEASE_ASSET }} ${{ github.workspace }}/addons
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
