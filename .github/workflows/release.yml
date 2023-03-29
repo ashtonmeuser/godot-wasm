@@ -26,7 +26,9 @@ jobs:
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
 
       - name: Prepare Asset
-        run: zip -r ${{ env.RELEASE_ASSET }} ${{ github.workspace }}/addons
+        run: |
+          cd ${{ github.workspace }}
+          zip -r ${{ env.RELEASE_ASSET }} addons
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
