@@ -1,5 +1,7 @@
 # Godot Wasm
 
+[![Build](https://github.com/ashtonmeuser/godot-wasm/actions/workflows/build.yml/badge.svg)](https://github.com/ashtonmeuser/godot-wasm/actions/workflows/build.yml)
+
 > **Warning**
 > This project is still in its infancy. Not advisable to use in a release.
 

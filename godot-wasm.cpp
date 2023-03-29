@@ -121,7 +121,7 @@ Variant Wasm::function(String name, Array args) {
   return extract_variant(result);
 }
 
-Variant Wasm::mem_read(uint8_t type, uint64_t offset, uint64_t length) {
+Variant Wasm::mem_read(uint8_t type, uint64_t offset, uint32_t length) {
   byte_t* data = wasm_memory_data(memory) + offset;
   if (type == Variant::Type::INT) {
     int64_t v;
@@ -135,17 +135,16 @@ Variant Wasm::mem_read(uint8_t type, uint64_t offset, uint64_t length) {
     int64_t v = mem_read(Variant::Type::INT, offset, length);
     return Variant(v ? true : false);
   } else if (type == Variant::Type::STRING) {
-    byte_t bytes[length];
-    std::memcpy(bytes, data, length);
-    return String(bytes);
+    std::string v(data, data + length);
+    return String(v.c_str());
   } else if (type == Variant::Type::VECTOR2) {
-    float64_t x = mem_read(Variant::Type::REAL, offset, length);
-    float64_t y = mem_read(Variant::Type::REAL, offset + sizeof(float64_t), length);
+    real_t x = mem_read(Variant::Type::REAL, offset, length);
+    real_t y = mem_read(Variant::Type::REAL, offset + sizeof(float64_t), length);
     return Vector2(x, y);
   } else if (type == Variant::Type::VECTOR3) {
-    float64_t x = mem_read(Variant::Type::REAL, offset, length);
-    float64_t y = mem_read(Variant::Type::REAL, offset + sizeof(float64_t), length);
-    float64_t z = mem_read(Variant::Type::REAL, offset + sizeof(float64_t) * 2, length);
+    real_t x = mem_read(Variant::Type::REAL, offset, length);
+    real_t y = mem_read(Variant::Type::REAL, offset + sizeof(float64_t), length);
+    real_t z = mem_read(Variant::Type::REAL, offset + sizeof(float64_t) * 2, length);
     return Vector3(x, y, z);
   } else if (type == Variant::Type::POOL_BYTE_ARRAY) {
     PoolByteArray v;
@@ -154,11 +153,11 @@ Variant Wasm::mem_read(uint8_t type, uint64_t offset, uint64_t length) {
     return v;
   } else if (type == Variant::Type::POOL_INT_ARRAY) {
     PoolIntArray v;
-    for (int i = 0; i < length; i++) v.append((int64_t)mem_read(Variant::Type::INT, offset + i * sizeof(int64_t), length));
+    for (uint32_t i = 0; i < length; i++) v.append((const int)mem_read(Variant::Type::INT, offset + i * sizeof(int64_t), length));
     return v;
   } else if (type == Variant::Type::POOL_REAL_ARRAY) {
     PoolRealArray v;
-    for (int i = 0; i < length; i++) v.append((float64_t)mem_read(Variant::Type::REAL, offset + i * sizeof(float64_t), length));
+    for (uint32_t i = 0; i < length; i++) v.append((real_t)mem_read(Variant::Type::REAL, offset + i * sizeof(float64_t), length));
     return v;
   }
   return NULL_VARIANT;
@@ -184,9 +183,10 @@ uint64_t Wasm::mem_write(Variant value, uint64_t offset) {
     data[offset] = value ? 0x1 : 0x0;
     return offset + 1;
   } else if (type == Variant::Type::STRING) {
-    CharString v = ((String)value).utf8();
-    const byte_t* bytes = v.get_data();
-    size_t s = v.length();
+    String v = value;
+    CharString c = v.utf8();
+    const byte_t* bytes = c.get_data();
+    size_t s = c.length();
     std::memcpy(data, bytes, s);
     return offset + s;
   } else if (type == Variant::Type::VECTOR2) {
