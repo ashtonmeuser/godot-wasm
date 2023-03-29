@@ -33,6 +33,21 @@ Once installed as an addon in a Godot project, the Godot Wasm addon class can be
 1. Define an array containing the arguments to be supplied to your exported Wasm module function via `var args = [1, 2]`. Ensure the number of arguments and argument types match those expected by the exported Wasm module function.
 1. Call a function exported by your Wasm module via `wasm.function("YOUR_FUNCTION_NAME", args)` replacing `YOUR_FUNCTION_NAME` with the name of the exported Wasm module function.
 
+### Writing to Exported Memory
+
+Writing Godot variants to exported Wasm memory is supported for a limited set of variant types. The following table describes the supported types and associated memory footprints.
+
+Type | Size (Bytes) | Notes
+--|--|--
+Int | 8 |
+Float | 8 |
+Bool | 1 | `0x1` true; `0x0` false
+String | `N` | String of length `N`
+Vector2 | 16 |
+Vector3 | 24 |
+Array | N/A | Each array member stored in order
+PoolByteArray | `N` | PoolByteArray of size `N`
+
 ## Examples
 
 [Examples](https://github.com/ashtonmeuser/godot-wasm/tree/master/examples) are provided for both creating and consuming/using a Wasm module.
@@ -96,7 +111,7 @@ Please feel free submit a PR or an [issue](https://github.com/ashtonmeuser/godot
 - [x] Export global constants
 - [x] Export global mutables
 - [ ] Export tables
-- [ ] Export memories
+- [x] Export memories
 - [ ] Import functions
 - [ ] Import globals
 - [x] Map export names to indices (access function/global by name)

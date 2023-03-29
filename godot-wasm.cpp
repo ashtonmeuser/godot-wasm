@@ -9,6 +9,7 @@ void Wasm::_register_methods() {
   register_method("inspect", &Wasm::inspect);
   register_method("global", &Wasm::global);
   register_method("function", &Wasm::function);
+  register_method("mem_write", &Wasm::mem_write);
 }
 
 Wasm::Wasm() {
@@ -104,7 +105,7 @@ Variant Wasm::function(String name, Array args) {
         vect.push_back(WASM_F64_VAL((float64_t)val));
         break;
       default:
-        ERR_FAIL_V(Variant());
+        ERR_FAIL_V(NULL_VARIANT);
     }
   }
 
@@ -117,6 +118,61 @@ Variant Wasm::function(String name, Array args) {
   // Extract result
   wasm_val_t result = results_val[0];
   return extract_variant(result);
+}
+
+uint64_t Wasm::mem_write(Variant value, uint64_t offset) {
+  byte_t* data = wasm_memory_data(memory) + offset;
+  const Variant::Type type = value.get_type();
+  if (type == Variant::Type::INT) {
+    int64_t v = value;
+    byte_t* bytes = reinterpret_cast<byte_t*>(&v);
+    size_t s = sizeof v;
+    std::memcpy(data, bytes, s);
+    return offset + s;
+  } else if (type == Variant::Type::REAL) {
+    float64_t v = value;
+    byte_t* bytes = reinterpret_cast<byte_t*>(&v);
+    size_t s = sizeof v;
+    std::memcpy(data, bytes, s);
+    return offset + s;
+  } else if (type == Variant::Type::BOOL) {
+    bool v = value;
+    data[offset] = value ? 0x1 : 0x0;
+    return offset + 1;
+  } else if (type == Variant::Type::STRING) {
+    CharString v = ((String)value).utf8();
+    const byte_t* bytes = v.get_data();
+    size_t s = v.length();
+    std::memcpy(data, bytes, s);
+    return offset + s;
+  } else if (type == Variant::Type::VECTOR2) {
+    Vector2 v = value;
+    offset = mem_write(Variant(v.x), offset);
+    offset = mem_write(Variant(v.y), offset);
+    return offset;
+  } else if (type == Variant::Type::VECTOR3) {
+    Vector3 v = value;
+    offset = mem_write(Variant(v.x), offset);
+    offset = mem_write(Variant(v.y), offset);
+    offset = mem_write(Variant(v.z), offset);
+    return offset;
+  } else if (type == Variant::Type::ARRAY ||
+             type == Variant::Type::POOL_INT_ARRAY ||
+             type == Variant::Type::POOL_REAL_ARRAY ||
+             type == Variant::Type::POOL_STRING_ARRAY ||
+             type == Variant::Type::POOL_VECTOR2_ARRAY ||
+             type == Variant::Type::POOL_VECTOR3_ARRAY) {
+    Array v = value;
+    for (int i = 0; i < v.size(); i++) offset = mem_write(v[i], offset);
+    return offset;
+  } else if (type == Variant::Type::POOL_BYTE_ARRAY) {
+    PoolByteArray v = value;
+    const uint8_t* bytes = v.read().ptr();
+    size_t s = v.size();
+    std::memcpy(data, bytes, s);
+    return offset + s;
+  }
+  return offset;
 }
 
 godot_error Wasm::map_names() {

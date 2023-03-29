@@ -30,6 +30,7 @@ public:
     Dictionary inspect();
     Variant function(String name, Array args);
     Variant global(String name);
+    uint64_t mem_write(Variant value, uint64_t offset);
 };
 }
 
