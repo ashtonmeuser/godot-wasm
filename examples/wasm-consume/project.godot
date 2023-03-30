@@ -51,4 +51,4 @@ common/enable_pause_aware_picking=true
 
 [rendering]
 
-environment/default_clear_color=Color( 0.101961, 0.298039, 0.270588, 1 )
+environment/default_clear_color=Color( 0.133333, 0.141176, 0.243137, 1 )
