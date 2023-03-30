@@ -35,6 +35,13 @@ Once installed as an addon in a Godot project, the Godot Wasm addon class can be
 1. Define an array containing the arguments to be supplied to your exported Wasm module function via `var args = [1, 2]`. Ensure the number of arguments and argument types match those expected by the exported Wasm module function.
 1. Call a function exported by your Wasm module via `wasm.function("YOUR_FUNCTION_NAME", args)` replacing `YOUR_FUNCTION_NAME` with the name of the exported Wasm module function.
 
+### Exporting
+
+Exporting from Godot may require the following additional steps. See the export configuration of the [example Godot project](https://github.com/ashtonmeuser/godot-wasm/tree/master/examples) for a practical illustration.
+
+1. For macOS exports, disable library validation in Project → Export → Options.
+1. If your project contains Wasm files, they'll need to be marked for export. Add `*.wasm` in Project → Export → Resources.
+
 ### Writing to Exported Memory
 
 Writing Godot variants to exported Wasm memory is supported for a limited set of variant types. The following table describes the supported types and associated memory footprints.
@@ -100,6 +107,7 @@ If frequently iterating on the addon using a Godot project, it may help to creat
 1. No access to imported globals (see [roadmap](#Roadmap)).
 1. Only `int` and `float` return values are supported. While workarounds could be used, this limitation is because the only [concrete types supported by Wasm](https://webassembly.github.io/spec/core/syntax/types.html#number-types) are integers and floating point.
 1. A default empty `args` parameter for `function(name, args)` can not be supplied. Default `Array` parameters in GDNative seem to retain values between calls. Calling methods of this addon without expected arguments produces undefined behaviour. This is reliant on [#209](https://github.com/godotengine/godot-cpp/issues/209).
+1. CPU usage has been noted to be quite high when running in the editor on macOS. This does not affect exported projects.
 
 ## Relevant discussion
 

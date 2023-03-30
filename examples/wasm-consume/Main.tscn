@@ -112,24 +112,24 @@ align = 1
 valign = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer"]
-margin_left = 23.0
+margin_left = 22.0
 margin_top = 29.0
-margin_right = 281.0
+margin_right = 282.0
 margin_bottom = 51.0
 size_flags_horizontal = 4
 custom_constants/separation = 6
 
 [node name="Label1" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/HBoxContainer"]
 margin_top = 3.0
-margin_right = 107.0
+margin_right = 108.0
 margin_bottom = 18.0
 text = "Highest prime up to"
 align = 1
 
 [node name="PrimeLimit" type="SpinBox" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
-margin_left = 113.0
-margin_right = 193.0
+margin_left = 114.0
+margin_right = 194.0
 margin_bottom = 22.0
 rect_min_size = Vector2( 80, 22 )
 size_flags_horizontal = 4
@@ -140,54 +140,54 @@ rounded = true
 align = 1
 
 [node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/HBoxContainer"]
-margin_left = 199.0
+margin_left = 200.0
 margin_top = 3.0
-margin_right = 206.0
+margin_right = 208.0
 margin_bottom = 18.0
 text = "="
 align = 1
 
 [node name="PrimeAnswer" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
-margin_left = 212.0
+margin_left = 214.0
 margin_top = 3.0
-margin_right = 258.0
+margin_right = 260.0
 margin_bottom = 18.0
 rect_min_size = Vector2( 46, 0 )
 text = "?"
 
 [node name="GridContainer" type="GridContainer" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer"]
-margin_left = 117.0
+margin_left = 115.0
 margin_top = 59.0
-margin_right = 186.0
+margin_right = 188.0
 margin_bottom = 93.0
 size_flags_horizontal = 4
 custom_constants/hseparation = 16
 columns = 2
 
 [node name="Label1" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/GridContainer"]
-margin_right = 47.0
+margin_right = 51.0
 margin_bottom = 15.0
 text = "GDScript"
 
 [node name="TimeGDScript" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/GridContainer"]
 unique_name_in_owner = true
-margin_left = 63.0
-margin_right = 69.0
+margin_left = 67.0
+margin_right = 73.0
 margin_bottom = 15.0
 text = "?"
 
 [node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/GridContainer"]
 margin_top = 19.0
-margin_right = 47.0
+margin_right = 51.0
 margin_bottom = 34.0
 text = "Wasm"
 
 [node name="TimeWasm" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/GridContainer"]
 unique_name_in_owner = true
-margin_left = 63.0
+margin_left = 67.0
 margin_top = 19.0
-margin_right = 69.0
+margin_right = 73.0
 margin_bottom = 34.0
 text = "?"
 
@@ -214,7 +214,7 @@ align = 1
 valign = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer"]
-margin_left = 21.0
+margin_left = 20.0
 margin_top = 29.0
 margin_right = 283.0
 margin_bottom = 51.0
@@ -223,15 +223,15 @@ custom_constants/separation = 6
 
 [node name="Label1" type="Label" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/HBoxContainer"]
 margin_top = 3.0
-margin_right = 28.0
+margin_right = 29.0
 margin_bottom = 18.0
 text = "Write"
 align = 1
 
 [node name="MemoryType" type="OptionButton" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
-margin_left = 34.0
-margin_right = 94.0
+margin_left = 35.0
+margin_right = 95.0
 margin_bottom = 22.0
 rect_min_size = Vector2( 60, 22 )
 size_flags_horizontal = 0
@@ -239,22 +239,22 @@ text = "Int"
 align = 1
 
 [node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/HBoxContainer"]
-margin_left = 100.0
+margin_left = 101.0
 margin_top = 3.0
-margin_right = 206.0
+margin_right = 207.0
 margin_bottom = 18.0
 text = "to memory position"
 align = 1
 
 [node name="MemoryOffset" type="SpinBox" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
-margin_left = 212.0
-margin_right = 262.0
+margin_left = 213.0
+margin_right = 263.0
 margin_bottom = 22.0
 rect_min_size = Vector2( 0, 22 )
 size_flags_horizontal = 4
 size_flags_vertical = 0
-max_value = 256.0
+max_value = 7.0
 rounded = true
 align = 1
 
@@ -272,7 +272,8 @@ margin_bottom = 22.0
 rect_min_size = Vector2( 120, 22 )
 size_flags_horizontal = 4
 size_flags_vertical = 0
-max_value = 256.0
+min_value = -9.22337e+18
+max_value = 9.22337e+18
 rounded = true
 align = 1
 
@@ -284,7 +285,8 @@ margin_bottom = 58.0
 rect_min_size = Vector2( 120, 22 )
 size_flags_horizontal = 4
 size_flags_vertical = 0
-max_value = 256.0
+min_value = -9.22337e+18
+max_value = 9.22337e+18
 step = 0.001
 align = 1
 
@@ -295,25 +297,28 @@ margin_right = 120.0
 margin_bottom = 58.0
 rect_min_size = Vector2( 120, 22 )
 custom_styles/normal = SubResource( 5 )
+max_length = 16
+placeholder_text = "Enter String"
+placeholder_alpha = 0.4
 
 [node name="GridContainer" type="GridContainer" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer"]
-margin_left = 57.0
+margin_left = 55.0
 margin_top = 89.0
-margin_right = 247.0
+margin_right = 249.0
 margin_bottom = 123.0
 size_flags_horizontal = 4
 custom_constants/hseparation = 16
 columns = 2
 
 [node name="Label1" type="Label" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/GridContainer"]
-margin_right = 74.0
+margin_right = 78.0
 margin_bottom = 15.0
 text = "Global Value"
 
 [node name="GlobalValue" type="Label" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/GridContainer"]
 unique_name_in_owner = true
-margin_left = 90.0
-margin_right = 190.0
+margin_left = 94.0
+margin_right = 194.0
 margin_bottom = 15.0
 rect_min_size = Vector2( 100, 0 )
 text = "?"
@@ -321,15 +326,15 @@ uppercase = true
 
 [node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/GridContainer"]
 margin_top = 19.0
-margin_right = 74.0
+margin_right = 78.0
 margin_bottom = 34.0
 text = "Memory Read"
 
 [node name="ReadValue" type="Label" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/GridContainer"]
 unique_name_in_owner = true
-margin_left = 90.0
+margin_left = 94.0
 margin_top = 19.0
-margin_right = 190.0
+margin_right = 194.0
 margin_bottom = 34.0
 rect_min_size = Vector2( 100, 0 )
 text = "?"

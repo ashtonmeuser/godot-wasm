@@ -50,8 +50,12 @@ func _update_memory(_value = 0):
 		2: value = input.text
 	wasm.mem_write(value, offset)
 	wasm.function("update_memory", [])
-	$"%GlobalValue".text = "%016X" % wasm.global("memory_value")
-	$"%ReadValue".text = "%016X" % wasm.mem_read(TYPE_INT, 0, 0)
+	$"%GlobalValue".text = _hex(wasm.global("memory_value"))
+	$"%ReadValue".text = _hex(wasm.mem_read(TYPE_INT, 0, 0))
+
+func _hex(i: int) -> String: # Format bytes without leading negative sign
+	if i >= 0: return "%016X" % i
+	return "%X%015X" % [(-i >> 56) | 0x8, -i]
 
 func _benchmark(_value = 0):
 	var limit: int = $"%PrimeLimit".value
