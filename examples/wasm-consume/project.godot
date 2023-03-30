@@ -9,12 +9,18 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Reference",
+"class": "Benchmark",
+"language": "GDScript",
+"path": "res://Benchmark.gd"
+}, {
 "base": "",
 "class": "Wasm",
 "language": "NativeScript",
 "path": "res://addons/godot-wasm/Wasm.gdns"
 } ]
 _global_script_class_icons={
+"Benchmark": "",
 "Wasm": ""
 }
 
@@ -23,11 +29,15 @@ _global_script_class_icons={
 config/name="Wasm Consume"
 run/main_scene="res://Main.tscn"
 
+[debug]
+
+gdscript/warnings/return_value_discarded=false
+
 [display]
 
 window/size/width=512
 window/size/height=300
-window/stretch/mode="2d"
+window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 
 [gui]

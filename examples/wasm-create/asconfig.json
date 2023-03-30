@@ -1,13 +1,17 @@
 {
+  "options": {
+    "memoryBase": 100,
+    "use": "abort=assembly/index/abort"
+  },
   "targets": {
     "debug": {
-      "outFile": "build/add.debug.wasm",
-      "textFile": "build/add.debug.wat",
+      "outFile": "build/example.debug.wasm",
+      "textFile": "build/example.debug.wat",
       "sourceMap": true,
       "debug": true
     },
     "release": {
-      "outFile": "build/add.wasm",
+      "outFile": "build/example.wasm",
       "optimize": "speed",
       "noAssert": true
     }

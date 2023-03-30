@@ -1,13 +1,15 @@
-[gd_resource type="Theme" load_steps=3 format=2]
+[gd_resource type="Theme" load_steps=7 format=2]
 
-[sub_resource type="StyleBoxEmpty" id=2]
+[sub_resource type="StyleBoxEmpty" id=6]
 
-[sub_resource type="StyleBoxFlat" id=1]
-bg_color = Color( 1, 1, 1, 0 )
+[sub_resource type="StyleBoxFlat" id=7]
+bg_color = Color( 1, 1, 1, 1 )
+draw_center = false
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
+border_color = Color( 1, 1, 1, 1 )
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
@@ -15,9 +17,59 @@ corner_radius_bottom_left = 6
 expand_margin_left = 2.0
 expand_margin_right = 18.0
 
+[sub_resource type="StyleBoxFlat" id=8]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color( 1, 1, 1, 1 )
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+expand_margin_left = 2.0
+expand_margin_right = 2.0
+
+[sub_resource type="StyleBoxFlat" id=4]
+content_margin_left = 10.0
+content_margin_right = 10.0
+content_margin_top = 10.0
+content_margin_bottom = 10.0
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color( 0.32549, 0.47451, 0.454902, 1 )
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="DynamicFontData" id=5]
+font_path = "res://Inter-Regular.ttf"
+
+[sub_resource type="DynamicFont" id=3]
+size = 12
+font_data = SubResource( 5 )
+
 [resource]
-HBoxContainer/constants/separation = 10
-LineEdit/constants/minimum_spaces = 6
-LineEdit/styles/focus = SubResource( 2 )
-LineEdit/styles/normal = SubResource( 1 )
-VBoxContainer/constants/separation = 18
+default_font = SubResource( 3 )
+HBoxContainer/constants/separation = 14
+LineEdit/constants/minimum_spaces = 10
+LineEdit/styles/focus = SubResource( 6 )
+LineEdit/styles/normal = SubResource( 7 )
+MarginContainer/constants/margin_bottom = 15
+MarginContainer/constants/margin_left = 14
+MarginContainer/constants/margin_right = 14
+MarginContainer/constants/margin_top = 15
+OptionButton/colors/font_color = Color( 1, 1, 1, 1 )
+OptionButton/colors/font_color_hover = Color( 1, 1, 1, 1 )
+OptionButton/constants/arrow_margin = 0
+OptionButton/styles/focus = SubResource( 8 )
+OptionButton/styles/hover = SubResource( 8 )
+OptionButton/styles/normal = SubResource( 8 )
+OptionButton/styles/pressed = SubResource( 8 )
+PanelContainer/styles/panel = SubResource( 4 )
+VBoxContainer/constants/separation = 14
