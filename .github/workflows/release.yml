@@ -11,8 +11,6 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # Required for stefanzweifel/git-auto-commit-action@v4
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -36,19 +34,3 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ github.workspace }}/${{ env.RELEASE_ASSET }}
-
-      - name: Stash Changes
-        run: git stash
-
-      - name: Checkout Asset Library Branch
-        uses: actions/checkout@v3
-        with:
-          ref: asset-library
-
-      - name: Apply Stash
-        run: git checkout stash -- addons
-
-      - name: Push Asset Library Branch
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: ${{ github.sha }}
