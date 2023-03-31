@@ -29,10 +29,10 @@ export function sieve(_limit: i64): i32 {
   const limit: i32 = <i32>_limit;
 
   // Low primes
-	if (limit <= 0) return 0
-	if (limit <= 1) return 1
-	if (limit <= 2) return 2
-	if (limit <= 4) return 3
+	if (limit <= 0) return 0;
+	if (limit <= 1) return 1;
+	if (limit <= 2) return 2;
+	if (limit <= 4) return 3;
 
   // Initialize the sieve array with false values
   let sieve = new Array<bool>(limit + 1).fill(false);
@@ -66,8 +66,8 @@ export function sieve(_limit: i64): i32 {
   }
 
   // Return highest prime
-  for (let a = limit; a >= 0; a -= 1)
-    if (sieve[a]) return a;
+  for (let i = limit; i >= 0; i -= 1)
+    if (sieve[i]) return i;
 
   return 0;
 }

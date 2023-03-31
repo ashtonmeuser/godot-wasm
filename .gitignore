@@ -1,4 +1,5 @@
 .DS_Store
+.vscode/
 .sconsign.dblite
 wasmer/
 addons.zip
