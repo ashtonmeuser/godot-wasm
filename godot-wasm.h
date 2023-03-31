@@ -32,6 +32,8 @@ public:
     Variant global(String name);
     Variant mem_read(uint8_t type, uint64_t offset, uint32_t length);
     uint64_t mem_write(Variant value, uint64_t offset);
+    Variant fibonacci(int n);
+    Variant sieve(uint32_t limit);
 };
 }
 

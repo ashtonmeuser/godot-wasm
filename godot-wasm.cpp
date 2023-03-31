@@ -11,6 +11,8 @@ void Wasm::_register_methods() {
   register_method("function", &Wasm::function);
   register_method("mem_read", &Wasm::mem_read);
   register_method("mem_write", &Wasm::mem_write);
+  register_method("fibonacci", &Wasm::fibonacci);
+  register_method("sieve", &Wasm::sieve);
 }
 
 Wasm::Wasm() {
@@ -259,4 +261,61 @@ Variant Wasm::extract_variant(wasm_val_t value) {
     case WASM_ANYREF: if (value.of.ref == NULL) return NULL_VARIANT;
     default: ERR_FAIL_V(NULL_VARIANT);
   }
+}
+
+Variant Wasm::fibonacci(int n) {
+  int f[n + 2];
+  int i;
+  f[0] = 0;
+  f[1] = 1;
+  for(i = 2; i <= n; i++)
+    f[i] = f[i - 1] + f[i - 2];
+  return Variant(f[n]);
+};
+
+Variant Wasm::sieve(uint32_t limit) {
+  // Initialise the sieve array with initial false values
+  bool sieve[limit + 1];
+  for (int i = 0; i <= limit; i++)
+      sieve[i] = false;
+
+  // Low primes
+  if (limit <= 0) return Variant(0);
+  if (limit <= 1) return Variant(1);
+  if (limit <= 2) return Variant(2);
+  if (limit <= 4) return Variant(3);
+
+  // Mark sieve[n] is true if one of the following is true:
+  // a) n = (4*x*x)+(y*y) has odd number of solutions, i.e., there exist odd number of distinct pairs (x, y) that satisfy the equation and n % 12 = 1 or n % 12 = 5.
+  // b) n = (3*x*x)+(y*y) has odd number of solutions and n % 12 = 7
+  // c) n = (3*x*x)-(y*y) has odd number of solutions, x > y and n % 12 = 11
+  for (int x = 1; x * x <= limit; x++) {
+    for (int y = 1; y * y <= limit; y++) {
+      int64_t n = (4 * x * x) + (y * y);
+      if (n <= limit && (n % 12 == 1 || n % 12 == 5))
+        sieve[n] ^= true;
+
+      n = (3 * x * x) + (y * y);
+      if (n <= limit && n % 12 == 7)
+        sieve[n] ^= true;
+
+      n = (3 * x * x) - (y * y);
+      if (x > y && n <= limit && n % 12 == 11)
+        sieve[n] ^= true;
+    }
+  }
+
+  // Mark all multiples of squares as non-prime
+  for (int r = 5; r * r <= limit; r++) {
+    if (sieve[r]) {
+      for (int i = r * r; i <= limit; i += r * r)
+        sieve[i] = false;
+    }
+  }
+
+  // Return highest prime
+  for (int i = limit; i >= 0; i -= 1)
+    if (sieve[i]) return Variant(i);
+
+  return Variant(0);
 }

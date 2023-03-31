@@ -3,15 +3,8 @@ extends Control
 onready var wasm: Wasm = Wasm.new()
 
 func _ready():
-	$"%PrimeLimit".connect("value_changed", self, "_benchmark")
-	$"%MemoryType".connect("item_selected", self, "_update_memory_type")
-	for node in $"%MemoryInput".get_children() + [$"%MemoryOffset"]:
-		node.connect("value_changed" if node is Range else "text_changed", self, "_update_memory")
-	for item in ["Int", "Float", "String"]: $"%MemoryType".add_item(item)
-
 	_load_wasm("res://example.wasm")
-	_update_memory()
-	_benchmark()
+	get_tree().create_timer(1.0).connect("timeout", self, "_suite")
 
 func _gui_input(event: InputEvent): # Unfocus input
 	if event is InputEventMouseButton and event.pressed:
@@ -24,47 +17,46 @@ func _load_wasm(path: String):
 	var buffer = file.get_buffer(file.get_len())
 	wasm.load(buffer)
 	file.close()
-	_update_info()
 
-func _update_info():
-	var info = wasm.inspect()
-	if !info: return $"%InfoText".set("text", "Error")
-	$"%InfoText".bbcode_text = "[b]Globals[/b]\n[indent]%s\n[/indent][b]Functions[/b]\n[indent]%s\n[/indent][b]Memory[/b]\n[indent]%d B[/indent]" % [
-		PoolStringArray(info.globals).join("\n"),
-		PoolStringArray(info.functions).join("\n"),
-		info.memory,
-	]
+func _suite():
+	var n = 1000
+	var funcs = {
+		"gdscript_fibonacci_20": [funcref(Benchmark, "fibonacci"), [20]],
+		"gdscript_fibonacci_50": [funcref(Benchmark, "fibonacci"), [50]],
+		"gdscript_sieve_1000": [funcref(Benchmark, "sieve"), [1000]],
+		"gdscript_sieve_10000": [funcref(Benchmark, "sieve"), [10000]],
+		"gdscript_sieve_100000": [funcref(Benchmark, "sieve"), [100000]],
+		"wasm_fibonacci_20": [funcref(wasm, "function"), ["fibonacci", [20]]],
+		"wasm_fibonacci_50": [funcref(wasm, "function"), ["fibonacci", [50]]],
+		"wasm_sieve_1000": [funcref(wasm, "function"), ["sieve", [1000]]],
+		"wasm_sieve_10000": [funcref(wasm, "function"), ["sieve", [10000]]],
+		"wasm_sieve_100000": [funcref(wasm, "function"), ["sieve", [100000]]],
+		"gdnative_fibonacci_20": [funcref(wasm, "fibonacci"), [20]],
+		"gdnative_fibonacci_50": [funcref(wasm, "fibonacci"), [50]],
+		"gdnative_sieve_1000": [funcref(wasm, "sieve"), [1000]],
+		"gdnative_sieve_10000": [funcref(wasm, "sieve"), [10000]],
+		"gdnative_sieve_100000": [funcref(wasm, "sieve"), [100000]],
+	}
+	for key in funcs.keys():
+		var f = funcs[key][0]
+		var args = funcs[key][1]
+		var data = _benchmark(f, args, n)
+		var path = _write_file(data, key)
+		print(path)
 
-func _update_memory_type(index: int):
-	for child in $"%MemoryInput".get_children():
-		child.visible = child.get_index() == index
-	_update_memory()
+func _benchmark(f: FuncRef, args: Array, n: int) -> Array:
+	var data = []
+	for _i in n:
+		var t = OS.get_ticks_usec()
+		f.call_funcv(args)
+		t = OS.get_ticks_usec() - t
+		data.append(t)
+	return data
 
-func _update_memory(_value = 0):
-	var input = $"%MemoryInput".get_child($"%MemoryType".selected)
-	var offset = int($"%MemoryOffset".value)
-	var value # Hold variant to be written to memory
-	match(input.get_index()):
-		0: value = int(input.value)
-		1: value = input.value
-		2: value = input.text
-	wasm.mem_write(value, offset)
-	wasm.function("update_memory", [])
-	$"%GlobalValue".text = _hex(wasm.global("memory_value"))
-	$"%ReadValue".text = _hex(wasm.mem_read(TYPE_INT, 0, 0))
-
-func _hex(i: int) -> String: # Format bytes without leading negative sign
-	if i >= 0: return "%016X" % i
-	return "%X%015X" % [(-i >> 56) | 0x8, -i]
-
-func _benchmark(_value = 0):
-	var limit: int = $"%PrimeLimit".value
-	var t_gdscript = OS.get_ticks_usec()
-	var v_gdscript = Benchmark.sieve(limit)
-	t_gdscript = OS.get_ticks_usec() - t_gdscript
-	var t_wasm = OS.get_ticks_usec()
-	var v_wasm = wasm.function("sieve", [limit])
-	t_wasm = OS.get_ticks_usec() - t_wasm
-	$"%PrimeAnswer".text = String(v_gdscript) if v_gdscript == v_wasm else "?"
-	$"%TimeGDScript".text = "%.3f ms" % (t_gdscript / 1000.0)
-	$"%TimeWasm".text = "%.3f ms" % (t_wasm / 1000.0)
+func _write_file(data: Array, filename: String) -> String:
+	var file = File.new()
+	file.open("user://%s.csv" % filename, File.WRITE)
+	var path = file.get_path_absolute()
+	for i in data: file.store_line(String(i))
+	file.close()
+	return path
