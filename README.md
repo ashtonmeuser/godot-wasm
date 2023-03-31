@@ -1,6 +1,18 @@
 # Godot Wasm
 
-[![Build](https://github.com/ashtonmeuser/godot-wasm/actions/workflows/build.yml/badge.svg)](https://github.com/ashtonmeuser/godot-wasm/actions/workflows/build.yml)
+<p align="center">
+  <a href="https://wasmer.io" target="_blank" rel="noopener noreferrer">
+    <img width="200" src="https://raw.githubusercontent.com/ashtonmeuser/godot-wasm/master/media/Icon.png" alt="Wasmer logo">
+  </a>
+</p>
+<p align="center">
+  <a href="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/build.yml">
+    <img src="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/build.yml/badge.svg" alt="Build Status">
+  </a>
+  <a href="https://github.com/ashtonmeuser/godot-wasm/blob/master/LICENSE">
+    <img src="https://img.shields.io/github/license/ashtonmeuser/godot-wasm.svg" alt="License">
+  </a>
+</p>
 
 > **Warning**
 > This project is still in its infancy. Not advisable to use in a release.
@@ -79,9 +91,21 @@ Entity | Type | Description
 `fibonacci` | Function `(i64) → i64` | Return Fibonacci number at the position provided
 `sieve` | Function `(i64) → i32` | Return largest prime number up to the limit provided
 
-From the example directory (*examples/wasm-create*), run `npm run build` to build the Wasm module. This will create and populate a *build* directory containing the Wasm module, *example.wasm*, amongst other build artifacts. If you have the [Wasmer CLI](https://docs.wasmer.io/ecosystem/wasmer/getting-started) installed, run `wasmer inspect build/example.wasm` to view the Wasm module imports and exports.
+From the example directory (*examples/wasm-create*), install or update Node modules `npm i`. Run `npm run build` to build the Wasm module. This will create and populate a *build* directory containing the Wasm module, *example.wasm*, amongst other build artifacts. If you have the [Wasmer CLI](https://docs.wasmer.io/ecosystem/wasmer/getting-started) installed, run `wasmer inspect build/example.wasm` to view the Wasm module imports and exports.
 
 Note that WebAssembly is a large topic and thoroughly documenting the creation of Wasm modules is beyond the scope of this project. AssemblyScript is just one of [many ways](https://github.com/appcypher/awesome-wasm-langs#awesome-webassembly-languages-) to create a Wasm module.
+
+## Benchmarks
+
+Comparison of GDScript, GDNative, and Wasm (n=1000, p95). The following benchmarks were run on macOS 12.6.3, 16GB RAM, 2.8 GHz i7. The project was exported to avoid GDScript slowdown likely caused by performance monitoring. Speedup figures for both GDNative and Wasm are relative to GDScript. The benchmarks used are 1) a [DP Nth Fibonacci number](https://www.geeksforgeeks.org/program-for-nth-fibonacci-number/) and 2) a [Sieve of Atkin](https://www.geeksforgeeks.org/sieve-of-atkin/).
+
+Benchmark | GDScript | GDNative | WRT GDScript | Wasm | WRT GDScript
+--|--|--|--|--|--
+Fibonacci (index=20) | 6.0 µs | 1.0 µs | 6.0x | 4.0 µs | 1.5x
+Fibonacci (index=50) | 13.0 µs | 1.0 µs | 13.0x | 4.0 µs | 3.3x
+Sieve (limit=1000) | 704.1 µs | 4.0 µs | 176.0x | 30.0 µs | 23.5x
+Sieve (limit=10000) | 6331.8 µs | 52.0 µs | 121.8x | 134.1 µs | 47.2x
+Sieve (limit=100000) | 62454.1 µs | 341.0 µs | 183.1x | 1053.1 µs | 59.3x
 
 ## Developing
 
