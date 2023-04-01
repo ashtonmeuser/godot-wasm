@@ -126,7 +126,7 @@ If frequently iterating on the addon using a Godot project, it may help to creat
 
 ## Known Issues
 
-1. No WASI binding are provided to the Wasm module. This means that the guest Wasm module has no access to the host machines filesystem, etc. Pros for this are simplicity and increased security. Cons include not being able to generate truly random numbers (without a workaround) or run Wasm modules created in ways that require WASI bindings e.g. [TinyGo](https://tinygo.org/docs/guides/webassembly/) (see relevant [issue](https://github.com/tinygo-org/tinygo/issues/3068)).
+1. No [WASI](https://wasmbyexample.dev/examples/wasi-introduction/wasi-introduction.all.en-us.html) bindings are provided to the Wasm module. This means that the guest Wasm module has no access to the host machines filesystem, etc. Pros for this are simplicity and increased security. Cons include not being able to generate truly random numbers (without a workaround) or run Wasm modules created in ways that require WASI bindings e.g. [TinyGo](https://tinygo.org/docs/guides/webassembly/) (see relevant [issue](https://github.com/tinygo-org/tinygo/issues/3068)).
 1. No access to imported functions (see [roadmap](#Roadmap)).
 1. No access to imported globals (see [roadmap](#Roadmap)).
 1. Only `int` and `float` return values are supported. While workarounds could be used, this limitation is because the only [concrete types supported by Wasm](https://webassembly.github.io/spec/core/syntax/types.html#number-types) are integers and floating point.
