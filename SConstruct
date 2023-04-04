@@ -1,5 +1,7 @@
 #!python
 import os
+import tarfile
+import urllib.request
 
 opts = Variables([], ARGUMENTS)
 
@@ -11,10 +13,13 @@ opts.Add(EnumVariable('target', 'Compilation target', 'debug', ['d', 'debug', 'r
 opts.Add(EnumVariable('platform', 'Compilation platform', '', ['', 'windows', 'x11', 'linux', 'osx']))
 opts.Add(EnumVariable('p', 'Compilation target, alias for platform', '', ['', 'windows', 'x11', 'linux', 'osx']))
 opts.Add(BoolVariable('use_llvm', 'Use the LLVM / Clang compiler', 'no'))
+opts.Add(BoolVariable('download_wasmer', 'Auto download the wasmer library', 'no'))
 
 # Local dependency paths, adapt them to your setup
 wasmer_path = 'wasmer/'
 wasmer_library = 'wasmer'
+# Replace the platform with %s in the url. Pltform is derived from scons platform opt.
+wasmer_url = "https://github.com/wasmerio/wasmer/releases/download/v3.1.1/wasmer-%s-amd64.tar.gz"
 godot_headers_path = 'godot-cpp/godot-headers/'
 cpp_bindings_path = 'godot-cpp/'
 cpp_library = 'libgodot-cpp'
@@ -24,6 +29,21 @@ bits = 64
 
 # Updates the environment with the option variables.
 opts.Update(env)
+
+def download_wasmer(): 
+    if os.path.exists(wasmer_path):
+        print('Wasmer folder exists, skipping download!')
+        return
+    
+    platform = ""
+    if env['platform']=='x11' or env['platform']=='linux':
+        platform="linux"
+    elif env['platform']=='osx':
+        platform='darwin'
+    else:
+        platform='windows'
+    tarball = urllib.request.urlopen(wasmer_url % platform)
+    tarfile.open(fileobj=tarball, mode='r:gz').extractall(wasmer_path)
 
 # Process some arguments
 if env['use_llvm']:
@@ -36,6 +56,9 @@ if env['p'] != '':
 if env['platform'] == '':
     print('No valid target platform selected.')
     quit();
+
+if env['download_wasmer']:
+    download_wasmer()
 
 # Fix needed on OSX
 def rpath_fix(target, source, env):
