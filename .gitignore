@@ -7,3 +7,6 @@ addons.zip
 *.obj
 *.pdb
 *.idb
+*.so
+*.dylib
+*.dll
