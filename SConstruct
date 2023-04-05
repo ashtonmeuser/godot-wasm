@@ -75,6 +75,7 @@ elif env['platform'] == 'linux':
 elif env['platform'] == 'windows':
     env['LIBPREFIX'] = ''
     env['LIBSUFFIX'] = '.lib'
+    env['LIBWASMERSUFFIX'] = '.dll.lib' # Requires special suffix
     env.Append(ENV=os.environ) # Keep session env variables to support VS 2017 prompt
     env.Append(CPPDEFINES=['WIN32', '_WIN32', '_WINDOWS', '_CRT_SECURE_NO_WARNINGS'])
     env.Append(CCFLAGS=['-W3', '-GR'])
@@ -90,7 +91,7 @@ elif env['platform'] == 'windows':
 
 # Explicit static libraries
 cpp_library = File('godot-cpp/bin/libgodot-cpp.{}.{}.64{}'.format(env['platform'], env['target'], env['LIBSUFFIX']))
-wasmer_library = File('wasmer/lib/{}wasmer{}'.format(env['LIBPREFIX'], env['LIBSUFFIX']))
+wasmer_library = File('wasmer/lib/{}wasmer{}'.format(env['LIBPREFIX'], env.get('LIBWASMERSUFFIX', env['LIBSUFFIX'])))
 
 # CPP includes and libraries
 env.Append(CPPPATH=['.', 'godot-cpp/godot-headers', 'godot-cpp/include', 'wasmer/include', 'godot-cpp/include/core', 'godot-cpp/include/gen'])
