@@ -13,6 +13,6 @@ X11.64="res://addons/godot-wasm/bin/linux/libgodot-wasm.so"
 
 [dependencies]
 
-OSX.64=[ "res://addons/godot-wasm/bin/osx/libwasmer.dylib" ]
-Windows.64=[ "res://addons/godot-wasm/bin/windows/wasmer.dll" ]
-X11.64=[ "res://addons/godot-wasm/bin/linux/libwasmer.so" ]
+OSX.64=[  ]
+Windows.64=[  ]
+X11.64=[  ]

@@ -1,50 +1,61 @@
 #!python
 import os
+import shutil
+import re
+from urllib import request
+import tarfile
 
 opts = Variables([], ARGUMENTS)
 
-# Standard flags CC, CCX, etc.
-env = DefaultEnvironment()
-
 # Define options
-opts.Add(EnumVariable('target', 'Compilation target', 'debug', ['d', 'debug', 'r', 'release']))
-opts.Add(EnumVariable('platform', 'Compilation platform', '', ['', 'windows', 'x11', 'linux', 'osx']))
-opts.Add(EnumVariable('p', 'Compilation target, alias for platform', '', ['', 'windows', 'x11', 'linux', 'osx']))
-opts.Add(BoolVariable('use_llvm', 'Use the LLVM / Clang compiler', 'no'))
+opts.Add(EnumVariable('target', 'Compilation target', 'debug', ['debug', 'release'], {'d': 'debug'}))
+opts.Add(EnumVariable('platform', 'Compilation platform', '', ['', 'windows', 'linux', 'osx'], {'x11': 'linux'}))
+opts.Add(BoolVariable('use_llvm', 'Use LLVM/Clang compiler', 'no'))
+opts.Add(BoolVariable('download_wasmer', 'Download Wasmer library', 'no'))
+opts.Add('wasmer_version', 'Wasmer library version', 'v3.1.1')
 
-# Local dependency paths, adapt them to your setup
-wasmer_path = 'wasmer/'
-wasmer_library = 'wasmer'
-godot_headers_path = 'godot-cpp/godot-headers/'
-cpp_bindings_path = 'godot-cpp/'
-cpp_library = 'libgodot-cpp'
-target_path = 'addons/godot-wasm/bin/'
-target_name = 'godot-wasm'
-bits = 64
+# Standard flags CC, CCX, etc. with options
+env = DefaultEnvironment(variables=opts)
 
-# Updates the environment with the option variables.
-opts.Update(env)
+# Wasmer download
+def download_wasmer(env):
+    def download_tarfile(url, dest, rename={}):
+        filename = 'tmp.tar.gz'
+        os.makedirs(dest, exist_ok=True)
+        request.urlretrieve(url, filename)
+        file = tarfile.open(filename)
+        file.extractall(dest)
+        file.close()
+        for k, v in rename.items(): os.rename(k, v)
+        os.remove(filename)
+    base_url = 'https://github.com/wasmerio/wasmer/releases/download/{}/wasmer-{}.tar.gz'
+    if env['platform'] == 'osx':
+        # For macOS, we need to universalize the AMD and ARM libraries
+        download_tarfile(base_url.format(env['wasmer_version'], 'darwin-amd64'), 'wasmer', {'wasmer/lib/libwasmer.a': 'wasmer/lib/libwasmer.amd64.a'})
+        download_tarfile(base_url.format(env['wasmer_version'], 'darwin-arm64'), 'wasmer', {'wasmer/lib/libwasmer.a': 'wasmer/lib/libwasmer.arm64.a'})
+        os.system('lipo wasmer/lib/libwasmer*.a -output wasmer/lib/libwasmer.a -create')
+    elif env['platform'] == 'linux':
+        download_tarfile(base_url.format(env['wasmer_version'], 'linux-amd64'), 'wasmer')
+    elif env['platform'] == 'windows':
+        download_tarfile(base_url.format(env['wasmer_version'], 'windows-amd64'), 'wasmer')
 
 # Process some arguments
+if env['platform'] == '':
+    exit('Invalid platform selected')
+
+if not re.fullmatch(r'v\d+\.\d+\.\d+', env['wasmer_version']):
+    exit('Invalid Wasmer version')
+
 if env['use_llvm']:
     env['CC'] = 'clang'
     env['CXX'] = 'clang++'
 
-if env['p'] != '':
-    env['platform'] = env['p']
-
-if env['platform'] == '':
-    print('No valid target platform selected.')
-    quit();
-
-# Fix needed on OSX
-def rpath_fix(target, source, env):
-    os.system('install_name_tool -change @rpath/libwasmer.dylib @loader_path/libwasmer.dylib {0}'.format(target[0]))
+if env['download_wasmer'] or not os.path.isdir('wasmer'):
+    shutil.rmtree('wasmer', True)
+    download_wasmer(env)
 
 # Check platform specifics
 if env['platform'] == 'osx':
-    target_path += 'osx/'
-    cpp_library += '.osx'
     env.Append(CCFLAGS=['-arch', 'x86_64'])
     env.Append(CXXFLAGS=['-std=c++17'])
     env.Append(LINKFLAGS=['-arch', 'x86_64'])
@@ -53,9 +64,7 @@ if env['platform'] == 'osx':
     else:
         env.Append(CCFLAGS=['-g', '-O3'])
 
-elif env['platform'] in ('x11', 'linux'):
-    target_path += 'linux/'
-    cpp_library += '.linux'
+elif env['platform'] == 'linux':
     env.Append(CCFLAGS=['-fPIC'])
     env.Append(CXXFLAGS=['-std=c++17'])
     if env['target'] in ('debug', 'd'):
@@ -64,13 +73,9 @@ elif env['platform'] in ('x11', 'linux'):
         env.Append(CCFLAGS=['-g', '-O3'])
 
 elif env['platform'] == 'windows':
-    target_path += 'windows/'
-    cpp_library += '.windows'
-    wasmer_library += '.dll'
-    # This makes sure to keep the session environment variables on windows,
-    # that way you can run scons in a vs 2017 prompt and it will find all the required tools
-    env.Append(ENV=os.environ)
-
+    env['LIBPREFIX'] = ''
+    env['LIBSUFFIX'] = '.lib'
+    env.Append(ENV=os.environ) # Keep session env variables to support VS 2017 prompt
     env.Append(CPPDEFINES=['WIN32', '_WIN32', '_WINDOWS', '_CRT_SECURE_NO_WARNINGS'])
     env.Append(CCFLAGS=['-W3', '-GR'])
     env.Append(CCFLAGS='/std:c++20')
@@ -83,25 +88,15 @@ elif env['platform'] == 'windows':
         env.Append(CPPDEFINES=['NDEBUG'])
         env.Append(CCFLAGS=['-O2', '-EHsc', '-MD'])
 
-if env['target'] in ('debug', 'd'):
-    cpp_library += '.debug'
-else:
-    cpp_library += '.release'
+# Explicit static libraries
+cpp_library = File('godot-cpp/bin/libgodot-cpp.{}.{}.64{}'.format(env['platform'], env['target'], env['LIBSUFFIX']))
+wasmer_library = File('wasmer/lib/{}wasmer{}'.format(env['LIBPREFIX'], env['LIBSUFFIX']))
 
-cpp_library += '.' + str(bits)
-
-env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', wasmer_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/'])
-env.Append(LIBPATH=[cpp_bindings_path + 'bin/', wasmer_path + 'lib/'])
+# CPP includes and libraries
+env.Append(CPPPATH=['.', 'godot-cpp/godot-headers', 'godot-cpp/include', 'wasmer/include', 'godot-cpp/include/core', 'godot-cpp/include/gen'])
 env.Append(LIBS=[cpp_library, wasmer_library])
 
-sources = Glob('*.cpp')
-
-library = env.SharedLibrary(target=target_path + target_name, source=sources)
-
-if env['platform'] == 'osx':
-    env.AddPostAction(library, rpath_fix)
-
-Default(library)
-
-Help(opts.GenerateHelpText(env))
+# Builders
+env.SharedLibrary(target='addons/godot-wasm/bin/{}/godot-wasm'.format(env['platform']), source=Glob('*.cpp'))
+env.Help(opts.GenerateHelpText(env))
 

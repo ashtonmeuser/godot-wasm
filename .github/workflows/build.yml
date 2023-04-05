@@ -39,11 +39,6 @@ jobs:
       - name: Install Python Packages
         run: python -m pip install scons
 
-      - name: Download Wasmer Library
-        run: |
-          mkdir ${{ github.workspace }}/wasmer
-          wget -c https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-linux-musl-amd64.tar.gz -O - | tar -xz -C wasmer
-
       - name: Submodule Hash
         run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_ENV
 
@@ -90,15 +85,6 @@ jobs:
       - name: Install Python Packages
         run: python -m pip install scons
 
-      - name: Universal Wasmer Library
-        run: |
-          mkdir ${{ github.workspace }}/wasmer
-          wget -c https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-darwin-amd64.tar.gz -O - | tar -xz -C wasmer
-          mv ${{ github.workspace }}/wasmer/lib/libwasmer.dylib ${{ github.workspace }}/wasmer/lib/libwasmer-amd64.dylib
-          wget -c https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-darwin-arm64.tar.gz -O - | tar -xz -C wasmer
-          mv ${{ github.workspace }}/wasmer/lib/libwasmer.dylib ${{ github.workspace }}/wasmer/lib/libwasmer-arm64.dylib
-          lipo ${{ github.workspace }}/wasmer/lib/libwasmer*.dylib -output ${{ github.workspace }}/wasmer/lib/libwasmer.dylib -create
-
       - name: Submodule Hash
         run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_ENV
 
@@ -144,13 +130,6 @@ jobs:
 
       - name: Install Python Packages
         run: python -m pip install scons pywin32
-
-      - name: Download Wasmer Library
-        run: |
-          Import-Module BitsTransfer
-          Start-BitsTransfer -Source "https://github.com/wasmerio/wasmer/releases/download/${{ env.WASMER_VERSION }}/wasmer-windows-amd64.tar.gz" -Destination "${{ github.workspace }}\wasmer-windows-amd64.tar.gz"
-          New-Item "${{ github.workspace }}\wasmer" -itemType Directory
-          tar -xzf ${{ github.workspace }}\wasmer-windows-amd64.tar.gz -C wasmer
 
       - name: Submodule Hash
         run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_ENV
