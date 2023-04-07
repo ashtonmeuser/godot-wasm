@@ -29,10 +29,12 @@ func _load_wasm(path: String):
 func _update_info():
 	var info = wasm.inspect()
 	if !info: return $"%InfoText".set("text", "Error")
-	$"%InfoText".bbcode_text = "[b]Globals[/b]\n[indent]%s\n[/indent][b]Functions[/b]\n[indent]%s\n[/indent][b]Memory[/b]\n[indent]%d B[/indent]" % [
+	$"%InfoText".bbcode_text = "[b]Globals[/b]\n[indent]%s\n[/indent][b]Functions[/b]\n[indent]%s\n[/indent][b]Memory[/b]\n[indent]Min %s\nMax %s%s[/indent]" % [
 		PoolStringArray(info.globals).join("\n"),
 		PoolStringArray(info.functions).join("\n"),
-		info.memory,
+		_pretty_bytes(info.memory_min),
+		_pretty_bytes(info.memory_max),
+		"\nCurrent %s" % _pretty_bytes(info.memory_current) if "memory_current" in info else "",
 	]
 
 func _update_memory_type(index: int):
@@ -44,18 +46,24 @@ func _update_memory(_value = 0):
 	var input = $"%MemoryInput".get_child($"%MemoryType".selected)
 	var offset = int($"%MemoryOffset".value)
 	var value # Hold variant to be written to memory
+	wasm.stream.seek(offset)
 	match(input.get_index()):
-		0: value = int(input.value)
-		1: value = input.value
-		2: value = input.text
-	wasm.mem_write(value, offset)
+		0: wasm.stream.put_64(int(input.value))
+		1: wasm.stream.put_double(input.value)
+		2: wasm.stream.put_data(input.text.to_utf8())
 	wasm.function("update_memory", [])
 	$"%GlobalValue".text = _hex(wasm.global("memory_value"))
-	$"%ReadValue".text = _hex(wasm.mem_read(TYPE_INT, 0, 0))
+	$"%ReadValue".text = _hex(wasm.stream.seek(0).get_64()) # Seek allows chaining
 
 func _hex(i: int) -> String: # Format bytes without leading negative sign
 	if i >= 0: return "%016X" % i
-	return "%X%015X" % [(-i >> 56) | 0x8, -i]
+	return "%X%015X" % [(-i >> 60) | 0x8, -i & 0x0FFFFFFFFFFFFFFF]
+
+func _pretty_bytes(i: int) -> String: # Format bytes without leading negative sign
+	for unit in ["", "Ki", "Mi"]:
+		if abs(i) < 1024.0: return "%d %sB" % [i, unit]
+		i = round(i / 1024.0)
+	return "%d GiB" % i
 
 func _benchmark(_value = 0):
 	var limit: int = $"%PrimeLimit".value

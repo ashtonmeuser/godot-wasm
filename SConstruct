@@ -33,7 +33,7 @@ def download_wasmer(env):
         # For macOS, we need to universalize the AMD and ARM libraries
         download_tarfile(base_url.format(env['wasmer_version'], 'darwin-amd64'), 'wasmer', {'wasmer/lib/libwasmer.a': 'wasmer/lib/libwasmer.amd64.a'})
         download_tarfile(base_url.format(env['wasmer_version'], 'darwin-arm64'), 'wasmer', {'wasmer/lib/libwasmer.a': 'wasmer/lib/libwasmer.arm64.a'})
-        os.system('lipo wasmer/lib/libwasmer*.a -output wasmer/lib/libwasmer.a -create')
+        os.system('lipo wasmer/lib/libwasmer.*64.a -output wasmer/lib/libwasmer.a -create')
     elif env['platform'] == 'linux':
         download_tarfile(base_url.format(env['wasmer_version'], 'linux-amd64'), 'wasmer')
     elif env['platform'] == 'windows':
@@ -43,7 +43,7 @@ def download_wasmer(env):
 if env['platform'] == '':
     exit('Invalid platform selected')
 
-if not re.fullmatch(r'v\d+\.\d+\.\d+', env['wasmer_version']):
+if not re.fullmatch(r'v\d+\.\d+\.\d+(-.+)?', env['wasmer_version']):
     exit('Invalid Wasmer version')
 
 if env['use_llvm']:
@@ -58,7 +58,7 @@ if env['download_wasmer'] or not os.path.isdir('wasmer'):
 if env['platform'] == 'osx':
     env.Append(CCFLAGS=['-arch', 'x86_64'])
     env.Append(CXXFLAGS=['-std=c++17'])
-    env.Append(LINKFLAGS=['-arch', 'x86_64'])
+    env.Append(LINKFLAGS=['-arch', 'x86_64', '-framework', 'Security'])
     if env['target'] in ('debug', 'd'):
         env.Append(CCFLAGS=['-g', '-O2'])
     else:
@@ -90,14 +90,14 @@ elif env['platform'] == 'windows':
         env.Append(CCFLAGS=['-O2', '-EHsc', '-MD'])
 
 # Explicit static libraries
-cpp_library = File('godot-cpp/bin/libgodot-cpp.{}.{}.64{}'.format(env['platform'], env['target'], env['LIBSUFFIX']))
-wasmer_library = File('wasmer/lib/{}wasmer{}'.format(env['LIBPREFIX'], env.get('LIBWASMERSUFFIX', env['LIBSUFFIX'])))
+cpp_library = env.File('godot-cpp/bin/libgodot-cpp.{}.{}.64{}'.format(env['platform'], env['target'], env['LIBSUFFIX']))
+wasmer_library = env.File('wasmer/lib/{}wasmer{}'.format(env['LIBPREFIX'], env.get('LIBWASMERSUFFIX', env['LIBSUFFIX'])))
 
 # CPP includes and libraries
 env.Append(CPPPATH=['.', 'godot-cpp/godot-headers', 'godot-cpp/include', 'wasmer/include', 'godot-cpp/include/core', 'godot-cpp/include/gen'])
 env.Append(LIBS=[cpp_library, wasmer_library])
 
 # Builders
-env.SharedLibrary(target='addons/godot-wasm/bin/{}/godot-wasm'.format(env['platform']), source=Glob('*.cpp'))
+env.SharedLibrary(target='addons/godot-wasm/bin/{}/godot-wasm'.format(env['platform']), source=env.Glob('src/*.cpp'))
 env.Help(opts.GenerateHelpText(env))
 

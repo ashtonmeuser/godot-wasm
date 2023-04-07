@@ -47,27 +47,20 @@ Once installed as an addon in a Godot project, the Godot Wasm addon class can be
 1. Define an array containing the arguments to be supplied to your exported Wasm module function via `var args = [1, 2]`. Ensure the number of arguments and argument types match those expected by the exported Wasm module function.
 1. Call a function exported by your Wasm module via `wasm.function("YOUR_FUNCTION_NAME", args)` replacing `YOUR_FUNCTION_NAME` with the name of the exported Wasm module function.
 
-### Exporting
+### Exporting Godot Project
 
 Exporting from Godot may require the following additional steps. See the export configuration of the [example Godot project](https://github.com/ashtonmeuser/godot-wasm/tree/master/examples) for a practical illustration.
 
 1. For macOS exports, disable library validation in Project → Export → Options.
 1. If your project contains Wasm files, they'll need to be marked for export. Add `*.wasm` in Project → Export → Resources.
 
-### Writing to Exported Memory
+### Writing to Wasm Module Memory
 
-Writing Godot variants to exported Wasm memory is supported for a limited set of variant types. The following table describes the supported types and associated memory footprints.
+Writing data to exported Wasm memory is supported via a familiar [StreamPeer](https://docs.godotengine.org/en/3.5/classes/class_streampeer.html) interface. This StreamPeer is available under the `stream` property of the `Wasm` object.
 
-Type | Size (Bytes) | Notes
---|--|--
-Int | 8 |
-Float | 8 |
-Bool | 1 | `0x1` true; `0x0` false
-String | `N` | String of length `N`
-Vector2 | 16 |
-Vector3 | 24 |
-Array | N/A | Each array member stored in order
-PoolByteArray | `N` | PoolByteArray of size `N`
+The internal StreamPeerWasm class mirrors the `seek()` and `get_position()` methods of [StreamPeerBuffer](https://docs.godotengine.org/en/3.5/classes/class_streampeerbuffer.html#class-streampeerbuffer) with the addition of `seek()` returning a reference to the StreamPeer allowing chaining i.e. `wasm.stream.seek(0).get_u64()`.
+
+Note that, as mentioned in Godot's  [StreamPeer documentation](https://docs.godotengine.org/en/stable/classes/class_streampeer.html#class-streampeer-method-put-string), writing strings via `put_string()` and `put_utf8_string()` will prepend four bytes containing the length of the string.
 
 ## Examples
 
