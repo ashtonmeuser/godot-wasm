@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <stdexcept>
 #include <Godot.hpp>
 #include "wasmer.h"
 #include "defs.h"
@@ -19,7 +20,7 @@ namespace godot {
       wasm_instance_t* instance;
       Dictionary functions;
       Dictionary globals;
-      u_int16_t memory_index;
+      uint16_t memory_index;
       void map_names();
 
     public:
