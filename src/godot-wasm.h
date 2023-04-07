@@ -5,6 +5,8 @@
 #include <vector>
 #include <Godot.hpp>
 #include "wasmer.h"
+#include "defs.h"
+#include "stream-peer-wasm.h"
 
 namespace godot {
   class Wasm : public Reference {
@@ -17,7 +19,7 @@ namespace godot {
       wasm_instance_t* instance;
       Dictionary functions;
       Dictionary globals;
-      wasm_memory_t* memory;
+      u_int16_t memory_index;
       void map_names();
 
     public:
@@ -25,14 +27,14 @@ namespace godot {
       Wasm();
       ~Wasm();
       void _init();
-      // godot_error compile(PoolByteArray bytecode);
-      // godot_error instantiate(PoolByteArray bytecode);
+      godot_error compile(PoolByteArray bytecode);
+      godot_error instantiate();
       godot_error load(PoolByteArray bytecode);
       Dictionary inspect();
       Variant function(String name, Array args);
       Variant global(String name);
-      Variant mem_read(uint8_t type, uint64_t offset, uint32_t length);
-      uint64_t mem_write(Variant value, uint64_t offset);
+      uint64_t mem_size();
+      Ref<StreamPeerWasm> reader;
   };
 }
 

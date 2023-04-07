@@ -90,14 +90,14 @@ elif env['platform'] == 'windows':
         env.Append(CCFLAGS=['-O2', '-EHsc', '-MD'])
 
 # Explicit static libraries
-cpp_library = File('godot-cpp/bin/libgodot-cpp.{}.{}.64{}'.format(env['platform'], env['target'], env['LIBSUFFIX']))
-wasmer_library = File('wasmer/lib/{}wasmer{}'.format(env['LIBPREFIX'], env.get('LIBWASMERSUFFIX', env['LIBSUFFIX'])))
+cpp_library = env.File('godot-cpp/bin/libgodot-cpp.{}.{}.64{}'.format(env['platform'], env['target'], env['LIBSUFFIX']))
+wasmer_library = env.File('wasmer/lib/{}wasmer{}'.format(env['LIBPREFIX'], env.get('LIBWASMERSUFFIX', env['LIBSUFFIX'])))
 
 # CPP includes and libraries
 env.Append(CPPPATH=['.', 'godot-cpp/godot-headers', 'godot-cpp/include', 'wasmer/include', 'godot-cpp/include/core', 'godot-cpp/include/gen'])
 env.Append(LIBS=[cpp_library, wasmer_library])
 
 # Builders
-env.SharedLibrary(target='addons/godot-wasm/bin/{}/godot-wasm'.format(env['platform']), source=Glob('*.cpp'))
+env.SharedLibrary(target='addons/godot-wasm/bin/{}/godot-wasm'.format(env['platform']), source=env.Glob('src/*.cpp'))
 env.Help(opts.GenerateHelpText(env))
 
