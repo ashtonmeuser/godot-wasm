@@ -12,15 +12,16 @@ namespace godot {
 
     private:
       godot_net_stream_peer interface;
+      uint32_t pointer;
 
     public:
       static void _register_methods();
       StreamPeerWasm();
       ~StreamPeerWasm();
       void _init();
-      uint32_t pointer;
       wasm_memory_t* memory;
       Ref<StreamPeerWasm> seek(int p_pos);
+      uint32_t get_position();
       virtual godot_error get_data(uint8_t *p_buffer, int p_bytes);
       virtual godot_error get_partial_data(uint8_t *p_buffer, int p_bytes, int *r_received);
       virtual godot_error put_data(const uint8_t *p_data, int p_bytes);

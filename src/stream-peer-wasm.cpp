@@ -13,8 +13,8 @@ namespace {
 
 namespace godot {
   void StreamPeerWasm::_register_methods() {
-    register_property("pointer", &StreamPeerWasm::pointer, (uint32_t)0);
     register_method("seek", &StreamPeerWasm::seek);
+    register_method("get_position", &StreamPeerWasm::get_position);
   }
 
   StreamPeerWasm::StreamPeerWasm() {
@@ -28,6 +28,8 @@ namespace godot {
       &_get_available_bytes,
       NULL
     };
+    pointer = 0;
+    memory = NULL;
   }
 
   StreamPeerWasm::~StreamPeerWasm() { }
@@ -41,6 +43,10 @@ namespace godot {
     FAIL_IF(p_pos < 0, "Invalid stream peer position", ref);
     pointer = p_pos;
     return ref;
+  }
+
+  uint32_t StreamPeerWasm::get_position() {
+    return pointer;
   }
 
   godot_error StreamPeerWasm::get_data(uint8_t *p_buffer, int p_bytes) {

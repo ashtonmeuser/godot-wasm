@@ -27,16 +27,18 @@ namespace godot {
     register_method("inspect", &Wasm::inspect);
     register_method("global", &Wasm::global);
     register_method("function", &Wasm::function);
-    register_property<Wasm, Ref<StreamPeerWasm>>("reader", &Wasm::reader, NULL);
+    register_property<Wasm, Ref<StreamPeerWasm>>("stream", &Wasm::stream, NULL);
   }
 
   Wasm::Wasm() {
     engine = wasm_engine_new();
     store = wasm_store_new(engine);
+    module = NULL;
+    instance = NULL;
     functions = Dictionary();
     globals = Dictionary();
     memory_index = 0;
-    reader.instance();
+    stream.instance();
   }
 
   Wasm::~Wasm() {
@@ -51,12 +53,12 @@ namespace godot {
   godot_error Wasm::compile(PoolByteArray bytecode) {
     // Reset
     instance = NULL;
-    reader->memory = NULL;
+    stream->memory = NULL;
 
     // Load binary
     wasm_byte_vec_t wasm_bytes;
     wasm_byte_vec_new_uninitialized(&wasm_bytes, bytecode.size());
-    for (uint64_t i = 0; i < bytecode.size(); i++) wasm_bytes.data[i] = bytecode[i];
+    memcpy(wasm_bytes.data, bytecode.read().ptr(), bytecode.size());
 
     // Validate binary
     FAIL_IF(!wasm_module_validate(store, &wasm_bytes), "Invalid binary", GDERROR(ERR_INVALID_DATA));
@@ -79,7 +81,7 @@ namespace godot {
     FAIL_IF(instance == NULL, "Instantiation failed", GDERROR(ERR_CANT_CREATE));
 
     // Set stream peer memory reference
-    reader->memory = wasm_extern_as_memory(get_export_data(instance, memory_index));
+    stream->memory = wasm_extern_as_memory(get_export_data(instance, memory_index));
 
     return GDERROR(OK);
   }
@@ -107,8 +109,8 @@ namespace godot {
     dict["globals"] = globals.keys();
     dict["memory_min"] = Variant(limits->min * PAGE_SIZE);
     dict["memory_max"] = Variant(limits->max);
-    if (reader->memory != NULL) {
-      dict["memory_current"] = Variant((int)wasm_memory_data_size(reader->memory));
+    if (stream->memory != NULL) {
+      dict["memory_current"] = Variant((int)wasm_memory_data_size(stream->memory));
     }
 
     return dict;

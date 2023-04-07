@@ -34,7 +34,7 @@ namespace godot {
       Variant function(String name, Array args);
       Variant global(String name);
       uint64_t mem_size();
-      Ref<StreamPeerWasm> reader;
+      Ref<StreamPeerWasm> stream;
   };
 }
 

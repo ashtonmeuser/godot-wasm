@@ -33,7 +33,7 @@ def download_wasmer(env):
         # For macOS, we need to universalize the AMD and ARM libraries
         download_tarfile(base_url.format(env['wasmer_version'], 'darwin-amd64'), 'wasmer', {'wasmer/lib/libwasmer.a': 'wasmer/lib/libwasmer.amd64.a'})
         download_tarfile(base_url.format(env['wasmer_version'], 'darwin-arm64'), 'wasmer', {'wasmer/lib/libwasmer.a': 'wasmer/lib/libwasmer.arm64.a'})
-        os.system('lipo wasmer/lib/libwasmer*.a -output wasmer/lib/libwasmer.a -create')
+        os.system('lipo wasmer/lib/libwasmer.*64.a -output wasmer/lib/libwasmer.a -create')
     elif env['platform'] == 'linux':
         download_tarfile(base_url.format(env['wasmer_version'], 'linux-amd64'), 'wasmer')
     elif env['platform'] == 'windows':
@@ -43,7 +43,7 @@ def download_wasmer(env):
 if env['platform'] == '':
     exit('Invalid platform selected')
 
-if not re.fullmatch(r'v\d+\.\d+\.\d+', env['wasmer_version']):
+if not re.fullmatch(r'v\d+\.\d+\.\d+(-.+)?', env['wasmer_version']):
     exit('Invalid Wasmer version')
 
 if env['use_llvm']:
@@ -58,7 +58,7 @@ if env['download_wasmer'] or not os.path.isdir('wasmer'):
 if env['platform'] == 'osx':
     env.Append(CCFLAGS=['-arch', 'x86_64'])
     env.Append(CXXFLAGS=['-std=c++17'])
-    env.Append(LINKFLAGS=['-arch', 'x86_64'])
+    env.Append(LINKFLAGS=['-arch', 'x86_64', '-framework', 'Security'])
     if env['target'] in ('debug', 'd'):
         env.Append(CCFLAGS=['-g', '-O2'])
     else:
