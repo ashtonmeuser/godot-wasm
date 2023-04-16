@@ -26,8 +26,10 @@ namespace godot {
       Dictionary functions;
       Dictionary globals;
       uint16_t memory_index;
-      std::map<std::string, callback_context> import_funcs;
+      std::map<String, callback_context> import_funcs;
+      std::map<String, callback_context> export_funcs;
       void map_names();
+      wasm_func_t* create_callback(callback_context* context);
 
     public:
       static void _register_methods();
