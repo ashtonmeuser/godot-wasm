@@ -132,8 +132,8 @@ namespace godot {
     // Wire up imports
     std::vector<wasm_extern_t*> externs;
     for (const auto &tuple: import_funcs) {
-      const Array& import = import_map[tuple.first];
-      FAIL_IF(import.size() != 2, "Invalid import " + tuple.first, GDERROR(ERR_CANT_CREATE));
+      const Array& import = ((Dictionary)import_map["functions"])[tuple.first];
+      FAIL_IF(import.size() != 2, "Invalid or missing import function " + tuple.first, GDERROR(ERR_CANT_CREATE));
       FAIL_IF(import[0].get_type() != Variant::OBJECT, "Invalid import target", GDERROR(ERR_CANT_CREATE));
       FAIL_IF(import[1].get_type() != Variant::STRING, "Invalid import method", GDERROR(ERR_CANT_CREATE));
       context_callback* context = (context_callback*)&tuple.second;

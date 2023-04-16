@@ -25,7 +25,9 @@ func _load_wasm(path: String):
 	var file = File.new()
 	file.open(path, File.READ)
 	var buffer = file.get_buffer(file.get_len())
-	var imports = { "index.callback": [self, "callback"] } # Import format module.name
+	var imports = { # Import format module.name
+		"functions": { "index.callback": [self, "callback"] },
+	}
 	wasm.load(buffer, imports)
 	file.close()
 	_update_info()
