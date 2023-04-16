@@ -18,7 +18,7 @@
 </p>
 
 > **Warning**
-> This project is still in its infancy. Not advisable to use in a release.
+> This project is still in its infancy. Interfaces are liable to change with each release until v1.0.
 
 A Godot addon allowing for loading and interacting with [WebAssembly (Wasm)](https://webassembly.org) modules from GDScript. Note that this project is still in development.
 
@@ -40,15 +40,16 @@ Once installed as an addon in a Godot project, the Godot Wasm addon class can be
 1. Create a Wasm module or use the [example module](https://github.com/ashtonmeuser/godot-wasm/blob/master/examples/wasm-consume/example.wasm).
 1. Add the Wasm module to your Godot project.
 1. In GDScript, instantiate the `Wasm` class via `var wasm = Wasm.new()`.
-1. Load your Wasm module bytecode as follows replacing `YOUR_WASM_MODULE_PATH` with the path to your Wasm module e.g. *example.wasm*. The `Wasm.load()` method accepts a [PoolByteArray](https://docs.godotengine.org/en/stable/classes/class_poolbytearray.html).
+1. Load your Wasm module bytecode as follows replacing `YOUR_WASM_MODULE_PATH` with the path to your Wasm module e.g. *example.wasm*. The `Wasm.load()` method accepts a [PoolByteArray](https://docs.godotengine.org/en/stable/classes/class_poolbytearray.html) and a dictionary defining Wasm module imports. All imports should be satisfied and may differ with each Wasm module.
     ```
     var file = File.new()
     file.open("res://YOUR_WASM_MODULE_PATH", File.READ)
     var buffer = file.get_buffer(file.get_len())
-    wasm.load(buffer)
+    var imports = { "functions": { "index.callback": [self, "callback"] } } # Set imports according to Wasm module
+    wasm.load(buffer, imports)
     file.close()
     ```
-1. Access global constants and mutables exported by the Wasm module via `wasm.global("YOUR_GLOBAL_NAME") replacing `YOUR_GLOBAL_NAME` with the name of an exported Wasm module global.
+1. Access global constants and mutables exported by the Wasm module via `wasm.global("YOUR_GLOBAL_NAME")` replacing `YOUR_GLOBAL_NAME` with the name of an exported Wasm module global.
 1. Define an array containing the arguments to be supplied to your exported Wasm module function via `var args = [1, 2]`. Ensure the number of arguments and argument types match those expected by the exported Wasm module function.
 1. Call a function exported by your Wasm module via `wasm.function("YOUR_FUNCTION_NAME", args)` replacing `YOUR_FUNCTION_NAME` with the name of the exported Wasm module function.
 
@@ -131,7 +132,7 @@ If frequently iterating on the addon using a Godot project, it may help to creat
 1. A default empty `args` parameter for `function(name, args)` can not be supplied. Default `Array` parameters in GDNative seem to retain values between calls. Calling methods of this addon without expected arguments produces undefined behaviour. This is reliant on [#209](https://github.com/godotengine/godot-cpp/issues/209).
 1. CPU usage has been noted to be quite high when running in the editor on macOS. This does not affect exported projects.
 
-## Relevant discussion
+## Relevant Discussion
 
 There have been numerous discussions around modding/sandboxing support for Godot. Some of those are included below.
 
@@ -154,8 +155,6 @@ Please feel free submit a PR or an [issue](https://github.com/ashtonmeuser/godot
 - [x] Import functions
 - [ ] Import globals
 - [x] Map export names to indices (access function/global by name)
-- [ ] Convenience methods to handle more data types e.g. `Array`, `Vector2`
-- [ ] Optional WASI bindings (allows access to FS, etc.)
 - [x] Inspect module exports
 - [ ] Automatically provide [AssemblyScript special imports](https://www.assemblyscript.org/concepts.html#special-imports)
 - [ ] Automatically cast to 32-bit values
