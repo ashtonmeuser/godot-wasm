@@ -1,0 +1,43 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "",
+"class": "Wasm",
+"language": "NativeScript",
+"path": "res://addons/godot-wasm/Wasm.gdns"
+} ]
+_global_script_class_icons={
+"Wasm": ""
+}
+
+[application]
+
+config/name="Wasm Visualizations"
+
+[display]
+
+window/size/width=320
+window/size/height=320
+window/vsync/use_vsync=false
+window/stretch/mode="viewport"
+window/stretch/aspect="expand"
+
+[gui]
+
+common/drop_mouse_on_gui_input_disabled=true
+
+[physics]
+
+common/enable_pause_aware_picking=true
+
+[rendering]
+
+environment/default_clear_color=Color( 1, 1, 1, 1 )
