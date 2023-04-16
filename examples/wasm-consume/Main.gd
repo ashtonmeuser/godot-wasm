@@ -70,7 +70,8 @@ func _update_memory(_value = 0):
 
 func _hex(i: int) -> String: # Format bytes without leading negative sign
 	if i >= 0: return "%016X" % i
-	return "%X%015X" % [(-i >> 60) | 0x8, -i & 0x0FFFFFFFFFFFFFFF]
+	i = i ^ 0x7FFFFFFFFFFFFFFF + 0x1 # Two's complement
+	return "%X%015X" % [(i >> 60) | 0x8, i & 0x0FFFFFFFFFFFFFFF]
 
 func _pretty_signatures(signatures: Dictionary) -> String: # Indented, line-separated string
 	if !signatures.keys(): return ""
