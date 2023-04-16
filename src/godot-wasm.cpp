@@ -1,8 +1,11 @@
 #include "godot-wasm.h"
 
 namespace {
-  struct callback_context {
+  struct context_extern {
     uint16_t index;
+  };
+
+  struct context_callback: public context_extern {
     godot::Object* target;
     godot::String method; // External name; doesn't necessarily match import name
   };
@@ -56,7 +59,7 @@ namespace {
   wasm_trap_t* callback_wrapper(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
     // This is invoked by Wasm module calls to imported functions
     // Must be free function so context is passed via the env void pointer
-    callback_context* context = (callback_context*)env;
+    context_callback* context = (context_callback*)env;
     godot::Array params = godot::Array();
     // TODO: Check if args and results match expected sizes
     for (uint16_t i = 0; i < args->size; i++) params.push_back(decode_variant(args->data[i]));
@@ -85,8 +88,6 @@ namespace godot {
     store = wasm_store_new(engine);
     module = NULL;
     instance = NULL;
-    functions = Dictionary();
-    globals = Dictionary();
     memory_index = 0;
     stream.instance();
   }
@@ -105,6 +106,7 @@ namespace godot {
     instance = NULL;
     stream->memory = NULL;
     import_funcs.clear();
+    export_globals.clear();
     export_funcs.clear();
 
     // Load binary
@@ -134,7 +136,7 @@ namespace godot {
       FAIL_IF(import.size() != 2, "Invalid import " + tuple.first, GDERROR(ERR_CANT_CREATE));
       FAIL_IF(import[0].get_type() != Variant::OBJECT, "Invalid import target", GDERROR(ERR_CANT_CREATE));
       FAIL_IF(import[1].get_type() != Variant::STRING, "Invalid import method", GDERROR(ERR_CANT_CREATE));
-      callback_context* context = (callback_context*)&tuple.second;
+      context_callback* context = (context_callback*)&tuple.second;
       context->target = import[0];
       context->method = import[1];
       externs.push_back(wasm_func_as_extern(create_callback(context)));
@@ -170,15 +172,17 @@ namespace godot {
     wasm_memorytype_t* memory_type = wasm_externtype_as_memorytype((wasm_externtype_t*)extern_type);
     const wasm_limits_t* limits = wasm_memorytype_limits(memory_type);
 
-    // Get module import function keys
-    Array import_function_keys;
+    // Get module extern keys
+    Array import_function_keys, export_global_keys, export_function_keys;
     for (const auto &tuple: import_funcs) import_function_keys.push_back(tuple.first);
+    for (const auto &tuple: export_globals) export_global_keys.push_back(tuple.first);
+    for (const auto &tuple: export_funcs) export_function_keys.push_back(tuple.first);
 
     // Module info dictionary
     Dictionary dict;
     dict["import_functions"] = import_function_keys;
-    dict["functions"] = functions.keys();
-    dict["globals"] = globals.keys();
+    dict["functions"] = import_function_keys;
+    dict["globals"] = export_global_keys;
     dict["memory_min"] = Variant(limits->min * PAGE_SIZE);
     dict["memory_max"] = Variant(limits->max);
     if (stream->memory != NULL) {
@@ -191,10 +195,10 @@ namespace godot {
   Variant Wasm::global(String name) {
     // Validate instance and global name
     FAIL_IF(instance == NULL, "Not instantiated", NULL_VARIANT);
-    FAIL_IF(!globals.has(name), "Unknown global name", NULL_VARIANT);
+    FAIL_IF(!export_globals.count(name), "Unknown global name", NULL_VARIANT);
 
     // Retrieve exported global
-    const wasm_global_t* global = wasm_extern_as_global(get_export_data(instance, globals[name]));
+    const wasm_global_t* global = wasm_extern_as_global(get_export_data(instance, export_globals[name].index));
     FAIL_IF(global == NULL, "Failed to retrieve global export", NULL_VARIANT);
 
     // Extract result
@@ -205,13 +209,12 @@ namespace godot {
   }
 
   Variant Wasm::function(String name, Array args) {
-    // TODO: Get function by index in export_funcs context
     // Validate instance and function name
     FAIL_IF(instance == NULL, "Not instantiated", NULL_VARIANT);
-    FAIL_IF(!functions.has(name), "Unknown function name", NULL_VARIANT);
+    FAIL_IF(!export_funcs.count(name), "Unknown function name", NULL_VARIANT);
 
     // Retrieve exported function
-    const wasm_func_t* func = wasm_extern_as_func(get_export_data(instance, functions[name]));
+    const wasm_func_t* func = wasm_extern_as_func(get_export_data(instance, export_funcs[name].index));
     FAIL_IF(func == NULL, "Failed to retrieve function export", NULL_VARIANT);
 
     // Construct args
@@ -256,7 +259,7 @@ namespace godot {
       const String key = decode_name(wasm_importtype_module(imports.data[i])) + "." + decode_name(wasm_importtype_name(imports.data[i]));
       switch (kind) {
         case WASM_EXTERN_FUNC:
-          import_funcs[key] = callback_context { i };
+          import_funcs[key] = context_callback { i };
           break;
         default: throw std::invalid_argument("Not implemented");
       }
@@ -265,19 +268,16 @@ namespace godot {
     // Get exports and associated names
     wasm_exporttype_vec_t exports;
     wasm_module_exports(module, &exports);
-    functions.clear();
-    globals.clear();
     for (uint16_t i = 0; i < exports.size; i++) {
       const wasm_externtype_t* type = wasm_exporttype_type(exports.data[i]);
       const wasm_externkind_t kind = wasm_externtype_kind(type);
       const String key = decode_name(wasm_exporttype_name(exports.data[i]));
       switch (kind) {
         case WASM_EXTERN_FUNC:
-          functions[key] = i;
-          export_funcs[key] = callback_context { i };
+          export_funcs[key] = context_extern { i };
           break;
         case WASM_EXTERN_GLOBAL:
-          globals[key] = i;
+          export_globals[key] = context_extern { i };
           break;
         case WASM_EXTERN_MEMORY:
           memory_index = i;
@@ -286,7 +286,7 @@ namespace godot {
     }
   }
 
-  wasm_func_t* Wasm::create_callback(callback_context* context) {
+  wasm_func_t* Wasm::create_callback(context_callback* context) {
     wasm_importtype_vec_t imports;
     wasm_module_imports(module, &imports);
     const wasm_externtype_t* type = wasm_importtype_type(imports.data[context->index]);
