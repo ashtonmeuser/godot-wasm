@@ -50,6 +50,46 @@ namespace {
     return exports.data[index];
   }
 
+  godot::Variant::Type get_value_type(const wasm_valkind_t& kind) {
+    switch (kind) {
+      case WASM_I32: case WASM_I64: return godot::Variant::Type::INT;
+      case WASM_F32: case WASM_F64: return godot::Variant::Type::REAL;
+      default: throw std::invalid_argument("Unsupported value kind");
+    }
+  }
+
+  godot::Array get_extern_signature(const wasm_module_t* module, uint16_t index, bool import) {
+    // Grab the extern from module imports or exports
+    const wasm_externtype_t* type;
+    if (import) {
+      wasm_importtype_vec_t imports;
+      wasm_module_imports(module, &imports);
+      type = wasm_importtype_type(imports.data[index]);
+    } else {
+      wasm_exporttype_vec_t exports;
+      wasm_module_exports(module, &exports);
+      type = wasm_exporttype_type(exports.data[index]);
+    }
+
+    // Generate a signature for extern
+    switch (wasm_externtype_kind(type)) {
+      case WASM_EXTERN_FUNC: {
+        wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
+        const wasm_valtype_vec_t* func_params = wasm_functype_params(func_type);
+        const wasm_valtype_vec_t* func_results = wasm_functype_results(func_type);
+        godot::Array param_types, result_types;
+        for (uint16_t i = 0; i < func_params->size; i++) param_types.append(get_value_type(wasm_valtype_kind(func_params->data[i])));
+        for (uint16_t i = 0; i < func_results->size; i++) result_types.append(get_value_type(wasm_valtype_kind(func_results->data[i])));
+        return godot::Array().make(param_types, result_types);
+      } case WASM_EXTERN_GLOBAL: {
+        wasm_globaltype_t* global_type = wasm_externtype_as_globaltype((wasm_externtype_t*)type);
+        const godot::Variant variant_type = get_value_type(wasm_valtype_kind(wasm_globaltype_content(global_type)));
+        const godot::Variant variant_mutability = godot::Variant(wasm_globaltype_mutability(global_type) == WASM_VAR ? true : false);
+        return godot::Array().make(variant_type, variant_mutability);
+      } default: throw std::invalid_argument("Extern type has no signature");
+    }
+  }
+
   wasm_trap_t* make_trap(const std::exception& e) { // TODO: Rename
     wasm_message_t message;
     wasm_name_new_from_string_nt(&message, e.what());
@@ -172,22 +212,20 @@ namespace godot {
     wasm_memorytype_t* memory_type = wasm_externtype_as_memorytype((wasm_externtype_t*)extern_type);
     const wasm_limits_t* limits = wasm_memorytype_limits(memory_type);
 
-    // Get module extern keys
-    Array import_function_keys, export_global_keys, export_function_keys;
-    for (const auto &tuple: import_funcs) import_function_keys.push_back(tuple.first);
-    for (const auto &tuple: export_globals) export_global_keys.push_back(tuple.first);
-    for (const auto &tuple: export_funcs) export_function_keys.push_back(tuple.first);
+    // Module extern names and signatures
+    Dictionary import_func_sigs, export_global_sigs, export_func_sigs;
+    for (const auto &tuple: import_funcs) import_func_sigs[tuple.first] = get_extern_signature(module, tuple.second.index, true);
+    for (const auto &tuple: export_globals) export_global_sigs[tuple.first] = get_extern_signature(module, tuple.second.index, false);
+    for (const auto &tuple: export_funcs) export_func_sigs[tuple.first] = get_extern_signature(module, tuple.second.index, false);
 
     // Module info dictionary
     Dictionary dict;
-    dict["import_functions"] = import_function_keys;
-    dict["functions"] = import_function_keys;
-    dict["globals"] = export_global_keys;
+    dict["import_functions"] = import_func_sigs;
+    dict["export_globals"] = export_global_sigs;
+    dict["export_functions"] = export_func_sigs;
     dict["memory_min"] = Variant(limits->min * PAGE_SIZE);
     dict["memory_max"] = Variant(limits->max);
-    if (stream->memory != NULL) {
-      dict["memory_current"] = Variant((int)wasm_memory_data_size(stream->memory));
-    }
+    if (stream->memory != NULL) dict["memory_current"] = Variant((int)wasm_memory_data_size(stream->memory));
 
     return dict;
   }
@@ -251,6 +289,7 @@ namespace godot {
   }
 
   void Wasm::map_names() {
+    // Module imports
     wasm_importtype_vec_t imports;
     wasm_module_imports(module, &imports);
     for (uint16_t i = 0; i < imports.size; i++) {
@@ -261,11 +300,11 @@ namespace godot {
         case WASM_EXTERN_FUNC:
           import_funcs[key] = context_callback { i };
           break;
-        default: throw std::invalid_argument("Not implemented");
+        default: throw std::invalid_argument("Import type not implemented");
       }
     }
 
-    // Get exports and associated names
+    // Module exports
     wasm_exporttype_vec_t exports;
     wasm_module_exports(module, &exports);
     for (uint16_t i = 0; i < exports.size; i++) {
@@ -282,6 +321,7 @@ namespace godot {
         case WASM_EXTERN_MEMORY:
           memory_index = i;
           break;
+        default: throw std::invalid_argument("Export type not implemented");
       }
     }
   }

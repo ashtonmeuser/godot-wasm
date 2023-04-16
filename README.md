@@ -10,7 +10,10 @@
     <img src="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/build.yml/badge.svg" alt="Build Status">
   </a>
   <a href="https://github.com/ashtonmeuser/godot-wasm/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/ashtonmeuser/godot-wasm.svg" alt="License">
+    <img src="https://img.shields.io/github/license/ashtonmeuser/godot-wasm" alt="License">
+  </a>
+  <a href="https://github.com/ashtonmeuser/godot-wasm/releases/latest">
+    <img src="https://img.shields.io/github/v/release/ashtonmeuser/godot-wasm" alt="Version">
   </a>
 </p>
 
@@ -27,6 +30,8 @@ Installation in a Godot project involves simply downloading and installing a zip
 
 1. Download the Godot Wasm addon zip file from the [releases page](https://github.com/ashtonmeuser/godot-wasm/releases).
 1. In Godot's Asset Library tab, click Import and select the addon zip file. Follow prompts to complete installation of the addon.
+
+Alternatively, you can use the Asset Library tab within the Godot editor, search for "Wasm", and follow the prompts to install. Yet another alternative is downloading directly from the [asset page](https://godotengine.org/asset-library/asset/1798) and following the installation instructions above. Note that the Asset Library has an approval process that can take several days and may therefore be a version or two behind.
 
 ## Usage
 
@@ -146,10 +151,13 @@ Please feel free submit a PR or an [issue](https://github.com/ashtonmeuser/godot
 - [x] Export global mutables
 - [ ] Export tables
 - [x] Export memories
-- [ ] Import functions
+- [x] Import functions
 - [ ] Import globals
 - [x] Map export names to indices (access function/global by name)
 - [ ] Convenience methods to handle more data types e.g. `Array`, `Vector2`
 - [ ] Optional WASI bindings (allows access to FS, etc.)
 - [x] Inspect module exports
 - [ ] Automatically provide [AssemblyScript special imports](https://www.assemblyscript.org/concepts.html#special-imports)
+- [ ] Automatically cast to 32-bit values
+- [x] Inspect function signatures
+- [ ] Set export globals
