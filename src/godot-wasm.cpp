@@ -233,11 +233,11 @@ namespace godot {
   Variant Wasm::global(String name) {
     // Validate instance and global name
     FAIL_IF(instance == NULL, "Not instantiated", NULL_VARIANT);
-    FAIL_IF(!export_globals.count(name), "Unknown global name", NULL_VARIANT);
+    FAIL_IF(!export_globals.count(name), "Unknown global name " + name, NULL_VARIANT);
 
     // Retrieve exported global
     const wasm_global_t* global = wasm_extern_as_global(get_export_data(instance, export_globals[name].index));
-    FAIL_IF(global == NULL, "Failed to retrieve global export", NULL_VARIANT);
+    FAIL_IF(global == NULL, "Failed to retrieve global export " + name, NULL_VARIANT);
 
     // Extract result
     wasm_val_t result;
@@ -249,11 +249,11 @@ namespace godot {
   Variant Wasm::function(String name, Array args) {
     // Validate instance and function name
     FAIL_IF(instance == NULL, "Not instantiated", NULL_VARIANT);
-    FAIL_IF(!export_funcs.count(name), "Unknown function name", NULL_VARIANT);
+    FAIL_IF(!export_funcs.count(name), "Unknown function name " + name, NULL_VARIANT);
 
     // Retrieve exported function
     const wasm_func_t* func = wasm_extern_as_func(get_export_data(instance, export_funcs[name].index));
-    FAIL_IF(func == NULL, "Failed to retrieve function export", NULL_VARIANT);
+    FAIL_IF(func == NULL, "Failed to retrieve function export " + name, NULL_VARIANT);
 
     // Construct args
     std::vector<wasm_val_t> vect;
@@ -274,7 +274,7 @@ namespace godot {
     wasm_val_t results_val[1] = { WASM_INIT_VAL };
     wasm_val_vec_t f_args = { vect.size(), vect.data() };
     wasm_val_vec_t f_results = WASM_ARRAY_VEC(results_val);
-    FAIL_IF(wasm_func_call(func, &f_args, &f_results), "Failed calling function", NULL_VARIANT);
+    FAIL_IF(wasm_func_call(func, &f_args, &f_results), "Failed calling function " + name, NULL_VARIANT);
 
     // Extract result
     wasm_val_t result = results_val[0];
