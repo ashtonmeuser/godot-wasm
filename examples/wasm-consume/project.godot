@@ -14,7 +14,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Benchmark.gd"
 }, {
-"base": "",
+"base": "Reference",
 "class": "Wasm",
 "language": "NativeScript",
 "path": "res://addons/godot-wasm/Wasm.gdns"
@@ -35,8 +35,8 @@ gdscript/warnings/return_value_discarded=false
 
 [display]
 
-window/size/width=512
-window/size/height=300
+window/size/width=854
+window/size/height=480
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 

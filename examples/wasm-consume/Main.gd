@@ -1,10 +1,13 @@
 extends Control
 
+const info_template = "[b]Import Globals[/b]\n%s[b]Imports Functions[/b]\n%s[b]Export Globals[/b]\n%s[b]Export Functions[/b]\n%s[b]Memory[/b]\n[indent]Min %s\nMax %s%s[/indent]"
+var callback_count: int
 onready var wasm: Wasm = Wasm.new()
 
 func _ready():
 	$"%PrimeLimit".connect("value_changed", self, "_benchmark")
 	$"%MemoryType".connect("item_selected", self, "_update_memory_type")
+	$"%CallbackButton".connect("pressed", wasm, "function", ["invoke_callback", []])
 	for node in $"%MemoryInput".get_children() + [$"%MemoryOffset"]:
 		node.connect("value_changed" if node is Range else "text_changed", self, "_update_memory")
 	for item in ["Int", "Float", "String"]: $"%MemoryType".add_item(item)
@@ -22,16 +25,25 @@ func _load_wasm(path: String):
 	var file = File.new()
 	file.open(path, File.READ)
 	var buffer = file.get_buffer(file.get_len())
-	wasm.load(buffer)
+	var imports = { "index.callback": [self, "callback"] } # Import format module.name
+	wasm.load(buffer, imports)
 	file.close()
 	_update_info()
+
+func callback(value: int):
+	callback_count += 1
+	$"%CallbackCount".text = "%d" % callback_count
+	print("Callback invoked with value %d" % value)
+	return callback_count
 
 func _update_info():
 	var info = wasm.inspect()
 	if !info: return $"%InfoText".set("text", "Error")
-	$"%InfoText".bbcode_text = "[b]Globals[/b]\n[indent]%s\n[/indent][b]Functions[/b]\n[indent]%s\n[/indent][b]Memory[/b]\n[indent]Min %s\nMax %s%s[/indent]" % [
-		PoolStringArray(info.globals).join("\n"),
-		PoolStringArray(info.functions).join("\n"),
+	$"%InfoText".bbcode_text = info_template % [
+		_pretty_list([]),
+		_pretty_list(info.import_functions),
+		_pretty_list(info.globals),
+		_pretty_list(info.functions),
 		_pretty_bytes(info.memory_min),
 		_pretty_bytes(info.memory_max),
 		"\nCurrent %s" % _pretty_bytes(info.memory_current) if "memory_current" in info else "",
@@ -45,7 +57,6 @@ func _update_memory_type(index: int):
 func _update_memory(_value = 0):
 	var input = $"%MemoryInput".get_child($"%MemoryType".selected)
 	var offset = int($"%MemoryOffset".value)
-	var value # Hold variant to be written to memory
 	wasm.stream.seek(offset)
 	match(input.get_index()):
 		0: wasm.stream.put_64(int(input.value))
@@ -59,10 +70,14 @@ func _hex(i: int) -> String: # Format bytes without leading negative sign
 	if i >= 0: return "%016X" % i
 	return "%X%015X" % [(-i >> 60) | 0x8, -i & 0x0FFFFFFFFFFFFFFF]
 
+func _pretty_list(list: Array) -> String: # Indented, line-separated string
+	if !list: return ""
+	return "[indent]%s [code][color=#55FFFFFF]FI→F[/color][/code][/indent]\n" % PoolStringArray(list).join("\n")
+
 func _pretty_bytes(i: int) -> String: # Format bytes without leading negative sign
 	for unit in ["", "Ki", "Mi"]:
 		if abs(i) < 1024.0: return "%d %sB" % [i, unit]
-		i = round(i / 1024.0)
+		i = int(round(i / 1024.0))
 	return "%d GiB" % i
 
 func _benchmark(_value = 0):
