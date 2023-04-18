@@ -26,6 +26,7 @@ func _input(event):
 
 func _gui_input(event):
 	if !(event is InputEventMouseButton) or !event.pressed: return
+	if get_node_or_null("Intro"): $Intro.queue_free()
 	if !("interact" in wasm.inspect().export_functions): return
 	var p = _localize_aspect_fit(event.position, $TextureRect.rect_size, size)
 	if p.x < 0.0 or p.x > 1.0 or p.y < 0.0 or p.y > 1.0: return
