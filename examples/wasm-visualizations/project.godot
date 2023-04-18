@@ -22,17 +22,27 @@ _global_script_class_icons={
 
 config/name="Wasm Visualizations"
 
+[debug]
+
+settings/fps/force_fps=60
+
 [display]
 
-window/size/width=320
-window/size/height=320
+window/size/width=400
+window/size/height=400
 window/vsync/use_vsync=false
-window/stretch/mode="viewport"
-window/stretch/aspect="expand"
 
 [gui]
 
 common/drop_mouse_on_gui_input_disabled=true
+
+[input]
+
+toggle_fps_cap={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":67,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
+ ]
+}
 
 [physics]
 
