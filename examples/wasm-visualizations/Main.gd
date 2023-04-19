@@ -1,7 +1,7 @@
 extends Node
 
 const sizes: PoolVector2Array = PoolVector2Array([Vector2(50, 50), Vector2(100, 100), Vector2(200, 200), Vector2(400, 400), Vector2(800, 800), Vector2(1600, 1600)])
-const modules: PoolStringArray = PoolStringArray(["interference", "mandelbrot", "life", "wave"])
+const modules: PoolStringArray = PoolStringArray(["interference", "mandelbrot", "life", "wave", "sort"])
 
 var texture: ImageTexture = ImageTexture.new()
 var image: Image = Image.new()
@@ -30,7 +30,7 @@ func _gui_input(event):
 	if !("interact" in wasm.inspect().export_functions): return
 	var p = _localize_aspect_fit(event.position, $TextureRect.rect_size, size)
 	if p.x < 0.0 or p.x > 1.0 or p.y < 0.0 or p.y > 1.0: return
-	wasm.function("interact", [p.x, p.y, 0.5 if event.button_index == BUTTON_LEFT else 0.0 ])
+	wasm.function("interact", [p.x, p.y, 1.0 if event.button_index == BUTTON_LEFT else 0.0 ])
 
 func _process(_delta):
 	$"%LabelFPS".text = "%d FPS" % Performance.get_monitor(Performance.TIME_FPS)
@@ -42,7 +42,7 @@ func _load_wasm(path: String):
 	file.open(path, File.READ)
 	var buffer = file.get_buffer(file.get_len())
 	var imports = { "functions": {
-		"env.abort": [self, "_error"],
+		"env.abort": [self, "_abort"],
 		"env.draw_image": [self, "_draw_image"],
 		"env.draw_pixel": [self, "_draw_pixel"],
 		"env.seed": [self, "_seed"],
@@ -92,7 +92,7 @@ func _localize_aspect_fit(p: Vector2, outer: Vector2, inner: Vector2):
 
 # Wasm module imports
 
-func _error(a: int, b: int, c: int, d: int) -> void: # Throw error from Wasm module
+func _abort(a: int, b: int, c: int, d: int) -> void: # Throw error from Wasm module
 	push_error("Abort from Wasm module: %d %d %d %d" % [a, b, c, d])
 
 func _draw_image(p: int, s: int) -> void: # Draw the entire image from Wasm memory

@@ -21,6 +21,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Wasm Visualizations"
+run/main_scene="res://Main.tscn"
 
 [debug]
 
