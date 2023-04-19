@@ -77,17 +77,18 @@ namespace {
         wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
         const wasm_valtype_vec_t* func_params = wasm_functype_params(func_type);
         const wasm_valtype_vec_t* func_results = wasm_functype_results(func_type);
-        NS::Array param_types, result_types;
+        NS::Array signature, param_types, result_types;
         for (uint16_t i = 0; i < func_params->size; i++) param_types.append(get_value_type(wasm_valtype_kind(func_params->data[i])));
         for (uint16_t i = 0; i < func_results->size; i++) result_types.append(get_value_type(wasm_valtype_kind(func_results->data[i])));
-        return NS::Array().make(param_types, result_types);
-        return NS::Array();
+        signature.append(param_types);
+        signature.append(result_types);
+        return signature;
       } case WASM_EXTERN_GLOBAL: {
         wasm_globaltype_t* global_type = wasm_externtype_as_globaltype((wasm_externtype_t*)type);
-        const NS::Variant variant_type = get_value_type(wasm_valtype_kind(wasm_globaltype_content(global_type)));
-        const NS::Variant variant_mutability = NS::Variant(wasm_globaltype_mutability(global_type) == WASM_VAR ? true : false);
-        return NS::Array().make(variant_type, variant_mutability);
-        return NS::Array();
+        NS::Array signature;
+        signature.append(get_value_type(wasm_valtype_kind(wasm_globaltype_content(global_type))));
+        signature.append(NS::Variant(wasm_globaltype_mutability(global_type) == WASM_VAR ? true : false));
+        return signature;
       } default: throw std::invalid_argument("Extern type has no signature");
     }
   }
