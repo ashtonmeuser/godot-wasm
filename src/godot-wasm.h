@@ -43,6 +43,7 @@ namespace godot {
       Variant global(String name);
       uint64_t mem_size();
       Ref<StreamPeerWasm> stream;
+      Ref<StreamPeerWasm> get_stream() const;
   };
 }
 

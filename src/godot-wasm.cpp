@@ -124,6 +124,8 @@ namespace godot {
       ClassDB::bind_method(D_METHOD("inspect"), &Wasm::inspect);
       ClassDB::bind_method(D_METHOD("global", "name"), &Wasm::global);
       ClassDB::bind_method(D_METHOD("function", "name", "args"), &Wasm::function);
+      ClassDB::bind_method(D_METHOD("get_stream"), &Wasm::get_stream);
+      ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "stream"), "", "get_stream");
     #else
       register_method("compile", &Wasm::compile);
       register_method("instantiate", &Wasm::instantiate);
@@ -152,6 +154,10 @@ namespace godot {
   }
 
   void Wasm::_init() { }
+
+  Ref<StreamPeerWasm> Wasm::get_stream() const {
+    return stream;
+  };
 
   godot_error Wasm::compile(PoolByteArray bytecode) {
     // Reset
