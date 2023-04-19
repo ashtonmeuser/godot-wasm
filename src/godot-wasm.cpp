@@ -298,7 +298,7 @@ namespace godot {
       const String key = decode_name(wasm_importtype_module(imports.data[i])) + "." + decode_name(wasm_importtype_name(imports.data[i]));
       switch (kind) {
         case WASM_EXTERN_FUNC:
-          import_funcs[key] = context_callback { i };
+          import_funcs[key] = context_callback { { i } };
           break;
         default: throw std::invalid_argument("Import type not implemented");
       }
@@ -331,8 +331,6 @@ namespace godot {
     wasm_module_imports(module, &imports);
     const wasm_externtype_t* type = wasm_importtype_type(imports.data[context->index]);
     const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
-    wasm_valtype_vec_t* params = (wasm_valtype_vec_t*)wasm_functype_params(func_type);
-    wasm_valtype_vec_t* results = (wasm_valtype_vec_t*)wasm_functype_results(func_type);
     wasm_func_t* func = wasm_func_new_with_env(store, func_type, callback_wrapper, context, NULL);
     return func;
   }
