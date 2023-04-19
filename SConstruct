@@ -5,6 +5,7 @@ import re
 from urllib import request
 import tarfile
 
+# Initial options inheriting from CLI args
 opts = Variables([], ARGUMENTS)
 
 # Define options

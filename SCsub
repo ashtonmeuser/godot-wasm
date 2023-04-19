@@ -1,0 +1,28 @@
+# Import env and create module-specific clone
+Import('env')
+module_env = env.Clone()
+
+# Check platform specifics
+if env['platform']=='linuxbsd':
+    module_env['LIBSUFFIX'] = '.a'
+    module_env.Append(CXXFLAGS=['-std=c++17'])
+elif env['platform']=='osx':
+    module_env['LIBSUFFIX'] = '.a'
+    module_env.Append(CXXFLAGS=['-std=c++17'])
+    env.Append(LINKFLAGS=['-framework', 'Security'])
+elif env['platform']=='windows':
+    module_env['LIBSUFFIX'] = '.lib'
+
+# Explicit static libraries
+wasmer_library = env.File('{}wasmer{}'.format(env['LIBPREFIX'], module_env.get('LIBWASMERSUFFIX', module_env['LIBSUFFIX'])))
+
+# Linked libraries (global env) and includes (cloned env)
+env.Append(LIBPATH=[env.Dir('wasmer/lib').abspath])
+env.Append(LIBS=[wasmer_library])
+module_env.Append(CPPPATH=['wasmer/include'])
+
+# Defines for module agnosticism
+module_env.Append(CPPDEFINES=["GODOT_MODULE"])
+
+# Module sources
+module_env.add_source_files(env.modules_sources, ['register_types.cpp', env.Glob('src/*.cpp')])
