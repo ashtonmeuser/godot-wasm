@@ -1,0 +1,54 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "",
+"class": "Wasm",
+"language": "NativeScript",
+"path": "res://addons/godot-wasm/Wasm.gdns"
+} ]
+_global_script_class_icons={
+"Wasm": ""
+}
+
+[application]
+
+config/name="Wasm Visualizations"
+run/main_scene="res://Main.tscn"
+
+[debug]
+
+settings/fps/force_fps=60
+
+[display]
+
+window/size/width=400
+window/size/height=400
+window/vsync/use_vsync=false
+
+[gui]
+
+common/drop_mouse_on_gui_input_disabled=true
+
+[input]
+
+toggle_fps_cap={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":67,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
+ ]
+}
+
+[physics]
+
+common/enable_pause_aware_picking=true
+
+[rendering]
+
+environment/default_clear_color=Color( 1, 1, 1, 1 )

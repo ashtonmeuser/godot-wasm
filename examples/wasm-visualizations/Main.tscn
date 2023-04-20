@@ -1,0 +1,118 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Main.gd" type="Script" id=1]
+[ext_resource path="res://Thaleah.ttf" type="DynamicFontData" id=2]
+
+[sub_resource type="StyleBoxFlat" id=4]
+content_margin_top = 12.0
+content_margin_bottom = 12.0
+bg_color = Color( 0, 0, 0, 1 )
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+corner_detail = 5
+
+[sub_resource type="DynamicFont" id=5]
+size = 32
+extra_spacing_top = -4
+extra_spacing_bottom = -4
+font_data = ExtResource( 2 )
+
+[node name="Main" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+
+[node name="Tween" type="Tween" parent="."]
+
+[node name="TextureRect" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+expand = true
+stretch_mode = 6
+
+[node name="Info" type="PanelContainer" parent="."]
+modulate = Color( 1, 1, 1, 0 )
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -128.0
+margin_top = -98.0
+margin_right = 128.0
+custom_styles/panel = SubResource( 4 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Info"]
+margin_top = 12.0
+margin_right = 256.0
+margin_bottom = 86.0
+
+[node name="LabelModule" type="Label" parent="Info/VBoxContainer"]
+unique_name_in_owner = true
+margin_right = 256.0
+margin_bottom = 22.0
+custom_fonts/font = SubResource( 5 )
+text = "Module"
+align = 1
+
+[node name="LabelSize" type="Label" parent="Info/VBoxContainer"]
+unique_name_in_owner = true
+margin_top = 26.0
+margin_right = 256.0
+margin_bottom = 48.0
+custom_fonts/font = SubResource( 5 )
+text = "0 X 0"
+align = 1
+
+[node name="LabelFPS" type="Label" parent="Info/VBoxContainer"]
+unique_name_in_owner = true
+margin_top = 52.0
+margin_right = 256.0
+margin_bottom = 74.0
+custom_fonts/font = SubResource( 5 )
+text = "FPS"
+align = 1
+
+[node name="Intro" type="PanelContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -148.0
+margin_top = -110.0
+margin_right = 148.0
+margin_bottom = -12.0
+custom_styles/panel = SubResource( 4 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Intro"]
+margin_top = 12.0
+margin_right = 296.0
+margin_bottom = 86.0
+
+[node name="Label1" type="Label" parent="Intro/VBoxContainer"]
+margin_right = 296.0
+margin_bottom = 22.0
+custom_fonts/font = SubResource( 5 )
+text = "Left/right module"
+align = 1
+
+[node name="Label2" type="Label" parent="Intro/VBoxContainer"]
+margin_top = 26.0
+margin_right = 296.0
+margin_bottom = 48.0
+custom_fonts/font = SubResource( 5 )
+text = "Up/down resolution"
+align = 1
+
+[node name="Label3" type="Label" parent="Intro/VBoxContainer"]
+margin_top = 52.0
+margin_right = 296.0
+margin_bottom = 74.0
+custom_fonts/font = SubResource( 5 )
+text = "C Toggle FPS limit"
+align = 1
