@@ -22,9 +22,13 @@
 
 A Godot addon allowing for loading and interacting with [WebAssembly (Wasm)](https://webassembly.org) modules from GDScript. Note that this project is still in development.
 
-This [GDNative](https://docs.godotengine.org/en/stable/tutorials/scripting/gdnative/what_is_gdnative.html) addon uses [Wasmer](https://wasmer.io) as the WebAssembly runtime.
+Godot Wasm can be used either as a [GDNative](https://docs.godotengine.org/en/stable/tutorials/scripting/gdnative/what_is_gdnative.html) addon or Godot module. It uses [Wasmer](https://wasmer.io) as the WebAssembly runtime.
 
 ## Installation
+
+Godot Wasm supports installation via addon or module. Installing as an addon is far faster and simpler and requires merely including the asset in your Godot project while installing the module requires recompilation of the Godot engine. Note that exporting to web/HTML5 is only supported for modules (see [#15](https://github.com/ashtonmeuser/godot-wasm/issues/15)).
+
+### Addon
 
 Installation in a Godot project involves simply downloading and installing a zip file from Godot's UI. Recompilation of the engine is *not* required.
 
@@ -32,6 +36,19 @@ Installation in a Godot project involves simply downloading and installing a zip
 1. In Godot's Asset Library tab, click Import and select the addon zip file. Follow prompts to complete installation of the addon.
 
 Alternatively, you can use the Asset Library tab within the Godot editor, search for "Wasm", and follow the prompts to install. Yet another alternative is downloading directly from the [asset page](https://godotengine.org/asset-library/asset/1798) and following the installation instructions above. Note that the Asset Library has an approval process that can take several days and may therefore be a version or two behind.
+
+### Godot Module
+
+Installation as a Godot module requires recompilation of the Godot engine. This enables exporting to web/HTML5.
+
+1. Clone or download the [Godot engine](https://github.com/godotengine/godot) following [this guide](https://docs.godotengine.org/en/3.5/development/compiling/getting_source.html).
+1. Download the project source via the [releases page](https://github.com/ashtonmeuser/godot-wasm/releases) or Code → Download ZIP on GitHub.
+1. Include the entire Godot Wasm directory within the *godot/modules* directory.
+1. Rename the Godot Wasm directory to *wasm*. All project files e.g. *config.py* should now be in *godot/modules/wasm*.
+
+Recompile the Godot engine following [this guide](https://docs.godotengine.org/en/3.5/development/compiling/index.html#toc-devel-compiling). More information on custom Godot modules can be found in [this guide](https://docs.godotengine.org/en/3.5/development/cpp/custom_modules_in_cpp.html).
+
+To export using the customized engine, you'll also need to recompile the export templates (documented in the Engine compilation guide).
 
 ## Usage
 
@@ -56,7 +73,7 @@ Once installed as an addon in a Godot project, the Godot Wasm addon class can be
 ### Exporting Godot Project
 
 > **Note**
-> Exporting to web/HTML5 using a GDNative addon is not supported by Godot. See [godotengine/godot#12243](https://github.com/godotengine/godot/issues/12243).
+> Exporting to web/HTML5 using a GDNative addon is not supported by Godot. See [godotengine/godot#12243](https://github.com/godotengine/godot/issues/12243). Install as a Godot Module to enable web/HTML5 exports.
 
 Exporting from Godot may require the following additional steps. See the export configuration of the [example Godot project](https://github.com/ashtonmeuser/godot-wasm/tree/master/examples) for a practical illustration.
 
