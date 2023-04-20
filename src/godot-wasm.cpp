@@ -8,6 +8,8 @@ namespace {
   struct context_callback: public context_extern {
     NS::Object* target;
     NS::String method; // External name; doesn't necessarily match import name
+    context_callback() { }
+    context_callback(uint16_t i): context_extern { i } { }
   };
 
   NS::Variant decode_variant(wasm_val_t value) {
@@ -36,7 +38,7 @@ namespace {
   void push_results(NS::Variant variant, wasm_val_vec_t* results) { // TODO: Rename
     if (results->size <= 0) return;
     if (variant.get_type() == NS::Variant::ARRAY) {
-      NS::Array array = (NS::Array)variant;
+      NS::Array array = variant.operator NS::Array();
       if (array.size() != results->size) throw std::length_error("Results length mismatch");
       for (uint16_t i = 0; i < results->size; i++) results->data[i] = encode_variant(array[i]);
     } else if (results->size == 1) {
@@ -316,7 +318,7 @@ namespace godot {
       const String key = decode_name(wasm_importtype_module(imports.data[i])) + "." + decode_name(wasm_importtype_name(imports.data[i]));
       switch (kind) {
         case WASM_EXTERN_FUNC:
-          import_funcs[key] = context_callback { { i } };
+          import_funcs[key] = { i };
           break;
         default: throw std::invalid_argument("Import type not implemented");
       }
@@ -331,10 +333,10 @@ namespace godot {
       const String key = decode_name(wasm_exporttype_name(exports.data[i]));
       switch (kind) {
         case WASM_EXTERN_FUNC:
-          export_funcs[key] = context_extern { i };
+          export_funcs[key] = { i };
           break;
         case WASM_EXTERN_GLOBAL:
-          export_globals[key] = context_extern { i };
+          export_globals[key] = { i };
           break;
         case WASM_EXTERN_MEMORY:
           memory_index = i;
