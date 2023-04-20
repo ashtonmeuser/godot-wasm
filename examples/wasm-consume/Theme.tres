@@ -1,4 +1,18 @@
-[gd_resource type="Theme" load_steps=7 format=2]
+[gd_resource type="Theme" load_steps=8 format=2]
+
+[sub_resource type="StyleBoxFlat" id=9]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color( 1, 1, 1, 1 )
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+expand_margin_left = 2.0
+expand_margin_right = 2.0
 
 [sub_resource type="StyleBoxEmpty" id=6]
 
@@ -46,11 +60,17 @@ corner_radius_bottom_left = 6
 font_path = "res://Inter-Regular.ttf"
 
 [sub_resource type="DynamicFont" id=3]
-size = 12
 font_data = SubResource( 5 )
 
 [resource]
 default_font = SubResource( 3 )
+Button/colors/font_color = Color( 1, 1, 1, 1 )
+Button/colors/font_color_focus = Color( 1, 1, 1, 1 )
+Button/colors/font_color_hover = Color( 1, 1, 1, 1 )
+Button/styles/focus = SubResource( 9 )
+Button/styles/hover = SubResource( 9 )
+Button/styles/normal = SubResource( 9 )
+Button/styles/pressed = SubResource( 9 )
 HBoxContainer/constants/separation = 16
 LineEdit/constants/minimum_spaces = 10
 LineEdit/styles/focus = SubResource( 6 )

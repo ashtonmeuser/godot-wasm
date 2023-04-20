@@ -4,10 +4,16 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <map>
 #include <Godot.hpp>
 #include "wasmer.h"
 #include "defs.h"
 #include "stream-peer-wasm.h"
+
+namespace {
+  struct context_extern;
+  struct context_callback;
+}
 
 namespace godot {
   class Wasm : public Reference {
@@ -18,10 +24,12 @@ namespace godot {
       wasm_store_t* store;
       wasm_module_t* module;
       wasm_instance_t* instance;
-      Dictionary functions;
-      Dictionary globals;
       uint16_t memory_index;
+      std::map<String, context_callback> import_funcs;
+      std::map<String, context_extern> export_globals;
+      std::map<String, context_extern> export_funcs;
       void map_names();
+      wasm_func_t* create_callback(context_callback* context);
 
     public:
       static void _register_methods();
@@ -29,8 +37,8 @@ namespace godot {
       ~Wasm();
       void _init();
       godot_error compile(PoolByteArray bytecode);
-      godot_error instantiate();
-      godot_error load(PoolByteArray bytecode);
+      godot_error instantiate(const Dictionary import_map);
+      godot_error load(PoolByteArray bytecode, const Dictionary import_map);
       Dictionary inspect();
       Variant function(String name, Array args);
       Variant global(String name);

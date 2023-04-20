@@ -1,6 +1,11 @@
-export const global_const: i64 = 739397;
-export let global_var: f64 = 1.6180339;
+export const global_const: f64 = 1.6180339; // Example of exported constant
+export let from_callback: i64 = 0; // Stores import function return value
 export let memory_value: i64; // Used to store first 8 bytes of memory
+
+// Declare imported function
+// Optionally rename module and name via @external("module", "name")
+// See https://www.assemblyscript.org/concepts.html#code-annotations
+declare function callback(a: i64): i64
 
 // Stub AssemblyScript abort method to avoid import function
 // See https://www.assemblyscript.org/concepts.html#special-imports
@@ -10,8 +15,11 @@ export function update_memory(): void {
   memory_value = load<i64>(0);
 }
 
-export function add(a: i64, b: i64): i64 {
-  return a + b;
+// Call imported function from Wasm module
+// In practice, this could be called when encountering error, etc.
+// Instead, we'll just set a global with the callback return value
+export function invoke_callback(): void {
+  from_callback = callback(from_callback);
 }
 
 export function fibonacci(_n: i64): i64 {

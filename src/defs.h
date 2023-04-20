@@ -10,7 +10,7 @@ namespace {
   #define GDERROR(error) GODOT_##error
   #define PRINT_ERROR(message) godot::Godot::print_error("Godot Wasm: " + godot::String(message), __func__, __FILE__, __LINE__);
   #define FAIL(message, ret) do { PRINT_ERROR(message); return ret; } while (0)
-  #define FAIL_IF(cond, message, ret) do { if (UNLIKELY(cond)) FAIL(message, ret); } while (0)
+  #define FAIL_IF(cond, message, ret) if (UNLIKELY(cond)) FAIL(message, ret)
   #define NULL_VARIANT godot::Variant()
   #define PAGE_SIZE 65536
 }

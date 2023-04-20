@@ -1,10 +1,10 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://Main.gd" type="Script" id=1]
 [ext_resource path="res://Inter-Bold.ttf" type="DynamicFontData" id=2]
+[ext_resource path="res://Fira-Mono.ttf" type="DynamicFontData" id=3]
 
 [sub_resource type="DynamicFont" id=4]
-size = 12
 font_data = ExtResource( 2 )
 
 [sub_resource type="StyleBoxFlat" id=3]
@@ -15,6 +15,9 @@ corner_radius_top_right = 6
 expand_margin_left = 10.0
 expand_margin_right = 10.0
 expand_margin_top = 6.0
+
+[sub_resource type="DynamicFont" id=6]
+font_data = ExtResource( 3 )
 
 [sub_resource type="StyleBoxFlat" id=5]
 content_margin_left = 6.0
@@ -32,39 +35,42 @@ corner_radius_bottom_left = 6
 expand_margin_left = 2.0
 expand_margin_right = 2.0
 
+[sub_resource type="DynamicFont" id=7]
+font_data = ExtResource( 3 )
+
 [node name="HBoxContainer" type="MarginContainer"]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = -256.0
-margin_top = -150.0
-margin_right = 256.0
-margin_bottom = 150.0
+margin_left = -427.0
+margin_top = -240.0
+margin_right = 427.0
+margin_bottom = 240.0
 script = ExtResource( 1 )
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 margin_left = 16.0
 margin_top = 18.0
-margin_right = 496.0
-margin_bottom = 282.0
+margin_right = 838.0
+margin_bottom = 462.0
 
 [node name="ModuleInfo" type="PanelContainer" parent="HBoxContainer"]
-margin_right = 140.0
-margin_bottom = 264.0
-rect_min_size = Vector2( 140, 0 )
+margin_right = 240.0
+margin_bottom = 444.0
+rect_min_size = Vector2( 240, 0 )
 mouse_filter = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/ModuleInfo"]
 margin_left = 10.0
 margin_top = 6.0
-margin_right = 130.0
-margin_bottom = 254.0
+margin_right = 230.0
+margin_bottom = 434.0
 custom_constants/separation = 8
 
 [node name="Title" type="Label" parent="HBoxContainer/ModuleInfo/VBoxContainer"]
-margin_right = 120.0
-margin_bottom = 21.0
+margin_right = 220.0
+margin_bottom = 26.0
 custom_fonts/font = SubResource( 4 )
 custom_styles/normal = SubResource( 3 )
 text = "Wasm Module Info"
@@ -73,10 +79,11 @@ valign = 1
 
 [node name="InfoText" type="RichTextLabel" parent="HBoxContainer/ModuleInfo/VBoxContainer"]
 unique_name_in_owner = true
-margin_top = 29.0
-margin_right = 120.0
-margin_bottom = 248.0
+margin_top = 34.0
+margin_right = 220.0
+margin_bottom = 428.0
 size_flags_vertical = 3
+custom_fonts/mono_font = SubResource( 6 )
 custom_fonts/bold_font = SubResource( 4 )
 bbcode_enabled = true
 bbcode_text = "?"
@@ -84,27 +91,27 @@ text = "?"
 scroll_active = false
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
-margin_left = 156.0
-margin_right = 480.0
-margin_bottom = 264.0
+margin_left = 256.0
+margin_right = 822.0
+margin_bottom = 398.0
 size_flags_horizontal = 3
 size_flags_vertical = 0
 
 [node name="Benchmarks" type="PanelContainer" parent="HBoxContainer/VBoxContainer"]
-margin_right = 324.0
-margin_bottom = 109.0
+margin_right = 566.0
+margin_bottom = 128.0
 mouse_filter = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/Benchmarks"]
 margin_left = 10.0
 margin_top = 6.0
-margin_right = 314.0
-margin_bottom = 99.0
+margin_right = 556.0
+margin_bottom = 118.0
 custom_constants/separation = 8
 
 [node name="Title" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer"]
-margin_right = 304.0
-margin_bottom = 21.0
+margin_right = 546.0
+margin_bottom = 26.0
 custom_fonts/font = SubResource( 4 )
 custom_styles/normal = SubResource( 3 )
 text = "Benchmarks"
@@ -112,26 +119,26 @@ align = 1
 valign = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer"]
-margin_left = 22.0
-margin_top = 29.0
-margin_right = 282.0
-margin_bottom = 51.0
+margin_left = 97.0
+margin_top = 34.0
+margin_right = 449.0
+margin_bottom = 60.0
 size_flags_horizontal = 4
-custom_constants/separation = 6
+custom_constants/separation = 10
 
 [node name="Label1" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/HBoxContainer"]
 margin_top = 3.0
-margin_right = 108.0
-margin_bottom = 18.0
+margin_right = 151.0
+margin_bottom = 23.0
 text = "Highest prime up to"
 align = 1
 
 [node name="PrimeLimit" type="SpinBox" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
-margin_left = 114.0
-margin_right = 194.0
-margin_bottom = 22.0
-rect_min_size = Vector2( 80, 22 )
+margin_left = 161.0
+margin_right = 261.0
+margin_bottom = 26.0
+rect_min_size = Vector2( 100, 26 )
 size_flags_horizontal = 4
 size_flags_vertical = 0
 max_value = 999999.0
@@ -140,73 +147,73 @@ rounded = true
 align = 1
 
 [node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/HBoxContainer"]
-margin_left = 200.0
+margin_left = 271.0
 margin_top = 3.0
-margin_right = 208.0
-margin_bottom = 18.0
+margin_right = 282.0
+margin_bottom = 23.0
 text = "="
 align = 1
 
 [node name="PrimeAnswer" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
-margin_left = 214.0
+margin_left = 292.0
 margin_top = 3.0
-margin_right = 260.0
-margin_bottom = 18.0
-rect_min_size = Vector2( 46, 0 )
+margin_right = 352.0
+margin_bottom = 23.0
+rect_min_size = Vector2( 60, 0 )
 text = "?"
 
 [node name="GridContainer" type="GridContainer" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer"]
-margin_left = 115.0
-margin_top = 59.0
-margin_right = 188.0
-margin_bottom = 93.0
+margin_left = 221.0
+margin_top = 68.0
+margin_right = 324.0
+margin_bottom = 112.0
 size_flags_horizontal = 4
-custom_constants/hseparation = 16
+custom_constants/hseparation = 26
 columns = 2
 
 [node name="Label1" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/GridContainer"]
-margin_right = 51.0
-margin_bottom = 15.0
+margin_right = 69.0
+margin_bottom = 20.0
 text = "GDScript"
 
 [node name="TimeGDScript" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/GridContainer"]
 unique_name_in_owner = true
-margin_left = 67.0
-margin_right = 73.0
-margin_bottom = 15.0
+margin_left = 95.0
+margin_right = 103.0
+margin_bottom = 20.0
 text = "?"
 
 [node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/GridContainer"]
-margin_top = 19.0
-margin_right = 51.0
-margin_bottom = 34.0
+margin_top = 24.0
+margin_right = 69.0
+margin_bottom = 44.0
 text = "Wasm"
 
 [node name="TimeWasm" type="Label" parent="HBoxContainer/VBoxContainer/Benchmarks/VBoxContainer/GridContainer"]
 unique_name_in_owner = true
-margin_left = 67.0
-margin_top = 19.0
-margin_right = 73.0
-margin_bottom = 34.0
+margin_left = 95.0
+margin_top = 24.0
+margin_right = 103.0
+margin_bottom = 44.0
 text = "?"
 
 [node name="MemoryOperations" type="PanelContainer" parent="HBoxContainer/VBoxContainer"]
-margin_top = 125.0
-margin_right = 324.0
-margin_bottom = 264.0
+margin_top = 144.0
+margin_right = 566.0
+margin_bottom = 306.0
 mouse_filter = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/MemoryOperations"]
 margin_left = 10.0
 margin_top = 6.0
-margin_right = 314.0
-margin_bottom = 129.0
+margin_right = 556.0
+margin_bottom = 152.0
 custom_constants/separation = 8
 
 [node name="Title" type="Label" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer"]
-margin_right = 304.0
-margin_bottom = 21.0
+margin_right = 546.0
+margin_bottom = 26.0
 custom_fonts/font = SubResource( 4 )
 custom_styles/normal = SubResource( 3 )
 text = "Memory Operations"
@@ -214,44 +221,45 @@ align = 1
 valign = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer"]
-margin_left = 20.0
-margin_top = 29.0
-margin_right = 283.0
-margin_bottom = 51.0
+margin_left = 63.0
+margin_top = 34.0
+margin_right = 482.0
+margin_bottom = 60.0
 size_flags_horizontal = 4
-custom_constants/separation = 6
+custom_constants/separation = 10
 
 [node name="Label1" type="Label" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/HBoxContainer"]
 margin_top = 3.0
-margin_right = 29.0
-margin_bottom = 18.0
+margin_right = 40.0
+margin_bottom = 23.0
 text = "Write"
 align = 1
 
 [node name="MemoryType" type="OptionButton" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
-margin_left = 35.0
-margin_right = 95.0
-margin_bottom = 22.0
-rect_min_size = Vector2( 60, 22 )
+margin_left = 50.0
+margin_right = 150.0
+margin_bottom = 26.0
+rect_min_size = Vector2( 100, 26 )
+mouse_default_cursor_shape = 2
 size_flags_horizontal = 0
 text = "Int"
 align = 1
 
 [node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/HBoxContainer"]
-margin_left = 101.0
+margin_left = 160.0
 margin_top = 3.0
-margin_right = 207.0
-margin_bottom = 18.0
+margin_right = 309.0
+margin_bottom = 23.0
 text = "to memory position"
 align = 1
 
 [node name="MemoryOffset" type="SpinBox" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
-margin_left = 213.0
-margin_right = 263.0
-margin_bottom = 22.0
-rect_min_size = Vector2( 0, 22 )
+margin_left = 319.0
+margin_right = 419.0
+margin_bottom = 26.0
+rect_min_size = Vector2( 100, 26 )
 size_flags_horizontal = 4
 size_flags_vertical = 0
 max_value = 7.0
@@ -260,16 +268,16 @@ align = 1
 
 [node name="MemoryInput" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer"]
 unique_name_in_owner = true
-margin_left = 92.0
-margin_top = 59.0
-margin_right = 212.0
-margin_bottom = 81.0
+margin_left = 173.0
+margin_top = 68.0
+margin_right = 373.0
+margin_bottom = 94.0
 size_flags_horizontal = 4
 
 [node name="MemoryInt" type="SpinBox" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/MemoryInput"]
-margin_right = 120.0
-margin_bottom = 22.0
-rect_min_size = Vector2( 120, 22 )
+margin_right = 200.0
+margin_bottom = 26.0
+rect_min_size = Vector2( 200, 26 )
 size_flags_horizontal = 4
 size_flags_vertical = 0
 min_value = -9.22337e+18
@@ -282,7 +290,7 @@ visible = false
 margin_top = 36.0
 margin_right = 80.0
 margin_bottom = 58.0
-rect_min_size = Vector2( 120, 22 )
+rect_min_size = Vector2( 200, 26 )
 size_flags_horizontal = 4
 size_flags_vertical = 0
 min_value = -9.22337e+18
@@ -295,47 +303,113 @@ visible = false
 margin_top = 36.0
 margin_right = 120.0
 margin_bottom = 58.0
-rect_min_size = Vector2( 120, 22 )
+rect_min_size = Vector2( 200, 26 )
 custom_styles/normal = SubResource( 5 )
 max_length = 16
 placeholder_text = "Enter String"
 placeholder_alpha = 0.4
 
 [node name="GridContainer" type="GridContainer" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer"]
-margin_left = 55.0
-margin_top = 89.0
-margin_right = 249.0
-margin_bottom = 123.0
+margin_left = 127.0
+margin_top = 102.0
+margin_right = 418.0
+margin_bottom = 146.0
 size_flags_horizontal = 4
-custom_constants/hseparation = 16
+custom_constants/hseparation = 26
 columns = 2
 
 [node name="Label1" type="Label" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/GridContainer"]
-margin_right = 78.0
-margin_bottom = 15.0
+margin_right = 105.0
+margin_bottom = 20.0
 text = "Global Value"
 
 [node name="GlobalValue" type="Label" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/GridContainer"]
 unique_name_in_owner = true
-margin_left = 94.0
-margin_right = 194.0
-margin_bottom = 15.0
-rect_min_size = Vector2( 100, 0 )
+margin_left = 131.0
+margin_right = 291.0
+margin_bottom = 20.0
+rect_min_size = Vector2( 160, 0 )
+custom_fonts/font = SubResource( 7 )
 text = "?"
 uppercase = true
 
 [node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/GridContainer"]
-margin_top = 19.0
-margin_right = 78.0
-margin_bottom = 34.0
+margin_top = 24.0
+margin_right = 105.0
+margin_bottom = 44.0
 text = "Memory Read"
 
 [node name="ReadValue" type="Label" parent="HBoxContainer/VBoxContainer/MemoryOperations/VBoxContainer/GridContainer"]
 unique_name_in_owner = true
-margin_left = 94.0
-margin_top = 19.0
-margin_right = 194.0
-margin_bottom = 34.0
-rect_min_size = Vector2( 100, 0 )
+margin_left = 131.0
+margin_top = 24.0
+margin_right = 291.0
+margin_bottom = 44.0
+rect_min_size = Vector2( 160, 0 )
+custom_fonts/font = SubResource( 7 )
 text = "?"
 uppercase = true
+
+[node name="Callbacks" type="PanelContainer" parent="HBoxContainer/VBoxContainer"]
+margin_top = 322.0
+margin_right = 566.0
+margin_bottom = 398.0
+mouse_filter = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/Callbacks"]
+margin_left = 10.0
+margin_top = 6.0
+margin_right = 556.0
+margin_bottom = 66.0
+custom_constants/separation = 8
+
+[node name="Title" type="Label" parent="HBoxContainer/VBoxContainer/Callbacks/VBoxContainer"]
+margin_right = 546.0
+margin_bottom = 26.0
+custom_fonts/font = SubResource( 4 )
+custom_styles/normal = SubResource( 3 )
+text = "Import Functions"
+align = 1
+valign = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/Callbacks/VBoxContainer"]
+margin_left = 152.0
+margin_top = 34.0
+margin_right = 393.0
+margin_bottom = 60.0
+size_flags_horizontal = 4
+custom_constants/separation = 10
+
+[node name="CallbackButton" type="Button" parent="HBoxContainer/VBoxContainer/Callbacks/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+margin_right = 100.0
+margin_bottom = 26.0
+rect_min_size = Vector2( 100, 26 )
+mouse_default_cursor_shape = 2
+text = "Callback"
+
+[node name="Label1" type="Label" parent="HBoxContainer/VBoxContainer/Callbacks/VBoxContainer/HBoxContainer"]
+margin_left = 110.0
+margin_top = 3.0
+margin_right = 170.0
+margin_bottom = 23.0
+text = "invoked"
+align = 1
+
+[node name="CallbackCount" type="Label" parent="HBoxContainer/VBoxContainer/Callbacks/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+margin_left = 180.0
+margin_top = 3.0
+margin_right = 190.0
+margin_bottom = 23.0
+custom_fonts/font = SubResource( 7 )
+text = "0"
+align = 1
+
+[node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/Callbacks/VBoxContainer/HBoxContainer"]
+margin_left = 200.0
+margin_top = 3.0
+margin_right = 241.0
+margin_bottom = 23.0
+text = "times"
+align = 1
