@@ -25,4 +25,4 @@ module_env.Append(CPPPATH=['wasmer/include'])
 module_env.Append(CPPDEFINES=["GODOT_MODULE"])
 
 # Module sources
-module_env.add_source_files(env.modules_sources, ['register_types.cpp', env.Glob('src/*.cpp')])
+module_env.add_source_files(env.modules_sources, ['register_types.cpp', env.Glob('src/*.cpp', exclude='src/godot-library.cpp')])
