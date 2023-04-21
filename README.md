@@ -42,7 +42,7 @@ Alternatively, you can use the Asset Library tab within the Godot editor, search
 Installation as a Godot module requires recompilation of the Godot engine. This enables exporting to web/HTML5.
 
 1. Clone or download the [Godot engine](https://github.com/godotengine/godot) following [this guide](https://docs.godotengine.org/en/3.5/development/compiling/getting_source.html).
-1. Download the project source via the [releases page](https://github.com/ashtonmeuser/godot-wasm/releases) or Code → Download ZIP on GitHub.
+1. Download the Godot Wasm source via the [releases page](https://github.com/ashtonmeuser/godot-wasm/releases) or Code → Download ZIP on GitHub.
 1. Include the entire Godot Wasm directory within the *godot/modules* directory.
 1. Rename the Godot Wasm directory to *wasm*. All project files e.g. *SCsub* should now be in *godot/modules/wasm*.
 
