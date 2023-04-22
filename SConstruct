@@ -5,6 +5,7 @@ import re
 from urllib import request
 import tarfile
 
+# Initial options inheriting from CLI args
 opts = Variables([], ARGUMENTS)
 
 # Define options
@@ -56,7 +57,7 @@ if env['download_wasmer'] or not os.path.isdir('wasmer'):
 
 # Check platform specifics
 if env['platform'] == 'osx':
-    env.Append(CCFLAGS=['-arch', 'x86_64'])
+    env.Append(CCFLAGS=['-arch', 'x86_64', '-Wall'])
     env.Append(CXXFLAGS=['-std=c++17'])
     env.Append(LINKFLAGS=['-arch', 'x86_64', '-framework', 'Security'])
     if env['target'] in ('debug', 'd'):

@@ -10,3 +10,5 @@ addons.zip
 *.so
 *.dylib
 *.dll
+*.o
+__pycache__

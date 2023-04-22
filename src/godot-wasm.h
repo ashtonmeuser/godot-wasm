@@ -5,7 +5,6 @@
 #include <vector>
 #include <stdexcept>
 #include <map>
-#include <Godot.hpp>
 #include "wasmer.h"
 #include "defs.h"
 #include "stream-peer-wasm.h"
@@ -17,7 +16,7 @@ namespace {
 
 namespace godot {
   class Wasm : public Reference {
-    GODOT_CLASS(Wasm, Reference)
+    GDCLASS(Wasm, Reference);
 
     private:
       wasm_engine_t* engine;
@@ -32,7 +31,7 @@ namespace godot {
       wasm_func_t* create_callback(context_callback* context);
 
     public:
-      static void _register_methods();
+      static void REGISTRATION_METHOD();
       Wasm();
       ~Wasm();
       void _init();
@@ -44,6 +43,7 @@ namespace godot {
       Variant global(String name);
       uint64_t mem_size();
       Ref<StreamPeerWasm> stream;
+      Ref<StreamPeerWasm> get_stream() const;
   };
 }
 

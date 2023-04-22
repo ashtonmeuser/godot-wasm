@@ -1,3 +1,5 @@
+#ifndef GODOT_MODULE
+
 #include "godot-wasm.h"
 #include "stream-peer-wasm.h"
 
@@ -15,3 +17,5 @@ extern "C" void GDN_EXPORT wasm_nativescript_init(void *handle) {
   godot::register_class<godot::Wasm>();
   godot::register_class<godot::StreamPeerWasm>();
 }
+
+#endif
