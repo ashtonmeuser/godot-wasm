@@ -24,11 +24,22 @@ namespace godot {
     }
 
     wasm_val_t encode_variant(Variant variant) {
+      wasm_val_t value;
       switch (variant.get_type()) {
-        case Variant::INT: return WASM_I64_VAL((int64_t)variant);
-        case Variant::REAL: return WASM_F64_VAL((float64_t)variant);
-        default: FAIL("Unsupported Godot variant type", WASM_INIT_VAL);
+        case Variant::INT:
+          value.kind = WASM_I64;
+          value.of.i64 = (int64_t)variant;
+          break;
+        case Variant::REAL:
+          value.kind = WASM_F64;
+          value.of.f64 = (float64_t)variant;
+          break;
+        default:
+          PRINT_ERROR("Unsupported Godot variant type");
+          value.kind = WASM_ANYREF;
+          value.of.ref = NULL;
       }
+      return value;
     }
 
     String decode_name(const wasm_name_t* name) {
@@ -280,20 +291,26 @@ namespace godot {
     // Construct args
     std::vector<wasm_val_t> vect;
     for (uint16_t i = 0; i < args.size(); i++) {
-      Variant val = args[i];
-      switch (val.get_type()) {
+      Variant variant = args[i];
+      wasm_val_t value;
+      switch (variant.get_type()) {
         case Variant::INT:
-          vect.push_back(WASM_I64_VAL((int64_t)val));
+          value.kind = WASM_I64;
+          value.of.i64 = (int64_t)variant;
           break;
         case Variant::REAL:
-          vect.push_back(WASM_F64_VAL((float64_t)val));
+          value.kind = WASM_F64;
+          value.of.f64 = (float64_t)variant;
           break;
         default: FAIL("Invalid argument type", NULL_VARIANT);
       }
+      vect.push_back(value);
     }
 
     // Call function
-    wasm_val_t results_val[1] = { WASM_INIT_VAL };
+    wasm_val_t results_val[1];
+    results_val[0].kind = WASM_ANYREF;
+    results_val[0].of.ref = NULL;
     wasm_val_vec_t f_args = { vect.size(), vect.data() };
     wasm_val_vec_t f_results = WASM_ARRAY_VEC(results_val);
     FAIL_IF(wasm_func_call(func, &f_args, &f_results), "Failed calling function " + name, NULL_VARIANT);
