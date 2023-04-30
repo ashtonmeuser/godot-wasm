@@ -39,16 +39,16 @@ Alternatively, you can use the Asset Library tab within the Godot editor, search
 
 ### Godot Module
 
-Installation as a Godot module requires recompilation of the Godot engine. This enables exporting to web/HTML5.
+Installation as a Godot module requires recompilation of the Godot engine.
 
 1. Clone or download the [Godot engine](https://github.com/godotengine/godot) following [this guide](https://docs.godotengine.org/en/3.5/development/compiling/getting_source.html).
-1. Download the project source via the [releases page](https://github.com/ashtonmeuser/godot-wasm/releases) or Code → Download ZIP on GitHub.
+1. Download the Godot Wasm source via the [releases page](https://github.com/ashtonmeuser/godot-wasm/releases) or Code → Download ZIP on GitHub.
 1. Include the entire Godot Wasm directory within the *godot/modules* directory.
 1. Rename the Godot Wasm directory to *wasm*. All project files e.g. *SCsub* should now be in *godot/modules/wasm*.
 
 Recompile the Godot engine following [this guide](https://docs.godotengine.org/en/3.5/development/compiling/index.html#toc-devel-compiling). More information on custom Godot modules can be found in [this guide](https://docs.godotengine.org/en/3.5/development/cpp/custom_modules_in_cpp.html).
 
-To export using the customized engine, you'll also need to recompile the export templates (documented in the Engine compilation guide).
+Compiling the web/HTML5 export template is not yet supported (see [#18](https://github.com/ashtonmeuser/godot-wasm/issues/18)).
 
 ## Usage
 
@@ -73,9 +73,9 @@ Once installed as an addon in a Godot project, the Godot Wasm addon class can be
 ### Exporting Godot Project
 
 > **Note**
-> Exporting to web/HTML5 using a GDNative addon is not supported by Godot. See [godotengine/godot#12243](https://github.com/godotengine/godot/issues/12243). Install as a Godot Module to enable web/HTML5 exports.
+> Exporting to web/HTML5 is not supported. See [#15](https://github.com/ashtonmeuser/godot-wasm/issues/15) and [#18](https://github.com/ashtonmeuser/godot-wasm/issues/18).
 
-Exporting from Godot may require the following additional steps. See the export configuration of the [example Godot project](https://github.com/ashtonmeuser/godot-wasm/tree/master/examples) for a practical illustration.
+Exporting to Windows, macOS, and Linux is officially supported. Exporting from Godot may require the following additional steps. See the export configuration of the [example Godot project](https://github.com/ashtonmeuser/godot-wasm/tree/master/examples) for a practical illustration.
 
 1. For macOS exports, disable library validation in Project → Export → Options.
 1. If your project contains Wasm files, they'll need to be marked for export. Add `*.wasm` in Project → Export → Resources.
@@ -152,7 +152,7 @@ If frequently iterating on the addon using a Godot project, it may help to creat
 1. No [WASI](https://wasmbyexample.dev/examples/wasi-introduction/wasi-introduction.all.en-us.html) bindings are provided to the Wasm module. This means that the guest Wasm module has no access to the host machines filesystem, etc. Pros for this are simplicity and increased security. Cons include not being able to generate truly random numbers (without a workaround) or run Wasm modules created in ways that require WASI bindings e.g. [TinyGo](https://tinygo.org/docs/guides/webassembly/) (see relevant [issue](https://github.com/tinygo-org/tinygo/issues/3068)).
 1. Only `int` and `float` return values are supported. While workarounds could be used, this limitation is because the only [concrete types supported by Wasm](https://webassembly.github.io/spec/core/syntax/types.html#number-types) are integers and floating point.
 1. A default empty `args` parameter for `function(name, args)` can not be supplied. Default `Array` parameters in GDNative seem to retain values between calls. Calling methods of this addon without expected arguments produces undefined behaviour. This is reliant on [godotengine/godot-cpp#209](https://github.com/godotengine/godot-cpp/issues/209).
-1. Web/HTML5 export fails when Godot Wasm is used as an addon (see [#15](https://github.com/ashtonmeuser/godot-wasm/issues/15)).
+1. Web/HTML5 export is not supported (see [#15](https://github.com/ashtonmeuser/godot-wasm/issues/15) and [#18](https://github.com/ashtonmeuser/godot-wasm/issues/18)).
 
 ## Relevant Discussion
 

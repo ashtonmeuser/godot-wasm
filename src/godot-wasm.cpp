@@ -18,8 +18,7 @@ namespace {
       case WASM_I64: return NS::Variant(value.of.i64);
       case WASM_F32: return NS::Variant(value.of.f32);
       case WASM_F64: return NS::Variant(value.of.f64);
-      case WASM_ANYREF: if (value.of.ref == NULL) return NULL_VARIANT;
-      default: throw std::invalid_argument("Unsupported Wasm type");
+      default: FAIL("Unsupported Wasm type", NULL_VARIANT);
     }
   }
 
@@ -27,7 +26,7 @@ namespace {
     switch (variant.get_type()) {
       case NS::Variant::INT: return WASM_I64_VAL((int64_t)variant);
       case NS::Variant::REAL: return WASM_F64_VAL((float64_t)variant);
-      default: throw std::invalid_argument("Unsupported Godot variant type");
+      default: FAIL("Unsupported Godot variant type", WASM_INIT_VAL);
     }
   }
 
@@ -35,15 +34,20 @@ namespace {
     return NS::String(std::string(name->data, name->size).c_str());
   }
 
-  void push_results(NS::Variant variant, wasm_val_vec_t* results) { // TODO: Rename
-    if (results->size <= 0) return;
+  godot_error extract_results(NS::Variant variant, wasm_val_vec_t* results) {
+    if (results->size <= 0) return OK;
     if (variant.get_type() == NS::Variant::ARRAY) {
       NS::Array array = variant.operator NS::Array();
-      if (array.size() != results->size) throw std::length_error("Results length mismatch");
-      for (uint16_t i = 0; i < results->size; i++) results->data[i] = encode_variant(array[i]);
+      if (array.size() != results->size) return ERR_PARAMETER_RANGE_ERROR;
+      for (uint16_t i = 0; i < results->size; i++) {
+        results->data[i] = encode_variant(array[i]);
+        if (results->data[i].kind == WASM_ANYREF) return ERR_INVALID_DATA;
+      }
+      return OK;
     } else if (results->size == 1) {
       results->data[0] = encode_variant(variant);
-    } else throw std::runtime_error("Unable to parse result variants");
+      return results->data[0].kind == WASM_ANYREF ? ERR_INVALID_DATA : OK;
+    } else return ERR_INVALID_DATA;
   }
 
   wasm_extern_t* get_export_data(const wasm_instance_t* instance, uint16_t index) {
@@ -54,9 +58,9 @@ namespace {
 
   NS::Variant::Type get_value_type(const wasm_valkind_t& kind) {
     switch (kind) {
-      case WASM_I32: case WASM_I64: return NS::Variant::Type::INT;
-      case WASM_F32: case WASM_F64: return NS::Variant::Type::REAL;
-      default: throw std::invalid_argument("Unsupported value kind");
+      case WASM_I32: case WASM_I64: return NS::Variant::INT;
+      case WASM_F32: case WASM_F64: return NS::Variant::REAL;
+      default: FAIL("Unsupported value kind", NS::Variant::NIL);
     }
   }
 
@@ -91,14 +95,14 @@ namespace {
         signature.append(get_value_type(wasm_valtype_kind(wasm_globaltype_content(global_type))));
         signature.append(NS::Variant(wasm_globaltype_mutability(global_type) == WASM_VAR ? true : false));
         return signature;
-      } default: throw std::invalid_argument("Extern type has no signature");
+      } default: FAIL("Unsupported extern type", NS::Array());
     }
   }
 
-  wasm_trap_t* make_trap(const std::exception& e) { // TODO: Rename
-    wasm_message_t message;
-    wasm_name_new_from_string_nt(&message, e.what());
-    return wasm_trap_new(NULL, &message);
+  wasm_trap_t* trap(const char* message) {
+    wasm_message_t trap_message;
+    wasm_name_new_from_string_nt(&trap_message, message);
+    return wasm_trap_new(NULL, &trap_message);
   }
 
   wasm_trap_t* callback_wrapper(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
@@ -110,9 +114,8 @@ namespace {
     for (uint16_t i = 0; i < args->size; i++) params.push_back(decode_variant(args->data[i]));
     // TODO: Ensure target is valid and has method
     NS::Variant variant = context->target->callv(context->method, params);
-    try { push_results(variant, results); }
-    catch (const std::invalid_argument& e) { FAIL(e.what(), make_trap(e)); }
-    catch (const std::length_error& e) { FAIL(e.what(), make_trap(e)); }
+    godot_error error = extract_results(variant, results);
+    if (error) FAIL("Extracting import function results failed", trap("Extracting import function results failed"));
     return NULL;
   }
 }
@@ -183,7 +186,7 @@ namespace godot {
     FAIL_IF(module == NULL, "Compilation failed", ERR_COMPILATION_FAILED);
 
     // Map names to export indices
-    map_names();
+    FAIL_IF(map_names(), "Failed to parse module imports or exports", ERR_COMPILATION_FAILED);
 
     return OK;
   }
@@ -262,8 +265,7 @@ namespace godot {
     // Extract result
     wasm_val_t result;
     wasm_global_get(global, &result);
-    try { return decode_variant(result); }
-    catch (const std::invalid_argument& e) { FAIL(e.what(), NULL_VARIANT); }
+    return decode_variant(result);
   }
 
   Variant Wasm::function(String name, Array args) {
@@ -298,8 +300,7 @@ namespace godot {
 
     // Extract result
     wasm_val_t result = results_val[0];
-    try { return decode_variant(result); }
-    catch (const std::invalid_argument& e) { FAIL(e.what(), NULL_VARIANT); }
+    return result.kind == WASM_ANYREF ? NULL_VARIANT : decode_variant(result);
   }
 
   uint64_t Wasm::mem_size() {
@@ -308,7 +309,7 @@ namespace godot {
     return wasm_memory_data_size(stream->memory);
   }
 
-  void Wasm::map_names() {
+  godot_error Wasm::map_names() {
     // Module imports
     wasm_importtype_vec_t imports;
     wasm_module_imports(module, &imports);
@@ -320,7 +321,7 @@ namespace godot {
         case WASM_EXTERN_FUNC:
           import_funcs[key] = { i };
           break;
-        default: throw std::invalid_argument("Import type not implemented");
+        default: FAIL("Import type not implemented", ERR_INVALID_DATA);
       }
     }
 
@@ -341,9 +342,11 @@ namespace godot {
         case WASM_EXTERN_MEMORY:
           memory_index = i;
           break;
-        default: throw std::invalid_argument("Export type not implemented");
+        default: FAIL("Export type not implemented", ERR_INVALID_DATA);
       }
     }
+
+    return OK;
   }
 
   wasm_func_t* Wasm::create_callback(context_callback* context) {

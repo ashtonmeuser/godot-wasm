@@ -25,6 +25,7 @@ namespace {
     #define ERR_INVALID_DATA GODOT_ERR_INVALID_DATA
     #define ERR_COMPILATION_FAILED GODOT_ERR_COMPILATION_FAILED
     #define ERR_CANT_CREATE GODOT_ERR_CANT_CREATE
+    #define ERR_PARAMETER_RANGE_ERROR GODOT_ERR_PARAMETER_RANGE_ERROR
     #define PRINT_ERROR(message) godot::Godot::print_error("Godot Wasm: " + godot::String(message), __func__, __FILE__, __LINE__)
     #define GDCLASS GODOT_CLASS
     #define REGISTRATION_METHOD _register_methods
