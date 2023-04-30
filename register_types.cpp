@@ -1,7 +1,6 @@
 #ifdef GODOT_MODULE
 
 #include "register_types.h"
-
 #include "core/class_db.h"
 #include "src/godot-wasm.h"
 #include "src/stream-peer-wasm.h"
