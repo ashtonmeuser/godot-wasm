@@ -102,6 +102,6 @@ env.Append(CPPPATH=['.', 'godot-cpp/godot-headers', 'godot-cpp/include', 'wasmer
 env.Append(LIBS=[cpp_library, wasmer_library])
 
 # Builders
-env.SharedLibrary(target='addons/godot-wasm/bin/{}/godot-wasm'.format(env['platform']), source=env.Glob('src/*.cpp'))
+library = env.SharedLibrary(target='addons/godot-wasm/bin/{}/godot-wasm'.format(env['platform']), source=env.Glob('src/*.cpp'))
 env.Help(opts.GenerateHelpText(env))
-
+Default(library)
