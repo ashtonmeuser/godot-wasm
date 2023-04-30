@@ -1,7 +1,7 @@
 name: Build
 on:
   push:
-    branches: [master]
+    branches: [master, godot-4]
   workflow_dispatch:
     inputs:
       debug_enabled:
@@ -13,6 +13,7 @@ on:
 env:
   LIBRARY_PATH: addons/godot-wasm/bin
   WASMER_VERSION: v3.1.1
+  ARTIFACT_SUFFIX: ''
 
 jobs:
   build-linux:
@@ -59,12 +60,15 @@ jobs:
           scons platform=linux target=release generate_bindings=yes -j4
 
       - name: Compile Addon
-        run: scons platform=linux target=release
+        run: scons platform=linux
+
+      - name: Artifact Suffix
+        run: if [[ $GITHUB_REF == 'refs/heads/master' ]]; then echo "ARTIFACT_SUFFIX=-godot-3" >> "$GITHUB_ENV"; elif [[ $GITHUB_REF == 'refs/heads/godot-4' ]]; then echo "ARTIFACT_SUFFIX=-godot-4" >> "$GITHUB_ENV"; fi
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: linux
+          name: linux${{ env.ARTIFACT_SUFFIX }}
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/linux
           if-no-files-found: error
 
@@ -105,12 +109,15 @@ jobs:
           scons platform=osx target=release generate_bindings=yes -j4
 
       - name: Compile Addon
-        run: scons platform=osx target=release
+        run: scons platform=macos
+
+      - name: Artifact Suffix
+        run: if [[ $GITHUB_REF == 'refs/heads/master' ]]; then echo "ARTIFACT_SUFFIX=-godot-3" >> "$GITHUB_ENV"; elif [[ $GITHUB_REF == 'refs/heads/godot-4' ]]; then echo "ARTIFACT_SUFFIX=-godot-4" >> "$GITHUB_ENV"; fi
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: osx
+          name: osx${{ env.ARTIFACT_SUFFIX }}
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/osx
           if-no-files-found: error
 
@@ -154,12 +161,15 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Compile Addon
-        run: scons platform=windows target=release
+        run: scons platform=windows
+
+      - name: Artifact Suffix
+        run: if [[ $GITHUB_REF == 'refs/heads/master' ]]; then echo "ARTIFACT_SUFFIX=-godot-3" >> "$GITHUB_ENV"; elif [[ $GITHUB_REF == 'refs/heads/godot-4' ]]; then echo "ARTIFACT_SUFFIX=-godot-4" >> "$GITHUB_ENV"; fi
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: windows
+          name: windows${{ env.ARTIFACT_SUFFIX }}
           if-no-files-found: error
           path: |
             ${{ github.workspace }}\${{ env.LIBRARY_PATH }}\windows\

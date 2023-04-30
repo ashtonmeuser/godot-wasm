@@ -9,8 +9,8 @@ import tarfile
 opts = Variables([], ARGUMENTS)
 
 # Define options
-opts.Add(EnumVariable('target', 'Compilation target', 'debug', ['debug', 'release'], {'d': 'debug'}))
-opts.Add(EnumVariable('platform', 'Compilation platform', '', ['', 'windows', 'linux', 'osx'], {'x11': 'linux'}))
+opts.Add(EnumVariable('target', 'Compilation target', 'release', ['debug', 'release'], {'d': 'debug'}))
+opts.Add(EnumVariable('platform', 'Compilation platform', '', ['', 'windows', 'linux', 'osx'], {'x11': 'linux', 'macos': 'osx'}))
 opts.Add(BoolVariable('use_llvm', 'Use LLVM/Clang compiler', 'no'))
 opts.Add(BoolVariable('download_wasmer', 'Download Wasmer library', 'no'))
 opts.Add('wasmer_version', 'Wasmer library version', 'v3.1.1')
@@ -57,38 +57,23 @@ if env['download_wasmer'] or not os.path.isdir('wasmer'):
 
 # Check platform specifics
 if env['platform'] == 'osx':
-    env.Append(CCFLAGS=['-arch', 'x86_64', '-Wall'])
+    env.Append(CCFLAGS=['-arch', 'x86_64', '-Wall', '-g', '-O3'])
     env.Append(CXXFLAGS=['-std=c++17'])
     env.Append(LINKFLAGS=['-arch', 'x86_64', '-framework', 'Security'])
-    if env['target'] in ('debug', 'd'):
-        env.Append(CCFLAGS=['-g', '-O2'])
-    else:
-        env.Append(CCFLAGS=['-g', '-O3'])
 
 elif env['platform'] == 'linux':
-    env.Append(CCFLAGS=['-fPIC'])
+    env.Append(CCFLAGS=['-fPIC', '-g', '-O3'])
     env.Append(CXXFLAGS=['-std=c++17'])
-    if env['target'] in ('debug', 'd'):
-        env.Append(CCFLAGS=['-g3', '-Og'])
-    else:
-        env.Append(CCFLAGS=['-g', '-O3'])
 
 elif env['platform'] == 'windows':
     env['LIBPREFIX'] = ''
     env['LIBSUFFIX'] = '.lib'
     env['LIBWASMERSUFFIX'] = '.dll.lib' # Requires special suffix
     env.Append(ENV=os.environ) # Keep session env variables to support VS 2017 prompt
-    env.Append(CPPDEFINES=['WIN32', '_WIN32', '_WINDOWS', '_CRT_SECURE_NO_WARNINGS'])
-    env.Append(CCFLAGS=['-W3', '-GR'])
+    env.Append(CPPDEFINES=['WIN32', '_WIN32', '_WINDOWS', '_CRT_SECURE_NO_WARNINGS', 'NDEBUG'])
+    env.Append(CCFLAGS=['-W3', '-GR', '-O2', '-EHsc', '-MD'])
     env.Append(CCFLAGS='/std:c++20')
     env.Append(LIBS=['bcrypt', 'userenv', 'ws2_32', 'advapi32'])
-    if env['target'] in ('debug', 'd'):
-        env.Append(CPPDEFINES=['_DEBUG'])
-        env.Append(CCFLAGS=['-EHsc', '-MDd', '-ZI'])
-        env.Append(LINKFLAGS=['-DEBUG'])
-    else:
-        env.Append(CPPDEFINES=['NDEBUG'])
-        env.Append(CCFLAGS=['-O2', '-EHsc', '-MD'])
 
 # Defines for GDNative specific API
 env.Append(CPPDEFINES=["GDNATIVE"])
