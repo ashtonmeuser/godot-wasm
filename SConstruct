@@ -30,7 +30,7 @@ def download_wasmer(env):
         for k, v in rename.items(): os.rename(k, v)
         os.remove(filename)
     base_url = 'https://github.com/wasmerio/wasmer/releases/download/{}/wasmer-{}.tar.gz'
-    if env['platform'] == 'osx':
+    if env['platform'] in ['osx', 'macos']:
         # For macOS, we need to universalize the AMD and ARM libraries
         download_tarfile(base_url.format(env['wasmer_version'], 'darwin-amd64'), 'wasmer', {'wasmer/lib/libwasmer.a': 'wasmer/lib/libwasmer.amd64.a'})
         download_tarfile(base_url.format(env['wasmer_version'], 'darwin-arm64'), 'wasmer', {'wasmer/lib/libwasmer.a': 'wasmer/lib/libwasmer.arm64.a'})
@@ -52,6 +52,7 @@ if env['use_llvm']:
     env['CXX'] = 'clang++'
 
 if env['download_wasmer'] or not os.path.isdir('wasmer'):
+    print('Downloading Wasmer {}'.format(env['wasmer_version']))
     shutil.rmtree('wasmer', True)
     download_wasmer(env)
 

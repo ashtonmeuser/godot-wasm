@@ -57,7 +57,7 @@ jobs:
         if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
         run: |
           cd ${{ github.workspace }}/godot-cpp
-          scons platform=linux target=release generate_bindings=yes -j4
+          scons platform=linux target=release generate_bindings=yes
 
       - name: Compile Addon
         run: scons platform=linux
@@ -103,7 +103,7 @@ jobs:
         if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
         run: |
           cd ${{ github.workspace }}/godot-cpp
-          scons platform=osx target=release generate_bindings=yes -j4
+          scons platform=osx target=release generate_bindings=yes
 
       - name: Compile Addon
         run: scons platform=macos
@@ -149,7 +149,7 @@ jobs:
         if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
         run: |
           cd ${{ github.workspace }}\godot-cpp
-          scons platform=windows target=release generate_bindings=yes -j3
+          scons platform=windows target=release generate_bindings=yes
 
       - name: MSVC Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
