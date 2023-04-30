@@ -122,7 +122,15 @@ namespace godot {
   }
 
   void Wasm::REGISTRATION_METHOD() {
-    #ifdef GODOT_MODULE
+    #ifdef GDNATIVE
+      register_method("compile", &Wasm::compile);
+      register_method("instantiate", &Wasm::instantiate);
+      register_method("load", &Wasm::load);
+      register_method("inspect", &Wasm::inspect);
+      register_method("global", &Wasm::global);
+      register_method("function", &Wasm::function);
+      register_property<Wasm, Ref<StreamPeerWasm>>("stream", &Wasm::stream, NULL);
+    #else
       ClassDB::bind_method(D_METHOD("compile", "bytecode"), &Wasm::compile);
       ClassDB::bind_method(D_METHOD("instantiate", "import_map"), &Wasm::instantiate);
       ClassDB::bind_method(D_METHOD("load", "bytecode", "import_map"), &Wasm::load);
@@ -131,14 +139,6 @@ namespace godot {
       ClassDB::bind_method(D_METHOD("function", "name", "args"), &Wasm::function);
       ClassDB::bind_method(D_METHOD("get_stream"), &Wasm::get_stream);
       ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "stream"), "", "get_stream");
-    #else
-      register_method("compile", &Wasm::compile);
-      register_method("instantiate", &Wasm::instantiate);
-      register_method("load", &Wasm::load);
-      register_method("inspect", &Wasm::inspect);
-      register_method("global", &Wasm::global);
-      register_method("function", &Wasm::function);
-      register_property<Wasm, Ref<StreamPeerWasm>>("stream", &Wasm::stream, NULL);
     #endif
   }
 

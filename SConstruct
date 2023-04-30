@@ -90,6 +90,9 @@ elif env['platform'] == 'windows':
         env.Append(CPPDEFINES=['NDEBUG'])
         env.Append(CCFLAGS=['-O2', '-EHsc', '-MD'])
 
+# Defines for GDNative specific API
+env.Append(CPPDEFINES=["GDNATIVE"])
+
 # Explicit static libraries
 cpp_library = env.File('godot-cpp/bin/libgodot-cpp.{}.{}.64{}'.format(env['platform'], env['target'], env['LIBSUFFIX']))
 wasmer_library = env.File('wasmer/lib/{}wasmer{}'.format(env['LIBPREFIX'], env.get('LIBWASMERSUFFIX', env['LIBSUFFIX'])))

@@ -18,12 +18,12 @@ namespace {
 
 namespace godot {
   void StreamPeerWasm::REGISTRATION_METHOD() {
-    #ifdef GODOT_MODULE
-      ClassDB::bind_method(D_METHOD("seek", "p_pos"), &StreamPeerWasm::seek);
-      ClassDB::bind_method(D_METHOD("get_position"), &StreamPeerWasm::get_position);
-    #else
+    #ifdef GDNATIVE
       register_method("seek", &StreamPeerWasm::seek);
       register_method("get_position", &StreamPeerWasm::get_position);
+    #else
+      ClassDB::bind_method(D_METHOD("seek", "p_pos"), &StreamPeerWasm::seek);
+      ClassDB::bind_method(D_METHOD("get_position"), &StreamPeerWasm::get_position);
     #endif
   }
 
