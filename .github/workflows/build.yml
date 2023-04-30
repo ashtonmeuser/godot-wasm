@@ -56,7 +56,7 @@ jobs:
         if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
         run: |
           cd ${{ github.workspace }}/godot-cpp
-          scons platform=linux target=release generate_bindings=yes
+          scons platform=linux
 
       - name: Compile Addon
         run: scons platform=linux
@@ -102,7 +102,7 @@ jobs:
         if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
         run: |
           cd ${{ github.workspace }}/godot-cpp
-          scons platform=osx target=release generate_bindings=yes
+          scons platform=macos
 
       - name: Compile Addon
         run: scons platform=macos
@@ -110,8 +110,8 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: osx
-          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/osx
+          name: macos
+          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/macos
           if-no-files-found: error
 
   build-windows:
@@ -148,7 +148,7 @@ jobs:
         if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
         run: |
           cd ${{ github.workspace }}\godot-cpp
-          scons platform=windows target=release generate_bindings=yes
+          scons platform=windows
 
       - name: MSVC Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1

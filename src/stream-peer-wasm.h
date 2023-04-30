@@ -8,8 +8,8 @@
   #define SUPER_CLASS StreamPeer
   #define INTERFACE_DECLARE
 #else
-  #define SUPER_CLASS StreamPeerGDNative
-  #define INTERFACE_DECLARE godot_net_stream_peer interface
+  #define SUPER_CLASS StreamPeerExtension
+  #define INTERFACE_DECLARE
 #endif
 
 namespace godot {
@@ -29,11 +29,11 @@ namespace godot {
       wasm_memory_t* memory;
       Ref<StreamPeerWasm> seek(int p_pos);
       uint32_t get_position();
-      godot_error get_data(uint8_t* buffer, int bytes);
-      godot_error get_partial_data(uint8_t* buffer, int bytes, int& received);
-      godot_error put_data(const uint8_t* buffer, int bytes);
-      godot_error put_partial_data(const uint8_t* buffer, int bytes, int& sent);
-      int get_available_bytes() const;
+      godot_error _get_data(uint8_t *buffer, int32_t bytes, int32_t *received) override;
+      godot_error _get_partial_data(uint8_t *buffer, int32_t bytes, int32_t *received) override;
+      godot_error _put_data(const uint8_t *buffer, int32_t bytes, int32_t *sent) override;
+      godot_error _put_partial_data(const uint8_t *buffer, int32_t bytes, int32_t *sent) override;
+      int32_t _get_available_bytes() const override;
   };
 }
 

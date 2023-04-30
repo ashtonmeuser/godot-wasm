@@ -49,34 +49,34 @@ namespace godot {
     return pointer;
   }
 
-  godot_error StreamPeerWasm::get_data(uint8_t *buffer, int bytes) {
+  godot_error StreamPeerWasm::_get_data(uint8_t *buffer, int32_t bytes, int32_t *received) {
     FAIL_IF(memory == NULL, "Invalid stream peer memory", ERR_INVALID_DATA);
     byte_t* data = wasm_memory_data(memory) + pointer;
     memcpy(buffer, data, bytes);
     pointer += bytes;
+    *received = bytes;
     return OK;
   }
 
-  godot_error StreamPeerWasm::get_partial_data(uint8_t *buffer, int bytes, int &received) {
-    received = bytes;
-    return get_data(buffer, bytes);
+  godot_error StreamPeerWasm::_get_partial_data(uint8_t *buffer, int32_t bytes, int32_t *received) {
+    return _get_data(buffer, bytes, received);
   }
 
-  godot_error StreamPeerWasm::put_data(const uint8_t *buffer, int bytes) {
+  godot_error StreamPeerWasm::_put_data(const uint8_t *buffer, int32_t bytes, int32_t *sent) {
     FAIL_IF(memory == NULL, "Invalid stream peer memory", ERR_INVALID_DATA);
     if (bytes <= 0) return OK;
     byte_t* data = wasm_memory_data(memory) + pointer;
     memcpy(data, buffer, bytes);
     pointer += bytes;
+    *sent = bytes;
     return OK;
   }
 
-  godot_error StreamPeerWasm::put_partial_data(const uint8_t *buffer, int bytes, int &sent) {
-    sent = bytes;
-    return put_data(buffer, bytes);
+  godot_error StreamPeerWasm::_put_partial_data(const uint8_t *buffer, int32_t bytes, int32_t *sent) {
+    return _put_data(buffer, bytes, sent);
   }
 
-  int StreamPeerWasm::get_available_bytes() const {
+  int32_t StreamPeerWasm::_get_available_bytes() const {
     return 0; // Not relevant
   }
 }
