@@ -13,7 +13,6 @@ on:
 env:
   LIBRARY_PATH: addons/godot-wasm/bin
   WASMER_VERSION: v3.1.1
-  ARTIFACT_SUFFIX: -godot-3
 
 jobs:
   build-linux:
@@ -65,7 +64,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: linux${{ env.ARTIFACT_SUFFIX }}
+          name: linux
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/linux
           if-no-files-found: error
 
@@ -111,7 +110,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: osx${{ env.ARTIFACT_SUFFIX }}
+          name: osx
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/osx
           if-no-files-found: error
 
@@ -160,7 +159,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: windows${{ env.ARTIFACT_SUFFIX }}
+          name: windows
           if-no-files-found: error
           path: |
             ${{ github.workspace }}\${{ env.LIBRARY_PATH }}\windows\
