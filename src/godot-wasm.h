@@ -9,12 +9,12 @@
 #include "defs.h"
 #include "stream-peer-wasm.h"
 
-namespace {
-  struct context_extern;
-  struct context_callback;
-}
-
 namespace godot {
+  namespace godot_wasm {
+    struct context_extern;
+    struct context_callback;
+  }
+
   class Wasm : public Reference {
     GDCLASS(Wasm, Reference);
 
@@ -24,11 +24,11 @@ namespace godot {
       wasm_module_t* module;
       wasm_instance_t* instance;
       uint16_t memory_index;
-      std::map<String, context_callback> import_funcs;
-      std::map<String, context_extern> export_globals;
-      std::map<String, context_extern> export_funcs;
+      std::map<String, godot_wasm::context_callback> import_funcs;
+      std::map<String, godot_wasm::context_extern> export_globals;
+      std::map<String, godot_wasm::context_extern> export_funcs;
       godot_error map_names();
-      wasm_func_t* create_callback(context_callback* context);
+      wasm_func_t* create_callback(godot_wasm::context_callback* context);
 
     public:
       static void REGISTRATION_METHOD();

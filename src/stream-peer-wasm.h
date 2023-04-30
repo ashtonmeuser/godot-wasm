@@ -4,15 +4,13 @@
 #include "wasmer.h"
 #include "defs.h"
 
-namespace {
-  #ifdef GODOT_MODULE
-    #define SUPER_CLASS StreamPeer
-    #define INTERFACE_DECLARE
-  #else
-    #define SUPER_CLASS StreamPeerGDNative
-    #define INTERFACE_DECLARE godot_net_stream_peer interface
-  #endif
-}
+#ifdef GODOT_MODULE
+  #define SUPER_CLASS StreamPeer
+  #define INTERFACE_DECLARE
+#else
+  #define SUPER_CLASS StreamPeerGDNative
+  #define INTERFACE_DECLARE godot_net_stream_peer interface
+#endif
 
 namespace godot {
   class StreamPeerWasm : public SUPER_CLASS {
