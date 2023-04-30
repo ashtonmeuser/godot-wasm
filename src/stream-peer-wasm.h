@@ -29,10 +29,10 @@ namespace godot {
       wasm_memory_t* memory;
       Ref<StreamPeerWasm> seek(int p_pos);
       uint32_t get_position();
-      godot_error put_data(const uint8_t* p_data, int p_bytes);
-      godot_error put_partial_data(const uint8_t* p_data, int p_bytes, int& r_sent);
-      godot_error get_data(uint8_t* p_buffer, int p_bytes);
-      godot_error get_partial_data(uint8_t* p_buffer, int p_bytes, int& r_received);
+      godot_error get_data(uint8_t* buffer, int bytes);
+      godot_error get_partial_data(uint8_t* buffer, int bytes, int& received);
+      godot_error put_data(const uint8_t* buffer, int bytes);
+      godot_error put_partial_data(const uint8_t* buffer, int bytes, int& sent);
       int get_available_bytes() const;
   };
 }
