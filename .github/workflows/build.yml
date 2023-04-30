@@ -164,7 +164,9 @@ jobs:
         run: scons platform=windows
 
       - name: Artifact Suffix
-        run: if [[ $GITHUB_REF == 'refs/heads/master' ]]; then echo "ARTIFACT_SUFFIX=-godot-3" >> "$GITHUB_ENV"; elif [[ $GITHUB_REF == 'refs/heads/godot-4' ]]; then echo "ARTIFACT_SUFFIX=-godot-4" >> "$GITHUB_ENV"; fi
+        run: |
+          if ($Env:GITHUB_REF -eq 'refs/heads/master') { $ARTIFACT_SUFFIX='-godot-3' } elseif ($Env:GITHUB_REF -eq 'refs/heads/godot-4') { $ARTIFACT_SUFFIX='-godot-4' }
+          echo "ARTIFACT_SUFFIX=$ARTIFACT_SUFFIX" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
