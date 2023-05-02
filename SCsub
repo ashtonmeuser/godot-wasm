@@ -3,7 +3,7 @@ Import('env')
 module_env = env.Clone()
 
 # Check platform specifics
-if env['platform'] == 'linux':
+if env['platform'] in ['linux', 'linuxbsd']:
     module_env['LIBWASMERSUFFIX'] = '.a'
     module_env.Append(CXXFLAGS=['-std=c++17'])
 elif env['platform'] in ['osx', 'macos']:
