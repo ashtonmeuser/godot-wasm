@@ -57,7 +57,7 @@ if env['download_wasmer'] or not os.path.isdir('wasmer'):
     download_wasmer(env)
 
 # Check platform specifics
-if env['platform'] == 'osx':
+if env['platform'] in ['osx', 'macos']:
     env.Append(CCFLAGS=['-arch', 'x86_64', '-Wall', '-g', '-O3'])
     env.Append(CXXFLAGS=['-std=c++17'])
     env.Append(LINKFLAGS=['-arch', 'x86_64', '-framework', 'Security'])
