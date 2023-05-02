@@ -11,7 +11,7 @@ elif env['platform']=='osx':
     module_env.Append(CXXFLAGS=['-std=c++17'])
     env.Append(LINKFLAGS=['-framework', 'Security'])
 elif env['platform']=='windows':
-    module_env['LIBSUFFIX'] = '.lib'
+    module_env['LIBWASMERSUFFIX'] = '.dll.lib'
 
 # Explicit static libraries
 wasmer_library = env.File('wasmer/lib/{}wasmer{}'.format(env['LIBPREFIX'], module_env.get('LIBWASMERSUFFIX', module_env['LIBSUFFIX'])))
@@ -22,7 +22,7 @@ env.Append(LIBS=[wasmer_library])
 module_env.Append(CPPPATH=[env.Dir('wasmer/include').abspath])
 
 # Defines for module agnosticism
-module_env.Append(CPPDEFINES=["GODOT_MODULE"])
+module_env.Append(CPPDEFINES=['GODOT_MODULE'])
 
 # Module sources
 module_env.add_source_files(env.modules_sources, ['register_types.cpp', env.Glob('src/*.cpp', exclude='src/godot-library.cpp')])

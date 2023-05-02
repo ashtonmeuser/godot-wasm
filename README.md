@@ -26,7 +26,7 @@ Godot Wasm can be used either as a [GDNative](https://docs.godotengine.org/en/st
 
 ## Installation
 
-Godot Wasm supports installation via addon or module. Installing as an addon is far faster and simpler and requires merely including the asset in your Godot project while installing the module requires recompilation of the Godot engine. Note that exporting to web/HTML5 is only supported for modules (see [#15](https://github.com/ashtonmeuser/godot-wasm/issues/15)).
+Godot Wasm supports installation via addon or module. Installing as an addon is far faster and simpler and requires merely including the asset in your Godot project while installing as a module requires recompilation of the Godot engine.
 
 ### Addon
 

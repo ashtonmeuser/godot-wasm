@@ -132,7 +132,7 @@ jobs:
         run: python -m pip install scons pywin32
 
       - name: Submodule Hash
-        run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_ENV
+        run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Cache Godot Library
         id: cache-godot-cpp
