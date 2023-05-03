@@ -50,7 +50,7 @@ namespace godot {
       if (results->size <= 0) return OK;
       if (variant.get_type() == Variant::ARRAY) {
         Array array = variant.operator Array();
-        if (array.size() != results->size) return ERR_PARAMETER_RANGE_ERROR;
+        if ((size_t)array.size() != results->size) return ERR_PARAMETER_RANGE_ERROR;
         for (uint16_t i = 0; i < results->size; i++) {
           results->data[i] = encode_variant(array[i]);
           if (results->data[i].kind == WASM_ANYREF) return ERR_INVALID_DATA;
