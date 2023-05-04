@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="Wasm" inherits="RefCounted" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="compile">
+			<return type="int" enum="Error" />
+			<param index="0" name="bytecode" type="PackedByteArray" />
+			<description>
+			</description>
+		</method>
+		<method name="function">
+			<return type="Variant" />
+			<param index="0" name="name" type="String" />
+			<param index="1" name="args" type="Array" />
+			<description>
+			</description>
+		</method>
+		<method name="global">
+			<return type="Variant" />
+			<param index="0" name="name" type="String" />
+			<description>
+			</description>
+		</method>
+		<method name="inspect">
+			<return type="Dictionary" />
+			<description>
+			</description>
+		</method>
+		<method name="instantiate">
+			<return type="int" enum="Error" />
+			<param index="0" name="import_map" type="Dictionary" />
+			<description>
+			</description>
+		</method>
+		<method name="load">
+			<return type="int" enum="Error" />
+			<param index="0" name="bytecode" type="PackedByteArray" />
+			<param index="1" name="import_map" type="Dictionary" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="stream" type="StreamPeerWasm" setter="" getter="get_stream">
+		</member>
+	</members>
+</class>
