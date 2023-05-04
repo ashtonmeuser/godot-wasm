@@ -1,54 +1,24 @@
 #!python
 import os
-import shutil
-import re
-from urllib import request
-import tarfile
+from utils import download_wasmer, VERSION_DEFAULT
 
 # Initial options inheriting from CLI args
 opts = Variables([], ARGUMENTS)
 
 # Define options
 opts.Add(BoolVariable('download_wasmer', 'Download Wasmer library', 'no'))
-opts.Add('wasmer_version', 'Wasmer library version', 'v3.1.1')
+opts.Add('wasmer_version', 'Wasmer library version', VERSION_DEFAULT)
 
 # SConstruct environment from Godot CPP
 env = SConscript("godot-cpp/SConstruct")
 opts.Update(env)
 
-# Wasmer download
-def download_wasmer(env):
-    def download_tarfile(url, dest, rename={}):
-        filename = 'tmp.tar.gz'
-        os.makedirs(dest, exist_ok=True)
-        request.urlretrieve(url, filename)
-        file = tarfile.open(filename)
-        file.extractall(dest)
-        file.close()
-        for k, v in rename.items(): os.rename(k, v)
-        os.remove(filename)
-    base_url = 'https://github.com/wasmerio/wasmer/releases/download/{}/wasmer-{}.tar.gz'
-    if env['platform'] in ['osx', 'macos']:
-        # For macOS, we need to universalize the AMD and ARM libraries
-        download_tarfile(base_url.format(env['wasmer_version'], 'darwin-amd64'), 'wasmer', {'wasmer/lib/libwasmer.a': 'wasmer/lib/libwasmer.amd64.a'})
-        download_tarfile(base_url.format(env['wasmer_version'], 'darwin-arm64'), 'wasmer', {'wasmer/lib/libwasmer.a': 'wasmer/lib/libwasmer.arm64.a'})
-        os.system('lipo wasmer/lib/libwasmer.*64.a -output wasmer/lib/libwasmer.a -create')
-    elif env['platform'] == 'linux':
-        download_tarfile(base_url.format(env['wasmer_version'], 'linux-amd64'), 'wasmer')
-    elif env['platform'] == 'windows':
-        download_tarfile(base_url.format(env['wasmer_version'], 'windows-amd64'), 'wasmer')
+# Download Wasmer if required
+download_wasmer(env, env['download_wasmer'], env['wasmer_version'])
 
-# Process some arguments
-if not re.fullmatch(r'v\d+\.\d+\.\d+(-.+)?', env['wasmer_version']):
-    exit('Invalid Wasmer version')
-
-if env['download_wasmer'] or not os.path.isdir('wasmer'):
-    print('Downloading Wasmer {}'.format(env['wasmer_version']))
-    shutil.rmtree('wasmer', True)
-    download_wasmer(env)
 
 if env['platform'] == 'windows':
-    env['LIBWASMERSUFFIX'] = '.dll.lib' # Requires special suffix
+    env['LIBWASMERSUFFIX'] = '.a' if env.get('use_mingw') else '.dll.lib'
     env.Append(LIBS=['bcrypt', 'userenv', 'ws2_32', 'advapi32'])
 
 # Defines for GDExtension specific API

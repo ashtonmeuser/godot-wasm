@@ -1,6 +1,11 @@
+from utils import download_wasmer
+
 # Import env and create module-specific clone
 Import('env')
 module_env = env.Clone()
+
+# Download Wasmer if required
+download_wasmer(env)
 
 # Check platform specifics
 if env['platform'] in ['linux', 'linuxbsd']:
@@ -11,7 +16,7 @@ elif env['platform'] in ['osx', 'macos']:
     module_env.Append(CXXFLAGS=['-std=c++17'])
     env.Append(LINKFLAGS=['-framework', 'Security'])
 elif env['platform'] == 'windows':
-    module_env['LIBWASMERSUFFIX'] = '.dll.lib'
+    module_env['LIBWASMERSUFFIX'] = '.a' if env.get('use_mingw') else '.dll.lib'
 
 # Explicit static libraries
 wasmer_library = env.File('wasmer/lib/{}wasmer{}'.format(env['LIBPREFIX'], module_env.get('LIBWASMERSUFFIX', module_env['LIBSUFFIX'])))
