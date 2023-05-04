@@ -1,33 +1,38 @@
 from utils import download_wasmer
 
 # Import env and create module-specific clone
-Import('env')
+Import("env")
 module_env = env.Clone()
 
 # Download Wasmer if required
 download_wasmer(env)
 
 # Check platform specifics
-if env['platform'] in ['linux', 'linuxbsd']:
-    module_env['LIBWASMERSUFFIX'] = '.a'
-    module_env.Append(CXXFLAGS=['-std=c++17'])
-elif env['platform'] in ['osx', 'macos']:
-    module_env['LIBWASMERSUFFIX'] = '.a'
-    module_env.Append(CXXFLAGS=['-std=c++17'])
-    env.Append(LINKFLAGS=['-framework', 'Security'])
-elif env['platform'] == 'windows':
-    module_env['LIBWASMERSUFFIX'] = '.a' if env.get('use_mingw') else '.dll.lib'
+if env["platform"] in ["linux", "linuxbsd"]:
+    module_env["LIBWASMERSUFFIX"] = ".a"
+    module_env.Append(CXXFLAGS=["-std=c++17"])
+elif env["platform"] in ["osx", "macos"]:
+    module_env["LIBWASMERSUFFIX"] = ".a"
+    module_env.Append(CXXFLAGS=["-std=c++17"])
+    env.Append(LINKFLAGS=["-framework", "Security"])
+elif env["platform"] == "windows":
+    module_env["LIBWASMERSUFFIX"] = ".a" if env.get("use_mingw") else ".dll.lib"
 
 # Explicit static libraries
-wasmer_library = env.File('wasmer/lib/{}wasmer{}'.format(env['LIBPREFIX'], module_env.get('LIBWASMERSUFFIX', module_env['LIBSUFFIX'])))
+wasmer_library = env.File(
+    "wasmer/lib/{}wasmer{}".format(env["LIBPREFIX"], module_env.get("LIBWASMERSUFFIX", module_env["LIBSUFFIX"]))
+)
 
 # Linked libraries (global env) and includes (cloned env)
-env.Append(LIBPATH=[env.Dir('wasmer/lib').abspath])
+env.Append(LIBPATH=[env.Dir("wasmer/lib").abspath])
 env.Append(LIBS=[wasmer_library])
-module_env.Append(CPPPATH=[env.Dir('wasmer/include').abspath])
+module_env.Append(CPPPATH=[env.Dir("wasmer/include").abspath])
 
 # Defines for module agnosticism
-module_env.Append(CPPDEFINES=['GODOT_MODULE'])
+module_env.Append(CPPDEFINES=["GODOT_MODULE"])
 
 # Module sources
-module_env.add_source_files(env.modules_sources, ['register_types.cpp', env.Glob('src/*.cpp', exclude='src/godot-library.cpp')])
+module_env.add_source_files(
+    env.modules_sources,
+    ["register_types.cpp", env.Glob("src/*.cpp", exclude="src/godot-library.cpp")],
+)
