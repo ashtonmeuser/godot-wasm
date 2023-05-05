@@ -47,4 +47,7 @@ def download_wasmer(env, force=False, version=VERSION_DEFAULT):
     elif env["platform"] in ["linux", "linuxbsd"]:
         download_tarfile(BASE_URL.format(version, "linux-amd64"), "wasmer")
     elif env["platform"] == "windows":
-        download_tarfile(BASE_URL.format(version, "windows-amd64"), "wasmer")
+        if env.get("use_mingw"):
+            download_tarfile(BASE_URL.format(version, "windows-gnu64"), "wasmer")
+        else:
+            download_tarfile(BASE_URL.format(version, "windows-amd64"), "wasmer")
