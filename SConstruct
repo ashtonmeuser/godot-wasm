@@ -16,6 +16,7 @@ opts.Update(env)
 # Download Wasmer if required
 download_wasmer(env, env["download_wasmer"], env["wasmer_version"])
 
+# Check platform specifics
 if env["platform"] == "windows":
     env["LIBWASMERSUFFIX"] = ".a" if env.get("use_mingw") else ".dll.lib"
     env.Append(LIBS=["bcrypt", "userenv", "ws2_32", "advapi32"])
