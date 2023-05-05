@@ -16,7 +16,6 @@ opts.Update(env)
 # Download Wasmer if required
 download_wasmer(env, env["download_wasmer"], env["wasmer_version"])
 
-
 if env["platform"] == "windows":
     env["LIBWASMERSUFFIX"] = ".a" if env.get("use_mingw") else ".dll.lib"
     env.Append(LIBS=["bcrypt", "userenv", "ws2_32", "advapi32"])
@@ -25,13 +24,11 @@ if env["platform"] == "windows":
 env.Append(CPPDEFINES=["GDEXTENSION"])
 
 # Explicit static libraries
-wasmer_library = env.File(
-    "wasmer/lib/{}wasmer{}".format(env["LIBPREFIX"], env.get("LIBWASMERSUFFIX", env["LIBSUFFIX"]))
-)
+wasmer_lib = env.File("wasmer/lib/{}wasmer{}".format(env["LIBPREFIX"], env.get("LIBWASMERSUFFIX", env["LIBSUFFIX"])))
 
 # CPP includes and libraries
 env.Append(CPPPATH=[".", "wasmer/include"])
-env.Append(LIBS=[wasmer_library])
+env.Append(LIBS=[wasmer_lib])
 
 # Godot Wasm sources
 source = ["register_types.cpp", env.Glob("src/*.cpp")]

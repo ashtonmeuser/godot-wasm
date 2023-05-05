@@ -9,23 +9,21 @@ download_wasmer(env)
 
 # Check platform specifics
 if env["platform"] in ["linux", "linuxbsd"]:
-    module_env["LIBWASMERSUFFIX"] = ".a"
+    env["LIBWASMERSUFFIX"] = ".a"
     module_env.Append(CXXFLAGS=["-std=c++17"])
 elif env["platform"] in ["osx", "macos"]:
-    module_env["LIBWASMERSUFFIX"] = ".a"
+    env["LIBWASMERSUFFIX"] = ".a"
     module_env.Append(CXXFLAGS=["-std=c++17"])
     env.Append(LINKFLAGS=["-framework", "Security"])
 elif env["platform"] == "windows":
-    module_env["LIBWASMERSUFFIX"] = ".a" if env.get("use_mingw") else ".dll.lib"
+    env["LIBWASMERSUFFIX"] = ".a" if env.get("use_mingw") else ".dll.lib"
 
 # Explicit static libraries
-wasmer_library = env.File(
-    "wasmer/lib/{}wasmer{}".format(env["LIBPREFIX"], module_env.get("LIBWASMERSUFFIX", module_env["LIBSUFFIX"]))
-)
+wasmer_lib = env.File("wasmer/lib/{}wasmer{}".format(env["LIBPREFIX"], env.get("LIBWASMERSUFFIX", env["LIBSUFFIX"])))
 
 # Linked libraries (global env) and includes (cloned env)
 env.Append(LIBPATH=[env.Dir("wasmer/lib").abspath])
-env.Append(LIBS=[wasmer_library])
+env.Append(LIBS=[wasmer_lib])
 module_env.Append(CPPPATH=[env.Dir("wasmer/include").abspath])
 
 # Defines for module agnosticism
@@ -33,6 +31,5 @@ module_env.Append(CPPDEFINES=["GODOT_MODULE"])
 
 # Module sources
 module_env.add_source_files(
-    env.modules_sources,
-    ["register_types.cpp", env.Glob("src/*.cpp", exclude="src/godot-library.cpp")],
+    env.modules_sources, ["register_types.cpp", env.Glob("src/*.cpp", exclude="src/godot-library.cpp")]
 )
