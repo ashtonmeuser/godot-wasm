@@ -49,5 +49,7 @@ def download_wasmer(env, force=False, version=VERSION_DEFAULT):
     elif env["platform"] == "windows":
         if env.get("use_mingw"):
             download_tarfile(BASE_URL.format(version, "windows-gnu64"), "wasmer")
+            # Temporary workaround for https://github.com/ashtonmeuser/godot-wasm/issues/26
+            os.system("patch -p1 < wasm-mingw.patch")
         else:
             download_tarfile(BASE_URL.format(version, "windows-amd64"), "wasmer")
