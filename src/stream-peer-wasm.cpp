@@ -1,7 +1,7 @@
 #include "stream-peer-wasm.h"
 
 #ifdef GDNATIVE
-  #define INTERFACE_DEFINE interface = { { 3, 5 }, this, &_get_data, &_get_partial_data, &_put_data, &_put_partial_data, &_get_available_bytes, NULL }
+  #define INTERFACE_DEFINE interface = { { 3, 1 }, this, &_get_data, &_get_partial_data, &_put_data, &_put_partial_data, &_get_available_bytes, NULL }
   #define INTERFACE_INIT net_api->godot_net_bind_stream_peer(_owner, &interface)
   namespace {
     godot_error _get_data(void* user, uint8_t* buffer, int bytes) { return ((godot::StreamPeerWasm*)user)->get_data(buffer, bytes); }
