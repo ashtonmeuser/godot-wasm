@@ -39,7 +39,7 @@ elif env["platform"] == "linux":
 elif env["platform"] == "windows":
     env["LIBPREFIX"] = ""
     env["LIBSUFFIX"] = ".lib"
-    env["LIBWASMERSUFFIX"] = ".a" if env.get("use_mingw") else ".dll.lib"
+    env["LIBWASMERSUFFIX"] = ".a" if env.get("use_mingw") else ".lib"
     env.Append(ENV=os.environ)  # Keep session env variables to support VS 2017 prompt
     env.Append(CPPDEFINES=["WIN32", "_WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS", "NDEBUG"])
     env.Append(CCFLAGS=["-W3", "-GR", "-O2", "-EHsc", "-MD"])
