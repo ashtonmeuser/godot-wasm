@@ -25,6 +25,13 @@ def download_tarfile(url, dest, rename={}):
     os.remove(filename)
 
 
+def safe_apply_patch(patch):
+    if shutil.which("patch") is not None:
+        os.system("patch -p1 < {}".format(patch))
+    else:
+        os.system("git apply {}".format(patch))
+
+
 def download_wasmer(env, force=False, version=VERSION_DEFAULT):
     validate_version(version)
     if not force and os.path.isdir("wasmer"):
@@ -49,7 +56,9 @@ def download_wasmer(env, force=False, version=VERSION_DEFAULT):
     elif env["platform"] == "windows":
         if env.get("use_mingw"):
             download_tarfile(BASE_URL.format(version, "windows-gnu64"), "wasmer")
-            # Temporary workaround for https://github.com/ashtonmeuser/godot-wasm/issues/26
-            os.system("patch -p1 < wasm-mingw.patch")
         else:
             download_tarfile(BASE_URL.format(version, "windows-amd64"), "wasmer")
+        # Temporary workaround for Wasm C API and Wasmer issue
+        # See https://github.com/ashtonmeuser/godot-wasm/issues/26
+        # See https://github.com/ashtonmeuser/godot-wasm/issues/29
+        safe_apply_patch("wasm-windows.patch")

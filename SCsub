@@ -16,9 +16,8 @@ elif env["platform"] in ["osx", "macos"]:
     module_env.Append(CXXFLAGS=["-std=c++17"])
     env.Append(LINKFLAGS=["-framework", "Security"])
 elif env["platform"] == "windows":
-    env["LIBWASMERSUFFIX"] = ".dll.lib"
+    env["LIBWASMERSUFFIX"] = ".a" if env.get("use_mingw") else ".lib"
     if env.get("use_mingw"):
-        env["LIBWASMERSUFFIX"] = ".a"
         env.Append(LIBS=["userenv"])
 
 # Explicit static libraries

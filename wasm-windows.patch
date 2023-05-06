@@ -1,26 +1,26 @@
 diff --git a/wasmer/include/wasm.h b/wasmer/include/wasm.h
-index 0873193..54cee8f 100644
+index 0873193..723cfd9 100644
 --- a/wasmer/include/wasm.h
 +++ b/wasmer/include/wasm.h
-@@ -10,7 +10,7 @@
- #include <assert.h>
+@@ -11,7 +11,7 @@
  
  #ifndef WASM_API_EXTERN
--#ifdef _WIN32
-+#if defined(_WIN32) && !defined(__MINGW32__)
- #define WASM_API_EXTERN __declspec(dllimport)
+ #ifdef _WIN32
+-#define WASM_API_EXTERN __declspec(dllimport)
++#define WASM_API_EXTERN
  #else
  #define WASM_API_EXTERN
+ #endif
 diff --git a/wasmer/include/wasm.hh b/wasmer/include/wasm.hh
-index f0b3ee2..a344e24 100644
+index f0b3ee2..b2904ec 100644
 --- a/wasmer/include/wasm.hh
 +++ b/wasmer/include/wasm.hh
-@@ -12,7 +12,7 @@
- #include <string>
+@@ -13,7 +13,7 @@
  
  #ifndef WASM_API_EXTERN
--#ifdef _WIN32
-+#if defined(_WIN32) && !defined(__MINGW32__)
- #define WASM_API_EXTERN __declspec(dllimport)
+ #ifdef _WIN32
+-#define WASM_API_EXTERN __declspec(dllimport)
++#define WASM_API_EXTERN
  #else
  #define WASM_API_EXTERN
+ #endif

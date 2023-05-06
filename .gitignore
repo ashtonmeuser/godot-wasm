@@ -11,4 +11,6 @@ addons.zip
 *.dylib
 *.dll
 *.o
+*.exp
+*.lib
 __pycache__
