@@ -1,7 +1,8 @@
-name: Build
+name: Build Addon
 on:
   push:
     branches: [master, godot-4]
+    tags: [gha-addon]
   workflow_dispatch:
     inputs:
       debug_enabled:
