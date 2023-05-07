@@ -28,23 +28,25 @@ download_wasmer(env, env["download_wasmer"], env["wasmer_version"])
 
 # Check platform specifics
 if env["platform"] in ["osx", "macos"]:
+    env.Prepend(CFLAGS=["-std=gnu11"])
+    env.Prepend(CXXFLAGS=["-std=gnu++14"])
     env.Append(CCFLAGS=["-arch", "x86_64", "-Wall", "-g", "-O3"])
-    env.Append(CXXFLAGS=["-std=c++17"])
     env.Append(LINKFLAGS=["-arch", "x86_64", "-framework", "Security"])
-
 elif env["platform"] == "linux":
+    env.Prepend(CFLAGS=["-std=gnu11"])
+    env.Prepend(CXXFLAGS=["-std=gnu++14"])
     env.Append(CCFLAGS=["-fPIC", "-g", "-O3"])
-    env.Append(CXXFLAGS=["-std=c++17"])
-
 elif env["platform"] == "windows":
-    env["LIBPREFIX"] = ""
-    env["LIBSUFFIX"] = ".lib"
-    env["LIBWASMERSUFFIX"] = ".a" if env.get("use_mingw") else ".lib"
+    env.Prepend(CCFLAGS=["/std:c++14", "-W3", "-GR", "-O2", "-EHsc", "-MD"])
     env.Append(ENV=os.environ)  # Keep session env variables to support VS 2017 prompt
     env.Append(CPPDEFINES=["WIN32", "_WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS", "NDEBUG"])
-    env.Append(CCFLAGS=["-W3", "-GR", "-O2", "-EHsc", "-MD"])
-    env.Append(CCFLAGS="/std:c++20")
-    env.Append(LIBS=["bcrypt", "userenv", "ws2_32", "advapi32"])
+    if env.get("use_mingw"): # MinGW
+        env["LIBWASMERSUFFIX"] = ".a"
+        env.Append(LIBS=["userenv"])
+    else: # MSVC
+        env["LIBWASMERSUFFIX"] = ".lib"
+        # Force Windows SDK library suffix (see https://github.com/godotengine/godot/issues/23687)
+        env.Append(LINKFLAGS=["bcrypt.lib", "userenv.lib", "ws2_32.lib", "advapi32.lib"])
 
 # Defines for GDNative specific API
 env.Append(CPPDEFINES=["GDNATIVE"])
