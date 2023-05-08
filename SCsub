@@ -1,11 +1,17 @@
-from utils import download_wasmer
+from utils import download_wasmer, VERSION_DEFAULT
+
+opts = Variables([], ARGUMENTS)
+
+opts.Add(BoolVariable("download_wasmer", "Download Wasmer library", "no"))
+opts.Add("wasmer_version", "Wasmer library version", VERSION_DEFAULT)
 
 # Import env and create module-specific clone
 Import("env")
 module_env = env.Clone()
+opts.Update(module_env)
 
 # Download Wasmer if required
-download_wasmer(env)
+download_wasmer(env, module_env["download_wasmer"], module_env["wasmer_version"])
 
 # Check platform specifics
 if env["platform"] in ["linux", "linuxbsd"]:
