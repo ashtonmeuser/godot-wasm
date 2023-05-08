@@ -51,7 +51,7 @@
 				Instantiate a compiled Wasm module.
 				Before this can be called, the module must be compiled via [method compile].
 				Imported functions can be provided in [code]import_map[/code] in the form [code]var imports = { "functions": { "index.function": [self, "function"] } }[/code].
-				Each key of the [code]import_map.functions[/code] should be an array whose members are the object containing the imported method and a string specifiying the name of the method.
+				Each key of the [code]import_map.functions[/code] should be an array whose members are the object containing the imported method and a string specifying the name of the method.
 				Alternatively, the module can be compiled and instantiated in a single step with [method load].
 			</description>
 		</method>
