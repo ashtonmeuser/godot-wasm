@@ -1,7 +1,7 @@
 name: Release
 on:
   push:
-    tags: [v*]
+    tags: ['v[0-9]+.[0-9]+.[0-9]+*']
 
 env:
   LIBRARY_PATH: addons/godot-wasm/bin
@@ -21,7 +21,7 @@ jobs:
       - name: Download Artifact
         uses: dawidd6/action-download-artifact@v2
         with:
-          workflow: build.yml
+          workflow: build-addon.yml
           commit: ${{ github.sha }}
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
 

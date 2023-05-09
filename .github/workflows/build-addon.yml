@@ -2,14 +2,7 @@ name: Build Addon
 on:
   push:
     branches: [master, godot-4]
-    tags: [gha-addon]
   workflow_dispatch:
-    inputs:
-      debug_enabled:
-        type: boolean
-        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
-        required: false
-        default: false
 
 env:
   LIBRARY_PATH: addons/godot-wasm/bin

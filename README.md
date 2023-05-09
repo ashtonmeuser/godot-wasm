@@ -6,8 +6,8 @@
   </a>
 </p>
 <p align="center">
-  <a href="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/build.yml">
-    <img src="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/build.yml/badge.svg" alt="Build Status">
+  <a href="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/build-addon.yml">
+    <img src="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/build-addon.yml/badge.svg" alt="Build Status">
   </a>
   <a href="https://github.com/ashtonmeuser/godot-wasm/blob/master/LICENSE">
     <img src="https://img.shields.io/github/license/ashtonmeuser/godot-wasm" alt="License">
