@@ -18,10 +18,10 @@ download_wasmer(env, env["download_wasmer"], env["wasmer_version"])
 
 # Check platform specifics
 if env["platform"] == "windows":
-    if env.get("use_mingw"): # MinGW
+    if env.get("use_mingw"):  # MinGW
         env["LIBWASMERSUFFIX"] = ".a"
         env.Append(LIBS=["userenv"])
-    else: # MSVC
+    else:  # MSVC
         env["LIBWASMERSUFFIX"] = ".lib"
         # Force Windows SDK library suffix (see https://github.com/godotengine/godot/issues/23687)
         env.Append(LINKFLAGS=["bcrypt.lib", "userenv.lib", "ws2_32.lib", "advapi32.lib"])
