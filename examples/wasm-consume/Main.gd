@@ -81,15 +81,23 @@ func _pretty_signatures(signatures: Dictionary) -> String: # Indented, line-sepa
 		assert(signature is Array and len(signature) == 2, "Invalid signature")
 		if signature[0] is Array and signature[1] is Array: # Function signature (param and result types)
 			var func_signature = ""
-			if !signature[0]: func_signature += "V"
-			else: for type in signature[0]: func_signature += "I" if type == TYPE_INT else "F"
+			if !signature[0]: func_signature += _pretty_type()
+			else: for type in signature[0]: func_signature += _pretty_type(type)
 			func_signature += "→"
-			if !signature[1]: func_signature += "V"
-			else: for type in signature[1]: func_signature += "I" if type == TYPE_INT else "F"
+			if !signature[1]: func_signature += _pretty_type()
+			else: for type in signature[1]: func_signature += _pretty_type(type)
 			rows.append("%s [code][color=#5FFF]%s[/color][/code]" % [key, func_signature])
 		elif signature[0] is int and signature[1] is bool: # Global signature (type and mutability)
-			rows.append("%s [code][color=#5FFF]%s(%s)[/color][/code]" % [key, "I" if signature[0] == TYPE_INT else "F", "M" if signature[1] else "C"])
+			rows.append("%s [code][color=#5FFF]%s(%s)[/color][/code]" % [key, _pretty_type(signature[0]), "M" if signature[1] else "C"])
 	return "[indent]%s[/indent]\n" % rows.join("\n")
+
+func _pretty_type(type: int = TYPE_NIL):
+	match type:
+		TYPE_NIL: return "V"
+		TYPE_INT: return "I"
+		TYPE_REAL: return "F"
+		TYPE_OBJECT: return "R"
+	return "?"
 
 func _pretty_bytes(i: int) -> String: # Format bytes without leading negative sign
 	for unit in ["", "Ki", "Mi"]:

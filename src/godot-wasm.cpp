@@ -13,12 +13,17 @@ namespace godot {
       context_callback(uint16_t i): context_extern { i } { }
     };
 
+    Object* object_from_ref(wasm_ref_t* ref) {
+      return detail::get_wrapper<Object>(core_1_2_api->godot_instance_from_id(reinterpret_cast<std::uintptr_t>(ref)));
+    }
+
     Variant decode_variant(wasm_val_t value) {
       switch (value.kind) {
         case WASM_I32: return Variant(value.of.i32);
         case WASM_I64: return Variant(value.of.i64);
         case WASM_F32: return Variant(value.of.f32);
         case WASM_F64: return Variant(value.of.f64);
+        case WASM_ANYREF: return object_from_ref(value.of.ref);
         default: FAIL("Unsupported Wasm type", NULL_VARIANT);
       }
     }
@@ -34,6 +39,9 @@ namespace godot {
           value.kind = WASM_F64;
           value.of.f64 = (float64_t)variant;
           break;
+        case Variant::OBJECT:
+          value.kind = WASM_ANYREF;
+          value.of.ref = (wasm_ref_t*)(variant.operator Object*())->get_instance_id();
         default:
           PRINT_ERROR("Unsupported Godot variant type");
           value.kind = WASM_ANYREF;
@@ -72,6 +80,7 @@ namespace godot {
       switch (kind) {
         case WASM_I32: case WASM_I64: return Variant::INT;
         case WASM_F32: case WASM_F64: return Variant::REAL;
+        case WASM_ANYREF: return Variant::OBJECT;
         default: FAIL("Unsupported value kind", Variant::NIL);
       }
     }
@@ -258,7 +267,7 @@ namespace godot {
     dict["export_globals"] = export_global_sigs;
     dict["export_functions"] = export_func_sigs;
     dict["memory_min"] = Variant(limits->min * PAGE_SIZE);
-    dict["memory_max"] = Variant(limits->max);
+    dict["memory_max"] = Variant(limits->max * PAGE_SIZE);
     if (stream->memory != NULL) dict["memory_current"] = Variant((int)wasm_memory_data_size(stream->memory));
 
     return dict;
@@ -292,18 +301,7 @@ namespace godot {
     std::vector<wasm_val_t> vect;
     for (uint16_t i = 0; i < args.size(); i++) {
       Variant variant = args[i];
-      wasm_val_t value;
-      switch (variant.get_type()) {
-        case Variant::INT:
-          value.kind = WASM_I64;
-          value.of.i64 = (int64_t)variant;
-          break;
-        case Variant::REAL:
-          value.kind = WASM_F64;
-          value.of.f64 = (float64_t)variant;
-          break;
-        default: FAIL("Invalid argument type", NULL_VARIANT);
-      }
+      wasm_val_t value = godot_wasm::encode_variant(variant);
       vect.push_back(value);
     }
 
