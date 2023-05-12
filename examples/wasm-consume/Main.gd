@@ -15,6 +15,8 @@ func _ready():
 	_load_wasm("res://example.wasm")
 	_update_memory()
 	_benchmark()
+	
+	wasm.function("echo_ref", [wasm])
 
 func _gui_input(event: InputEvent): # Unfocus input
 	if event is InputEventMouseButton and event.pressed:

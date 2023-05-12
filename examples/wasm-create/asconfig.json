@@ -1,7 +1,8 @@
 {
   "options": {
     "memoryBase": 100,
-    "use": "abort=assembly/index/abort"
+    "use": "abort=assembly/index/abort",
+    "enable": ["reference-types"]
   },
   "targets": {
     "debug": {

@@ -15,6 +15,11 @@ export function update_memory(): void {
   memory_value = load<i64>(0);
 }
 
+export function echo_ref(ref: externref): i64 {
+  return memory_value;
+  // return ref;
+}
+
 // Call imported function from Wasm module
 // In practice, this could be called when encountering error, etc.
 // Instead, we'll just set a global with the callback return value
