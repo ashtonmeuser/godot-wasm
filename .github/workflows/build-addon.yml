@@ -1,7 +1,7 @@
 name: Build Addon
 on:
   push:
-    branches: [master, godot-4]
+    branches: [master, godot-3]
   workflow_dispatch:
 
 env:
