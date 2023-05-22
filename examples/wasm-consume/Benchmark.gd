@@ -1,4 +1,4 @@
-extends RefCounted
+extends Reference
 class_name Benchmark
 
 static func fibonacci(n: int):
