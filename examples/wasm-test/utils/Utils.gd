@@ -9,8 +9,8 @@ static func make_regex(pattern: String) -> RegEx:
 	assert(regex.compile(pattern) == OK, "Invalid regex pattern: %s" % pattern)
 	return regex
 
-static func file_length(f: FileAccess) -> int:
-	return f.get_length()
+static func file_length(f: File) -> int:
+	return f.get_len()
 
-static func to_utf8(s: String) -> PackedByteArray:
-	return s.to_utf8_buffer()
+static func to_utf8(s: String) -> PoolByteArray:
+	return s.to_utf8()
