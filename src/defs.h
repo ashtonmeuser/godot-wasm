@@ -8,17 +8,13 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
 
 #ifdef GODOT_MODULE // Godot includes when building module
   #include <core/os/os.h>
-  #include <core/os/time.h>
   #include <core/crypto/crypto.h>
   #include <core/io/stream_peer.h>
-  #include <core/variant/variant_utility.h>
 #else // Godot addon includes
-  #include <godot_cpp/classes/ref_counted.hpp>
-  #include <godot_cpp/classes/os.hpp>
-  #include <godot_cpp/classes/time.hpp>
-  #include <godot_cpp/classes/crypto.hpp>
-  #include <godot_cpp/classes/stream_peer_extension.hpp>
-  #include <godot_cpp/variant/utility_functions.hpp>
+  #include <Godot.hpp>
+  #include <OS.hpp>
+  #include <Crypto.hpp>
+  #include <StreamPeerGDNative.hpp>
 #endif
 
 #ifdef GODOT_MODULE
@@ -26,25 +22,35 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
   #define PRINT_ERROR(message) print_error("Godot Wasm: " + String(message))
   #define godot_error Error
   #define INSTANCE_FROM_ID(id) ObjectDB::get_instance(id)
-  #define INSTANCE_VALIDATE(o) (o.get_validated_object() != nullptr)
+  #define INSTANCE_VALIDATE(id) ObjectDB::instance_validate(id)
   #define REGISTRATION_METHOD _bind_methods
   #define RANDOM_BYTES(n) Crypto::create()->generate_random_bytes(n)
 #else
-  #define PRINT(message) UtilityFunctions::print(String(message))
-  #define PRINT_ERROR(message) _err_print_error(__FUNCTION__, __FILE__, __LINE__, "Godot Wasm: " + String(message))
-  #define godot_error Error
-  #define INSTANCE_FROM_ID(id) ObjectDB::get_instance(id)
-  #define INSTANCE_VALIDATE(o) (o.get_validated_object() != nullptr)
-  #define REGISTRATION_METHOD _bind_methods
-  #define RANDOM_BYTES(n) [n]()->PackedByteArray{Ref<Crypto> c;c.instantiate();return c->generate_random_bytes(n);}()
+  #define OK GODOT_OK
+  #define FAILED GODOT_FAILED
+  #define ERR_INVALID_DATA GODOT_ERR_INVALID_DATA
+  #define ERR_COMPILATION_FAILED GODOT_ERR_COMPILATION_FAILED
+  #define ERR_CANT_CREATE GODOT_ERR_CANT_CREATE
+  #define ERR_PARAMETER_RANGE_ERROR GODOT_ERR_PARAMETER_RANGE_ERROR
+  #define PRINT(message) Godot::print(String(message))
+  #define PRINT_ERROR(message) Godot::print_error("Godot Wasm: " + String(message), __func__, __FILE__, __LINE__)
+  #define ObjectID int64_t
+  #define INSTANCE_FROM_ID(id) godot::core_1_2_api->godot_instance_from_id(id) == nullptr ? nullptr : godot::detail::get_wrapper<Object>(godot::core_1_2_api->godot_instance_from_id(id))
+  #define INSTANCE_VALIDATE(id) godot::core_1_1_api->godot_is_instance_valid((godot_object*)id)
+  #define GDCLASS GODOT_CLASS
+  #define REGISTRATION_METHOD _register_methods
+  #define RANDOM_BYTES(n) Crypto::_new()->generate_random_bytes(n)
 #endif
+#define FLOAT REAL
+#define RefCounted Reference
+#define PackedByteArray PoolByteArray
 #define FAIL(message, ret) do { PRINT_ERROR(message); return ret; } while (0)
 #define FAIL_IF(cond, message, ret) if (unlikely(cond)) FAIL(message, ret)
-#define INSTANTIATE_REF(ref) ref.instantiate()
-#define BYTE_ARRAY_POINTER(array) array.ptr()
-#define CMDLINE_ARGS OS::get_singleton()->get_cmdline_user_args()
-#define TIME_REALTIME Time::get_singleton()->get_unix_time_from_system() * 1000000000
-#define TIME_MONOTONIC Time::get_singleton()->get_ticks_usec() * 1000
+#define INSTANTIATE_REF(ref) ref.instance()
+#define BYTE_ARRAY_POINTER(array) array.read().ptr()
+#define CMDLINE_ARGS PoolStringArray() // User CLI args unsupported in Godot 3
+#define TIME_REALTIME OS::get_singleton()->get_system_time_msecs() * 1000000
+#define TIME_MONOTONIC OS::get_singleton()->get_ticks_usec() * 1000
 #define NULL_VARIANT Variant()
 #define PAGE_SIZE 65536
 
