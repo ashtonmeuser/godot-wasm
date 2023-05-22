@@ -4,8 +4,8 @@
 #ifdef GODOT_MODULE // Godot includes when building module
   #include "core/io/stream_peer.h"
 #else // Godot addon includes
-  #include "godot_cpp/classes/ref_counted.hpp"
-  #include "godot_cpp/classes/stream_peer_extension.hpp"
+  #include <Godot.hpp>
+  #include <StreamPeerGDNative.hpp>
 #endif
 
 #ifdef GODOT_MODULE
@@ -13,13 +13,15 @@
   #define PRINT_ERROR(message) print_error("Godot Wasm: " + String(message))
   #define REGISTRATION_METHOD _bind_methods
 #else
-  #define PRINT_ERROR(message) _err_print_error(__FUNCTION__, __FILE__, __LINE__, "Godot Wasm: " + String(message))
-  #define godot_error Error
-  #define REGISTRATION_METHOD _bind_methods
+  #define OK GODOT_OK
+  #define ERR_INVALID_DATA GODOT_ERR_INVALID_DATA
+  #define ERR_COMPILATION_FAILED GODOT_ERR_COMPILATION_FAILED
+  #define ERR_CANT_CREATE GODOT_ERR_CANT_CREATE
+  #define ERR_PARAMETER_RANGE_ERROR GODOT_ERR_PARAMETER_RANGE_ERROR
+  #define PRINT_ERROR(message) Godot::print_error("Godot Wasm: " + String(message), __func__, __FILE__, __LINE__)
+  #define GDCLASS GODOT_CLASS
+  #define REGISTRATION_METHOD _register_methods
 #endif
-#define REAL FLOAT
-#define Reference RefCounted
-#define PoolByteArray PackedByteArray
 #define FAIL(message, ret) do { PRINT_ERROR(message); return ret; } while (0)
 #define FAIL_IF(cond, message, ret) if (unlikely(cond)) FAIL(message, ret)
 #define NULL_VARIANT Variant()
