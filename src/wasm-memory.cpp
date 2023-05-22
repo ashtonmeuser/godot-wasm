@@ -86,48 +86,34 @@ namespace godot {
     return pointer;
   }
 
-  godot_error WasmMemory::INTERFACE_GET_DATA {
+  godot_error WasmMemory::get_data(uint8_t *buffer, int bytes) {
     FAIL_IF(memory == NULL, "Invalid memory", ERR_INVALID_DATA);
     byte_t* data = wasm_memory_data(memory) + pointer;
     memcpy(buffer, data, bytes);
     pointer += bytes;
-    #ifndef GODOT_MODULE
-      *received = bytes;
-    #endif
     return OK;
   }
 
-  godot_error WasmMemory::INTERFACE_GET_PARTIAL_DATA {
-    #ifdef GODOT_MODULE
-      received = bytes;
-      return get_data(buffer, bytes);
-    #else
-      return _get_data(buffer, bytes, received);
-    #endif
+  godot_error WasmMemory::get_partial_data(uint8_t *buffer, int bytes, int &received) {
+    received = bytes;
+    return get_data(buffer, bytes);
   }
 
-  godot_error WasmMemory::INTERFACE_PUT_DATA {
+  godot_error WasmMemory::put_data(const uint8_t *buffer, int bytes) {
     FAIL_IF(memory == NULL, "Invalid memory", ERR_INVALID_DATA);
     if (bytes <= 0) return OK;
     byte_t* data = wasm_memory_data(memory) + pointer;
     memcpy(data, buffer, bytes);
     pointer += bytes;
-    #ifndef GODOT_MODULE
-      *sent = bytes;
-    #endif
     return OK;
   }
 
-  godot_error WasmMemory::INTERFACE_PUT_PARTIAL_DATA {
-    #ifdef GODOT_MODULE
-      sent = bytes;
-      return put_data(buffer, bytes);
-    #else
-      return _put_data(buffer, bytes, sent);
-    #endif
+  godot_error WasmMemory::put_partial_data(const uint8_t *buffer, int bytes, int &sent) {
+    sent = bytes;
+    return put_data(buffer, bytes);
   }
 
-  int32_t WasmMemory::INTERFACE_GET_AVAILABLE_BYTES {
+  int WasmMemory::get_available_bytes() const {
     return 0; // Not relevant
   }
 }
