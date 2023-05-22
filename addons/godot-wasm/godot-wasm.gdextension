@@ -1,0 +1,14 @@
+[configuration]
+entry_symbol = "wasm_library_init"
+
+[libraries]
+windows.debug.x86_64 = "bin/windows/godot-wasm.dll"
+windows.release.x86_64 = "bin/windows/godot-wasm.dll"
+windows.debug.x86_32 = "bin/windows/godot-wasm.dll"
+windows.release.x86_32 = "bin/windows/godot-wasm.dll"
+linux.debug.x86_64 = "bin/linux/libgodot-wasm.so"
+linux.release.x86_64 = "bin/linux/libgodot-wasm.so"
+linux.debug.x86_32 = "bin/linux/libgodot-wasm.so"
+linux.release.x86_32 = "bin/linux/libgodot-wasm.so"
+macos.debug = "bin/macos/libgodot-wasm.dylib"
+macos.release = "bin/macos/libgodot-wasm.dylib"
