@@ -14,12 +14,6 @@ config/name="WasmTest"
 run/main_scene="res://Main.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 
-[debug]
-
-file_logging/enable_file_logging=true
-file_logging/log_path="user://logs/test.log"
-file_logging/max_log_files=1
-
 [display]
 
 window/size/viewport_width=512
