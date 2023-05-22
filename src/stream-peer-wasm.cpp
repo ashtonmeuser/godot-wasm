@@ -1,3 +1,4 @@
+#include "wasmer.h"
 #include "stream-peer-wasm.h"
 
 #ifdef GDNATIVE

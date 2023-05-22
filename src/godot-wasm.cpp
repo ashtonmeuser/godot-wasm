@@ -1,3 +1,5 @@
+#include <string>
+#include <vector>
 #include "godot-wasm.h"
 
 namespace godot {

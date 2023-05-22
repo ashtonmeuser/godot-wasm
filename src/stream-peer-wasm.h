@@ -1,7 +1,6 @@
 #ifndef STREAM_PEER_WASM_H
 #define STREAM_PEER_WASM_H
 
-#include "wasmer.h"
 #include "defs.h"
 
 #ifdef GODOT_MODULE
