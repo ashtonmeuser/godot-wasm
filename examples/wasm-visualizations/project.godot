@@ -6,13 +6,22 @@
 ;   [section] ; section goes between []
 ;   param=value ; assign values to parameters
 
-config_version=5
+config_version=4
+
+_global_script_classes=[ {
+"base": "",
+"class": "Wasm",
+"language": "NativeScript",
+"path": "res://addons/godot-wasm/Wasm.gdns"
+} ]
+_global_script_class_icons={
+"Wasm": ""
+}
 
 [application]
 
 config/name="Wasm Visualizations"
 run/main_scene="res://Main.tscn"
-config/features=PackedStringArray("4.1")
 
 [debug]
 
@@ -20,10 +29,9 @@ settings/fps/force_fps=60
 
 [display]
 
-window/size/viewport_width=800
-window/size/viewport_height=800
-window/stretch/scale=2.0
-window/vsync/vsync_mode=false
+window/size/width=400
+window/size/height=400
+window/vsync/use_vsync=false
 
 [gui]
 
@@ -33,8 +41,8 @@ common/drop_mouse_on_gui_input_disabled=true
 
 toggle_fps_cap={
 "deadzone": 0.5,
-"events": [null, null, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":67,"key_label":0,"unicode":99,"echo":false,"script":null)
-]
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":67,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
+ ]
 }
 
 [physics]
@@ -43,4 +51,4 @@ common/enable_pause_aware_picking=true
 
 [rendering]
 
-environment/defaults/default_clear_color=Color(1, 1, 1, 1)
+environment/default_clear_color=Color( 1, 1, 1, 1 )
