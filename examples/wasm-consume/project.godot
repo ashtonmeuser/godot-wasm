@@ -6,13 +6,28 @@
 ;   [section] ; section goes between []
 ;   param=value ; assign values to parameters
 
-config_version=5
+config_version=4
+
+_global_script_classes=[ {
+"base": "Reference",
+"class": "Benchmark",
+"language": "GDScript",
+"path": "res://Benchmark.gd"
+}, {
+"base": "Reference",
+"class": "Wasm",
+"language": "NativeScript",
+"path": "res://addons/godot-wasm/Wasm.gdns"
+} ]
+_global_script_class_icons={
+"Benchmark": "",
+"Wasm": ""
+}
 
 [application]
 
 config/name="Wasm Consume"
 run/main_scene="res://Main.tscn"
-config/features=PackedStringArray("4.0")
 
 [debug]
 
@@ -20,15 +35,15 @@ gdscript/warnings/return_value_discarded=false
 
 [display]
 
-window/size/viewport_width=854
-window/size/viewport_height=480
+window/size/width=854
+window/size/height=480
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 
 [gui]
 
-theme/custom="res://Theme.tres"
 common/drop_mouse_on_gui_input_disabled=true
+theme/custom="res://Theme.tres"
 
 [physics]
 
@@ -36,4 +51,4 @@ common/enable_pause_aware_picking=true
 
 [rendering]
 
-environment/defaults/default_clear_color=Color(0.133333, 0.141176, 0.243137, 1)
+environment/default_clear_color=Color( 0.133333, 0.141176, 0.243137, 1 )
