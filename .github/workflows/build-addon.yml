@@ -43,14 +43,14 @@ jobs:
           path: |
             ${{ github.workspace }}/godot-cpp/bin
             ${{ github.workspace }}/godot-cpp/include
-            ${{ github.workspace }}/godot-cpp/gen
+            ${{ github.workspace }}/godot-cpp/godot-headers/**/*.h
           key: ${{ runner.os }}-${{ env.SUBMODULE_HASH }}-${{ secrets.GODOT_CPP_CACHE_VERSION }}
 
       - name: Compile Godot Library
         if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
         run: |
           cd ${{ github.workspace }}/godot-cpp
-          scons platform=linux
+          scons platform=linux target=release generate_bindings=yes
 
       - name: Compile Addon
         run: scons platform=linux
@@ -89,14 +89,14 @@ jobs:
           path: |
             ${{ github.workspace }}/godot-cpp/bin
             ${{ github.workspace }}/godot-cpp/include
-            ${{ github.workspace }}/godot-cpp/gen
+            ${{ github.workspace }}/godot-cpp/godot-headers/**/*.h
           key: ${{ runner.os }}-${{ env.SUBMODULE_HASH }}-${{ secrets.GODOT_CPP_CACHE_VERSION }}
 
       - name: Compile Godot Library
         if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
         run: |
           cd ${{ github.workspace }}/godot-cpp
-          scons platform=macos
+          scons platform=osx target=release generate_bindings=yes
 
       - name: Compile Addon
         run: scons platform=macos
@@ -104,8 +104,8 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: macos
-          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/macos
+          name: osx
+          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/osx
           if-no-files-found: error
 
   build-windows:
@@ -135,14 +135,14 @@ jobs:
           path: |
             ${{ github.workspace }}/godot-cpp/bin
             ${{ github.workspace }}/godot-cpp/include
-            ${{ github.workspace }}/godot-cpp/gen
+            ${{ github.workspace }}/godot-cpp/godot-headers/**/*.h
           key: ${{ runner.os }}-${{ env.SUBMODULE_HASH }}-${{ secrets.GODOT_CPP_CACHE_VERSION }}
 
       - name: Compile Godot Library
         if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
         run: |
           cd ${{ github.workspace }}\godot-cpp
-          scons platform=windows
+          scons platform=windows target=release generate_bindings=yes
 
       - name: MSVC Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1

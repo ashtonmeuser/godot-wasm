@@ -159,7 +159,7 @@ namespace godot {
     module = NULL;
     instance = NULL;
     memory_index = 0;
-    stream.instantiate();
+    stream.instance();
   }
 
   Wasm::~Wasm() {
@@ -186,7 +186,7 @@ namespace godot {
     // Load binary
     wasm_byte_vec_t wasm_bytes;
     wasm_byte_vec_new_uninitialized(&wasm_bytes, bytecode.size());
-    memcpy(wasm_bytes.data, bytecode.ptr(), bytecode.size());
+    memcpy(wasm_bytes.data, bytecode.read().ptr(), bytecode.size());
 
     // Validate binary
     FAIL_IF(!wasm_module_validate(store, &wasm_bytes), "Invalid binary", ERR_INVALID_DATA);
