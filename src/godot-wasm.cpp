@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include "godot-wasm.h"
+#include "wasi-shim.h"
 
 namespace godot {
   namespace godot_wasm {
