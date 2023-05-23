@@ -6,13 +6,16 @@
 #else // Godot addon includes
   #include "godot_cpp/classes/ref_counted.hpp"
   #include "godot_cpp/classes/stream_peer_extension.hpp"
+  #include "godot_cpp/variant/utility_functions.hpp"
 #endif
 
 #ifdef GODOT_MODULE
   #define godot_error Error
+  #define PRINT(message) print_line(String(message))
   #define PRINT_ERROR(message) print_error("Godot Wasm: " + String(message))
   #define REGISTRATION_METHOD _bind_methods
 #else
+  #define PRINT(message) UtilityFunctions::print(String(message))
   #define PRINT_ERROR(message) _err_print_error(__FUNCTION__, __FILE__, __LINE__, "Godot Wasm: " + String(message))
   #define godot_error Error
   #define REGISTRATION_METHOD _bind_methods

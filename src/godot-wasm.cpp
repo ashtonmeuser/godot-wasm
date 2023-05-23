@@ -50,6 +50,10 @@ namespace godot {
       return String(std::string(name->data, name->size).c_str());
     }
 
+    inline Variant dict_safe_get(Dictionary d, String k, Variant e) {
+      return d.has(k) && d[k].get_type() == e.get_type() ? d[k] : e;
+    }
+
     godot_error extract_results(Variant variant, wasm_val_vec_t* results) {
       if (results->size <= 0) return OK;
       if (variant.get_type() == Variant::ARRAY) {
@@ -175,6 +179,13 @@ namespace godot {
 
   void Wasm::_init() { }
 
+  void Wasm::exit(int32_t code) {
+    instance = NULL;
+    stream->memory = NULL;
+    code ? PRINT_ERROR("Module exited with error " + String(Variant(code))) : PRINT("Module exited successfully");
+    // TODO: Emit signal
+  }
+
   Ref<StreamPeerWasm> Wasm::get_stream() const {
     return stream;
   };
@@ -210,8 +221,16 @@ namespace godot {
     // Wire up imports
     std::vector<wasm_extern_t*> externs;
     for (const auto &tuple: import_funcs) {
-      const Array& import = ((Dictionary)import_map["functions"])[tuple.first];
-      FAIL_IF(import.size() != 2, "Invalid or missing import function " + tuple.first, ERR_CANT_CREATE);
+      const Dictionary& functions = dict_safe_get(import_map, "functions", Dictionary());
+      if (!functions.keys().has(tuple.first)) {
+        // Attempt to use default WASI import
+        godot_wasm::wasi_callback callback = godot_wasm::get_wasi_import(tuple.first);
+        FAIL_IF(callback == NULL, "Missing import function " + tuple.first, ERR_CANT_CREATE);
+        externs.push_back(callback(store, this));
+        continue;
+      }
+      const Array& import = dict_safe_get(functions, tuple.first, Array());
+      FAIL_IF(import.size() != 2, "Invalid import function " + tuple.first, ERR_CANT_CREATE);
       FAIL_IF(import[0].get_type() != Variant::OBJECT, "Invalid import target", ERR_CANT_CREATE);
       FAIL_IF(import[1].get_type() != Variant::STRING, "Invalid import method", ERR_CANT_CREATE);
       godot_wasm::context_callback* context = (godot_wasm::context_callback*)&tuple.second;
