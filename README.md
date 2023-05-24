@@ -30,12 +30,11 @@ Godot Wasm supports installation via addon or module. Installing as an addon is 
 
 ### Addon
 
-Installation in a Godot project involves simply downloading and installing a zip file from Godot's UI. Recompilation of the engine is *not* required.
+Installation in a Godot project can be done entirely through Godot's built-in Asset Library. Recompilation of the engine is *not* required. Using the Asset Library tab within the Godot editor, search for "Godot Wasm", and follow the prompts to install. You can also explore the [Godot Wasm asset page](https://godotengine.org/asset-library/asset/1798) in a browser. Note that the Asset Library has an approval process that can take several days and may therefore be a version or two behind.
 
-1. Download the Godot Wasm addon zip file from the [releases page](https://github.com/ashtonmeuser/godot-wasm/releases).
-1. In Godot's Asset Library tab, click Import and select the addon zip file. Follow prompts to complete installation of the addon.
-
-Alternatively, you can use the Asset Library tab within the Godot editor, search for "Wasm", and follow the prompts to install. Yet another alternative is downloading directly from the [asset page](https://godotengine.org/asset-library/asset/1798) and following the installation instructions above. Note that the Asset Library has an approval process that can take several days and may therefore be a version or two behind.
+Alternatively, you can download the repository as a ZIP file and import manualy via the same Asset Library tab within the Godot editor.
+1. Download a ZIP of Godot Wasm from the [repository](https://github.com/ashtonmeuser/godot-wasm).
+1. In Godot's Asset Library tab, click Import and select the downloaded ZIP file. Follow prompts to complete installation of the addon.
 
 ### Godot Module
 
@@ -143,7 +142,7 @@ These instructions are tailored to UNIX machines.
 1. Compile the Godot C++ bindings. From within the *godot-cpp* directory, run `scons target=release platform=PLATFORM generate_bindings=yes` replacing `PLATFORM` with your relevant platform type e.g. `osx`, `linux`, `windows`, etc.
 1. Compile the Godot Wasm addon. From the repository root directory, run `scons platform=PLATFORM` once again replacing `PLATFORM` with your platform. This will create the *addons/godot-wasm/bin/PLATFORM* directory where `PLATFORM` is your platform. You should see a dynamic library (*.dylib*, *.so*, *.dll*, etc.) created within this directory.
 1. Copy the Wasmer dynamic libraries to the appropriate platform directory via `cp -RP wasmer/lib/. addons/godot-wasm/bin/PLATFORM/` replacing `PLATFORM` with your platform.
-1. Zip the addons directory via `zip -FSr addons.zip addons`. This allows the addon to be conveniently distributed and imported into Godot. This zip file can be imported directly into Godot (see [Installation](https://github.com/ashtonmeuser/godot-wasm#installation)).
+1. Compress the addons directory via `zip -FSr addons.zip addons`. This allows the addon to be conveniently distributed and imported into Godot. This ZIP file can be imported directly into Godot (see [Installation](https://github.com/ashtonmeuser/godot-wasm#installation)).
 
 If frequently iterating on the addon using a Godot project, it may help to create a symlink from the Godot project to the compiled addon via `ln -s RELATIVE_PATH_TO_ADDONS addons` from the root directory of your Godot project.
 
