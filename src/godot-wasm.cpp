@@ -14,7 +14,9 @@ namespace godot {
       context_callback() { }
       context_callback(uint16_t i): context_extern { i } { }
     };
+  }
 
+  namespace {
     Variant decode_variant(wasm_val_t value) {
       switch (value.kind) {
         case WASM_I32: return Variant(value.of.i32);
@@ -122,7 +124,7 @@ namespace godot {
     wasm_trap_t* callback_wrapper(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       // This is invoked by Wasm module calls to imported functions
       // Must be free function so context is passed via the env void pointer
-      context_callback* context = (context_callback*)env;
+      godot_wasm::context_callback* context = (godot_wasm::context_callback*)env;
       Array params = Array();
       // TODO: Check if args and results match expected sizes
       for (uint16_t i = 0; i < args->size; i++) params.push_back(decode_variant(args->data[i]));
@@ -225,7 +227,7 @@ namespace godot {
     FAIL_IF(instance == NULL, "Instantiation failed", ERR_CANT_CREATE);
 
     // Set stream peer memory reference
-    stream->memory = wasm_extern_as_memory(godot_wasm::get_export_data(instance, memory_index));
+    stream->memory = wasm_extern_as_memory(get_export_data(instance, memory_index));
 
     return OK;
   }
@@ -250,9 +252,9 @@ namespace godot {
 
     // Module extern names and signatures
     Dictionary import_func_sigs, export_global_sigs, export_func_sigs;
-    for (const auto &tuple: import_funcs) import_func_sigs[tuple.first] = godot_wasm::get_extern_signature(module, tuple.second.index, true);
-    for (const auto &tuple: export_globals) export_global_sigs[tuple.first] = godot_wasm::get_extern_signature(module, tuple.second.index, false);
-    for (const auto &tuple: export_funcs) export_func_sigs[tuple.first] = godot_wasm::get_extern_signature(module, tuple.second.index, false);
+    for (const auto &tuple: import_funcs) import_func_sigs[tuple.first] = get_extern_signature(module, tuple.second.index, true);
+    for (const auto &tuple: export_globals) export_global_sigs[tuple.first] = get_extern_signature(module, tuple.second.index, false);
+    for (const auto &tuple: export_funcs) export_func_sigs[tuple.first] = get_extern_signature(module, tuple.second.index, false);
 
     // Module info dictionary
     Dictionary dict;
@@ -272,13 +274,13 @@ namespace godot {
     FAIL_IF(!export_globals.count(name), "Unknown global name " + name, NULL_VARIANT);
 
     // Retrieve exported global
-    const wasm_global_t* global = wasm_extern_as_global(godot_wasm::get_export_data(instance, export_globals[name].index));
+    const wasm_global_t* global = wasm_extern_as_global(get_export_data(instance, export_globals[name].index));
     FAIL_IF(global == NULL, "Failed to retrieve global export " + name, NULL_VARIANT);
 
     // Extract result
     wasm_val_t result;
     wasm_global_get(global, &result);
-    return godot_wasm::decode_variant(result);
+    return decode_variant(result);
   }
 
   Variant Wasm::function(String name, Array args) {
@@ -287,7 +289,7 @@ namespace godot {
     FAIL_IF(!export_funcs.count(name), "Unknown function name " + name, NULL_VARIANT);
 
     // Retrieve exported function
-    const wasm_func_t* func = wasm_extern_as_func(godot_wasm::get_export_data(instance, export_funcs[name].index));
+    const wasm_func_t* func = wasm_extern_as_func(get_export_data(instance, export_funcs[name].index));
     FAIL_IF(func == NULL, "Failed to retrieve function export " + name, NULL_VARIANT);
 
     // Construct args
@@ -319,7 +321,7 @@ namespace godot {
 
     // Extract result
     wasm_val_t result = results_val[0];
-    return result.kind == WASM_ANYREF ? NULL_VARIANT : godot_wasm::decode_variant(result);
+    return result.kind == WASM_ANYREF ? NULL_VARIANT : decode_variant(result);
   }
 
   uint64_t Wasm::mem_size() {
@@ -335,7 +337,7 @@ namespace godot {
     for (uint16_t i = 0; i < imports.size; i++) {
       const wasm_externtype_t* type = wasm_importtype_type(imports.data[i]);
       const wasm_externkind_t kind = wasm_externtype_kind(type);
-      const String key = godot_wasm::decode_name(wasm_importtype_module(imports.data[i])) + "." + godot_wasm::decode_name(wasm_importtype_name(imports.data[i]));
+      const String key = decode_name(wasm_importtype_module(imports.data[i])) + "." + decode_name(wasm_importtype_name(imports.data[i]));
       switch (kind) {
         case WASM_EXTERN_FUNC:
           import_funcs[key] = { i };
@@ -350,7 +352,7 @@ namespace godot {
     for (uint16_t i = 0; i < exports.size; i++) {
       const wasm_externtype_t* type = wasm_exporttype_type(exports.data[i]);
       const wasm_externkind_t kind = wasm_externtype_kind(type);
-      const String key = godot_wasm::decode_name(wasm_exporttype_name(exports.data[i]));
+      const String key = decode_name(wasm_exporttype_name(exports.data[i]));
       switch (kind) {
         case WASM_EXTERN_FUNC:
           export_funcs[key] = { i };
@@ -373,7 +375,7 @@ namespace godot {
     wasm_module_imports(module, &imports);
     const wasm_externtype_t* type = wasm_importtype_type(imports.data[context->index]);
     const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
-    wasm_func_t* func = wasm_func_new_with_env(store, func_type, godot_wasm::callback_wrapper, context, NULL);
+    wasm_func_t* func = wasm_func_new_with_env(store, func_type, callback_wrapper, context, NULL);
     return func;
   }
 }
