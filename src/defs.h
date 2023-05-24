@@ -10,6 +10,7 @@
 
 #ifdef GODOT_MODULE
   #define godot_error Error
+  #define PRINT(message) print_line(String(message))
   #define PRINT_ERROR(message) print_error("Godot Wasm: " + String(message))
   #define REGISTRATION_METHOD _bind_methods
 #else
@@ -18,6 +19,7 @@
   #define ERR_COMPILATION_FAILED GODOT_ERR_COMPILATION_FAILED
   #define ERR_CANT_CREATE GODOT_ERR_CANT_CREATE
   #define ERR_PARAMETER_RANGE_ERROR GODOT_ERR_PARAMETER_RANGE_ERROR
+  #define PRINT(message) Godot::print(String(message))
   #define PRINT_ERROR(message) Godot::print_error("Godot Wasm: " + String(message), __func__, __FILE__, __LINE__)
   #define GDCLASS GODOT_CLASS
   #define REGISTRATION_METHOD _register_methods

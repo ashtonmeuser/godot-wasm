@@ -30,12 +30,11 @@ Godot Wasm supports installation via addon or module. Installing as an addon is 
 
 ### Addon
 
-Installation in a Godot project involves simply downloading and installing a zip file from Godot's UI. Recompilation of the engine is *not* required.
+Installation in a Godot project can be done entirely through Godot's built-in Asset Library. Recompilation of the engine is *not* required. Using the Asset Library tab within the Godot editor, search for "Godot Wasm", and follow the prompts to install. You can also explore the [Godot Wasm asset page](https://godotengine.org/asset-library/asset/1798) in a browser. Note that the Asset Library has an approval process that can take several days and may therefore be a version or two behind.
 
-1. Download the Godot Wasm addon zip file from the [releases page](https://github.com/ashtonmeuser/godot-wasm/releases).
-1. In Godot's Asset Library tab, click Import and select the addon zip file. Follow prompts to complete installation of the addon.
-
-Alternatively, you can use the Asset Library tab within the Godot editor, search for "Wasm", and follow the prompts to install. Yet another alternative is downloading directly from the [asset page](https://godotengine.org/asset-library/asset/1798) and following the installation instructions above. Note that the Asset Library has an approval process that can take several days and may therefore be a version or two behind.
+Alternatively, you can download the repository as a ZIP file and import manualy via the same Asset Library tab within the Godot editor.
+1. Download a ZIP of Godot Wasm from the [repository](https://github.com/ashtonmeuser/godot-wasm).
+1. In Godot's Asset Library tab, click Import and select the downloaded ZIP file. Follow prompts to complete installation of the addon.
 
 ### Godot Module
 
@@ -143,13 +142,13 @@ These instructions are tailored to UNIX machines.
 1. Compile the Godot C++ bindings. From within the *godot-cpp* directory, run `scons target=release platform=PLATFORM generate_bindings=yes` replacing `PLATFORM` with your relevant platform type e.g. `osx`, `linux`, `windows`, etc.
 1. Compile the Godot Wasm addon. From the repository root directory, run `scons platform=PLATFORM` once again replacing `PLATFORM` with your platform. This will create the *addons/godot-wasm/bin/PLATFORM* directory where `PLATFORM` is your platform. You should see a dynamic library (*.dylib*, *.so*, *.dll*, etc.) created within this directory.
 1. Copy the Wasmer dynamic libraries to the appropriate platform directory via `cp -RP wasmer/lib/. addons/godot-wasm/bin/PLATFORM/` replacing `PLATFORM` with your platform.
-1. Zip the addons directory via `zip -FSr addons.zip addons`. This allows the addon to be conveniently distributed and imported into Godot. This zip file can be imported directly into Godot (see [Installation](https://github.com/ashtonmeuser/godot-wasm#installation)).
+1. Compress the addons directory via `zip -FSr addons.zip addons`. This allows the addon to be conveniently distributed and imported into Godot. This ZIP file can be imported directly into Godot (see [Installation](https://github.com/ashtonmeuser/godot-wasm#installation)).
 
 If frequently iterating on the addon using a Godot project, it may help to create a symlink from the Godot project to the compiled addon via `ln -s RELATIVE_PATH_TO_ADDONS addons` from the root directory of your Godot project.
 
 ## Known Issues
 
-1. No [WASI](https://wasmbyexample.dev/examples/wasi-introduction/wasi-introduction.all.en-us.html) bindings are provided to the Wasm module. This means that the guest Wasm module has no access to the host machines filesystem, etc. Pros for this are simplicity and increased security. Cons include not being able to generate truly random numbers (without a workaround) or run Wasm modules created in ways that require WASI bindings e.g. [TinyGo](https://tinygo.org/docs/guides/webassembly/) (see relevant [issue](https://github.com/tinygo-org/tinygo/issues/3068)).
+1. A small subset of [WASI](https://wasmbyexample.dev/examples/wasi-introduction/wasi-introduction.all.en-us.html) bindings are provided to the Wasm module by default. These can be overridden by the imports supplied on module instantiation. The guest Wasm module has no access to the host machines filesystem, etc. Pros for this are simplicity and increased security. Cons include not being able to generate truly random numbers (without a workaround) or run Wasm modules created in ways that require a larger set of WASI bindings e.g. [TinyGo](https://tinygo.org/docs/guides/webassembly/) (see relevant [issue](https://github.com/tinygo-org/tinygo/issues/3068)).
 1. Only `int` and `float` return values are supported. While workarounds could be used, this limitation is because the only [concrete types supported by Wasm](https://webassembly.github.io/spec/core/syntax/types.html#number-types) are integers and floating point.
 1. A default empty `args` parameter for `function(name, args)` can not be supplied. Default `Array` parameters in GDNative seem to retain values between calls. Calling methods of this addon without expected arguments produces undefined behaviour. This is reliant on [godotengine/godot-cpp#209](https://github.com/godotengine/godot-cpp/issues/209).
 1. Web/HTML5 export is not supported (see [#15](https://github.com/ashtonmeuser/godot-wasm/issues/15) and [#18](https://github.com/ashtonmeuser/godot-wasm/issues/18)).
