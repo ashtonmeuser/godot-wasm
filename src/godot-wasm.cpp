@@ -183,7 +183,7 @@ namespace godot {
   void Wasm::exit(int32_t code) {
     instance = NULL;
     stream->memory = NULL;
-    code ? PRINT_ERROR("Module exited with error " + String(Variant(code))) : PRINT("Module exited successfully");
+    code ? PRINT_ERROR("Module exited with error " + String::num_int64(code)) : PRINT("Module exited successfully");
     // TODO: Emit signal
   }
 
