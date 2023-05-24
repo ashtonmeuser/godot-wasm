@@ -1,6 +1,7 @@
 #ifndef WASI_SHIM_H
 #define WASI_SHIM_H
 
+#include <functional>
 #include "wasmer.h"
 #include "defs.h"
 
