@@ -32,6 +32,7 @@ namespace godot {
       Wasm();
       ~Wasm();
       void _init();
+      void exit(int32_t code);
       godot_error compile(PoolByteArray bytecode);
       godot_error instantiate(const Dictionary import_map);
       godot_error load(PoolByteArray bytecode, const Dictionary import_map);
