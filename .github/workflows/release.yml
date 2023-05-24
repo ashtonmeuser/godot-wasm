@@ -5,7 +5,7 @@ on:
 
 env:
   LIBRARY_PATH: addons/godot-wasm/bin
-  RELEASE_ASSET: godot-wasm.zip
+  RELEASE_ASSET: asset-library.zip
 
 jobs:
   release:
@@ -27,8 +27,10 @@ jobs:
 
       - name: Prepare Asset
         run: |
+          mkdir godot-wasm
+          mv addons godot-wasm
           cd ${{ github.workspace }}
-          zip -r ${{ env.RELEASE_ASSET }} addons
+          zip -r ${{ env.RELEASE_ASSET }} godot-wasm
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
