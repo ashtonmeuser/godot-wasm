@@ -296,18 +296,8 @@ namespace godot {
     std::vector<wasm_val_t> vect;
     for (uint16_t i = 0; i < args.size(); i++) {
       Variant variant = args[i];
-      wasm_val_t value;
-      switch (variant.get_type()) {
-        case Variant::INT:
-          value.kind = WASM_I64;
-          value.of.i64 = (int64_t)variant;
-          break;
-        case Variant::REAL:
-          value.kind = WASM_F64;
-          value.of.f64 = (float64_t)variant;
-          break;
-        default: FAIL("Invalid argument type", NULL_VARIANT);
-      }
+      wasm_val_t value = encode_variant(variant);
+      FAIL_IF(value.kind == WASM_ANYREF, "Invalid argument type", NULL_VARIANT);
       vect.push_back(value);
     }
 
