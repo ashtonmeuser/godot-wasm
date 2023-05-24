@@ -261,9 +261,9 @@ namespace godot {
     dict["import_functions"] = import_func_sigs;
     dict["export_globals"] = export_global_sigs;
     dict["export_functions"] = export_func_sigs;
-    dict["memory_min"] = Variant(limits->min * PAGE_SIZE);
-    dict["memory_max"] = Variant(limits->max);
-    if (stream->memory != NULL) dict["memory_current"] = Variant((int)wasm_memory_data_size(stream->memory));
+    dict["memory_min"] = Variant((uint64_t)limits->min * PAGE_SIZE);
+    dict["memory_max"] = Variant((uint64_t)limits->max * PAGE_SIZE);
+    if (stream->memory != NULL) dict["memory_current"] = Variant((uint64_t)wasm_memory_data_size(stream->memory));
 
     return dict;
   }

@@ -1,6 +1,6 @@
 extends Control
 
-const info_template = "[b]Import Globals[/b]\n%s[b]Imports Functions[/b]\n%s[b]Export Globals[/b]\n%s[b]Export Functions[/b]\n%s[b]Memory[/b]\n[indent]Min %s\nMax %s%s[/indent]"
+const info_template := "[b]Import Globals[/b]\n%s[b]Imports Functions[/b]\n%s[b]Export Globals[/b]\n%s[b]Export Functions[/b]\n%s[b]Memory[/b]\n[indent]Min %s\nMax %s%s[/indent]"
 var callback_count: int
 @onready var wasm: Wasm = Wasm.new()
 
@@ -93,10 +93,10 @@ func _pretty_signatures(signatures: Dictionary) -> String: # Indented, line-sepa
 	return "[indent]%s[/indent]\n" % "\n".join(rows)
 
 func _pretty_bytes(i: int) -> String: # Format bytes without leading negative sign
-	for unit in ["", "Ki", "Mi"]:
+	for unit in ["", "Ki", "Mi", "Gi"]:
 		if abs(i) < 1024.0: return "%d %sB" % [i, unit]
 		i = int(round(i / 1024.0))
-	return "%d GiB" % i
+	return "%d TiB" % i
 
 func _benchmark(_value = 0):
 	var limit: int = $"%PrimeLimit".value
