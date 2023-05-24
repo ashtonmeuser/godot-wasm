@@ -29,11 +29,9 @@ namespace godot {
       for (uint16_t i = 0; i < length; i++) {
         wasi_io_vector iov = get_io_vector(memory, offset, i);
         byte_t* data = wasm_memory_data(memory) + iov.offset;
-        char message[iov.length + 1];
-        memcpy(message, data, iov.length);
-        message[iov.length] = '\0'; // Godot expects null termination
-        if (iov.length == 1 && message[0] == '\u000A') continue; // Skip line feed
-        fd == 1 ? PRINT(message) : PRINT_ERROR(message);
+        std::string message = std::string(data, data + iov.length);
+        if (iov.length == 1 && message == "\u000A") continue; // Skip line feed
+        fd == 1 ? PRINT(message.c_str()) : PRINT_ERROR(message.c_str());
         written += iov.length;
       }
       results->data[0].kind = WASM_I32;
