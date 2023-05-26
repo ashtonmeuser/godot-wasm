@@ -48,6 +48,20 @@ namespace godot {
       return NULL;
     }
 
+    // WASI random_get: [I32, I32] -> [I32]
+    wasm_trap_t* wasi_random_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
+      FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI random_get", NULL);
+      Wasm* wasm = (Wasm*)env;
+      byte_t* data = wasm_memory_data(wasm->stream.ptr()->memory);
+      int32_t offset = args->data[0].of.i32;
+      int32_t length = args->data[1].of.i32;
+      PackedByteArray bytes = RANDOM_BYTES(length);
+      memcpy(data + offset, BYTE_ARRAY_POINTER(bytes), length);
+      results->data[0].kind = WASM_I32;
+      results->data[0].of.i32 = 0;
+      return NULL;
+    }
+
     // WASI clock_time_get: [I32, I64, I32] -> [I32]
     wasm_trap_t* wasi_clock_time_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 3 || results->size != 1, "Invalid call WASI clock_time_get", NULL);
@@ -75,6 +89,7 @@ namespace godot {
     std::map<std::string, godot_wasm::wasi_callback> factories {
       { "wasi_snapshot_preview1.fd_write", wasi_factory_factory({WASM_I32, WASM_I32, WASM_I32, WASM_I32}, {WASM_I32}, wasi_fd_write) },
       { "wasi_snapshot_preview1.proc_exit", wasi_factory_factory({WASM_I32}, {}, wasi_proc_exit) },
+      { "wasi_snapshot_preview1.random_get", wasi_factory_factory({WASM_I32, WASM_I32}, {WASM_I32}, wasi_random_get) },
       { "wasi_snapshot_preview1.clock_time_get", wasi_factory_factory({WASM_I32, WASM_I64, WASM_I32}, {WASM_I32}, wasi_clock_time_get) },
     };
   }
