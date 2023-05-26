@@ -262,7 +262,7 @@ namespace godot {
     return instantiate(import_map);
   }
 
-  Dictionary Wasm::inspect() {
+  Dictionary Wasm::inspect() const {
     // Validate module
     FAIL_IF(module == NULL, "Inspection failed", Dictionary());
 
@@ -291,13 +291,13 @@ namespace godot {
     return dict;
   }
 
-  Variant Wasm::global(String name) {
+  Variant Wasm::global(String name) const {
     // Validate instance and global name
     FAIL_IF(instance == NULL, "Not instantiated", NULL_VARIANT);
     FAIL_IF(!export_globals.count(name), "Unknown global name " + name, NULL_VARIANT);
 
     // Retrieve exported global
-    const wasm_global_t* global = wasm_extern_as_global(get_export_data(instance, export_globals[name].index));
+    const wasm_global_t* global = wasm_extern_as_global(get_export_data(instance, export_globals.at(name).index));
     FAIL_IF(global == NULL, "Failed to retrieve global export " + name, NULL_VARIANT);
 
     // Extract result
@@ -306,13 +306,13 @@ namespace godot {
     return decode_variant(result);
   }
 
-  Variant Wasm::function(String name, Array args) {
+  Variant Wasm::function(String name, Array args) const {
     // Validate instance and function name
     FAIL_IF(instance == NULL, "Not instantiated", NULL_VARIANT);
     FAIL_IF(!export_funcs.count(name), "Unknown function name " + name, NULL_VARIANT);
 
     // Retrieve exported function
-    const wasm_func_t* func = wasm_extern_as_func(get_export_data(instance, export_funcs[name].index));
+    const wasm_func_t* func = wasm_extern_as_func(get_export_data(instance, export_funcs.at(name).index));
     FAIL_IF(func == NULL, "Failed to retrieve function export " + name, NULL_VARIANT);
 
     // Construct args
@@ -337,7 +337,7 @@ namespace godot {
     return result.kind == WASM_ANYREF ? NULL_VARIANT : decode_variant(result);
   }
 
-  uint64_t Wasm::mem_size() {
+  uint64_t Wasm::mem_size() const {
     FAIL_IF(instance == NULL, "Not instantiated", 0);
     FAIL_IF(stream->memory == NULL, "No memory", 0);
     return wasm_memory_data_size(stream->memory);

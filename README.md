@@ -177,7 +177,12 @@ Please feel free submit a PR or an [issue](https://github.com/ashtonmeuser/godot
 - [ ] Import globals
 - [x] Map export names to indices (access function/global by name)
 - [x] Inspect module exports
-- [ ] Automatically provide [AssemblyScript special imports](https://www.assemblyscript.org/concepts.html#special-imports)
+- [x] ~~Automatically provide [AssemblyScript special imports](https://www.assemblyscript.org/concepts.html#special-imports)~~ Deferring language all language-specific implementation in favour of WASI
 - [ ] Automatically cast to 32-bit values
 - [x] Inspect function signatures
 - [ ] Set export globals
+- [ ] WASI permissions model
+- [ ] WASI clock and random support
+- [ ] WASI filesystem support
+- [ ] WASI environment variable support
+- [ ] WASI CLI argument support

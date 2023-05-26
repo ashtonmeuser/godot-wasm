@@ -46,7 +46,7 @@ namespace godot {
     return ref;
   }
 
-  uint32_t StreamPeerWasm::get_position() {
+  uint32_t StreamPeerWasm::get_position() const {
     return pointer;
   }
 

@@ -36,10 +36,10 @@ namespace godot {
       godot_error compile(PoolByteArray bytecode);
       godot_error instantiate(const Dictionary import_map);
       godot_error load(PoolByteArray bytecode, const Dictionary import_map);
-      Dictionary inspect();
-      Variant function(String name, Array args);
-      Variant global(String name);
-      uint64_t mem_size();
+      Dictionary inspect() const;
+      Variant function(String name, Array args) const;
+      Variant global(String name) const;
+      uint64_t mem_size() const;
       Ref<StreamPeerWasm> stream;
       Ref<StreamPeerWasm> get_stream() const;
   };
