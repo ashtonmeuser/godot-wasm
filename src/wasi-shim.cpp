@@ -48,28 +48,20 @@ namespace godot {
       return NULL;
     }
 
-    wasm_extern_t* factory_wasi_fd_write(wasm_store_t* store, Wasm* gw) {
-      wasm_valtype_t* p[] = { wasm_valtype_new_i32(), wasm_valtype_new_i32(), wasm_valtype_new_i32(), wasm_valtype_new_i32() };
-      wasm_valtype_t* r[] = { wasm_valtype_new_i32() };
-      wasm_valtype_vec_t params, results;
-      wasm_valtype_vec_new(&params, 4, p);
-      wasm_valtype_vec_new(&results, 1, r);
-      wasm_functype_t* type = wasm_functype_new(&params, &results);
-      return wasm_func_as_extern(wasm_func_new_with_env(store, type, wasi_fd_write, gw, NULL));
-    };
-
-    wasm_extern_t* factory_wasi_proc_exit(wasm_store_t* store, Wasm* gw) {
-      wasm_valtype_t* p[] = { wasm_valtype_new_i32() };
-      wasm_valtype_vec_t params, results;
-      wasm_valtype_vec_new(&params, 1, p);
-      wasm_valtype_vec_new_empty(&results);
-      wasm_functype_t* type = wasm_functype_new(&params, &results);
-      return wasm_func_as_extern(wasm_func_new_with_env(store, type, wasi_proc_exit, gw, NULL));
-    };
+    godot_wasm::wasi_callback wasi_factory_factory(const std::vector<wasm_valkind_enum> p_kinds, const std::vector<wasm_valkind_enum> r_kinds, wasm_func_callback_with_env_t c) {
+      auto p_types = new std::vector<wasm_valtype_t*>;
+      auto r_types = new std::vector<wasm_valtype_t*>;
+      for (auto &it: p_kinds) p_types->push_back(wasm_valtype_new(it));
+      for (auto &it: r_kinds) r_types->push_back(wasm_valtype_new(it));
+      wasm_valtype_vec_t params = { p_types->size(), p_types->data() };
+      wasm_valtype_vec_t results = { r_types->size(), r_types->data() };
+      wasm_functype_t* t = wasm_functype_new(&params, &results);
+      return [t, c](wasm_store_t* s, Wasm* w) { return wasm_func_as_extern(wasm_func_new_with_env(s, t, c, w, NULL)); };
+    }
 
     std::map<std::string, godot_wasm::wasi_callback> factories {
-      { "wasi_snapshot_preview1.fd_write", factory_wasi_fd_write },
-      { "wasi_snapshot_preview1.proc_exit", factory_wasi_proc_exit },
+      { "wasi_snapshot_preview1.fd_write", wasi_factory_factory({WASM_I32, WASM_I32, WASM_I32, WASM_I32}, {WASM_I32}, wasi_fd_write) },
+      { "wasi_snapshot_preview1.proc_exit", wasi_factory_factory({WASM_I32}, {}, wasi_proc_exit) },
     };
   }
 
