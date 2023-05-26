@@ -20,30 +20,31 @@ namespace godot {
     // WASI fd_write: [I32, I32, I32, I32] -> [I32]
     wasm_trap_t* wasi_fd_write(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 4 || results->size != 1, "Invalid call WASI fd_write", NULL);
-      Wasm* gw = (Wasm*)env;
-      wasm_memory_t* memory = gw->stream.ptr()->memory;
+      Wasm* wasm = (Wasm*)env;
+      byte_t* data = wasm_memory_data(wasm->stream.ptr()->memory);
       int32_t fd = args->data[0].of.i32;
-      int32_t offset = args->data[1].of.i32;
-      int32_t length = args->data[2].of.i32;
+      int32_t offset_iov = args->data[1].of.i32;
+      int32_t count_iov = args->data[2].of.i32;
+      int32_t offset_written = args->data[3].of.i32;
       uint32_t written = 0;
-      for (uint16_t i = 0; i < length; i++) {
-        wasi_io_vector iov = get_io_vector(memory, offset, i);
-        byte_t* data = wasm_memory_data(memory) + iov.offset;
-        std::string message = std::string(data, data + iov.length);
+      for (auto i = 0; i < count_iov; i++) {
+        wasi_io_vector iov = get_io_vector(wasm->stream.ptr()->memory, offset_iov, i);
+        std::string message = std::string(data + iov.offset, data + iov.offset + iov.length);
         if (iov.length == 1 && message == "\u000A") continue; // Skip line feed
         fd == 1 ? PRINT(message.c_str()) : PRINT_ERROR(message.c_str());
         written += iov.length;
       }
+      memcpy(data + offset_written, &written, sizeof(int32_t));
       results->data[0].kind = WASM_I32;
-      results->data[0].of.i32 = written;
+      results->data[0].of.i32 = 0;
       return NULL;
     }
 
     // WASI proc_exit: [I32] -> []
     wasm_trap_t* wasi_proc_exit(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 1 || results->size != 0, "Invalid call WASI proc_exit", NULL);
-      Wasm* gw = (Wasm*)env;
-      gw->exit(args->data[0].of.i32);
+      Wasm* wasm = (Wasm*)env;
+      wasm->exit(args->data[0].of.i32);
       return NULL;
     }
 
