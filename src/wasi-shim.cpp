@@ -6,6 +6,7 @@
 // See https://github.com/WebAssembly/wasi-libc/blob/main/libc-bottom-half/headers/public/wasi/api.h
 #define __WASI_ERRNO_SUCCESS (UINT16_C(0))
 #define __WASI_ERRNO_ACCES (UINT16_C(2))
+#define __WASI_ERRNO_INVAL (UINT16_C(28))
 
 namespace godot {
   namespace {
@@ -64,7 +65,7 @@ namespace godot {
 
     // WASI fd_write: [I32, I32, I32, I32] -> [I32]
     wasm_trap_t* wasi_fd_write(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 4 || results->size != 1, "Invalid call WASI fd_write", NULL);
+      FAIL_IF(args->size != 4 || results->size != 1, "Invalid arguments fd_write", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
       int32_t fd = args->data[0].of.i32;
@@ -85,7 +86,7 @@ namespace godot {
 
     // WASI proc_exit: [I32] -> []
     wasm_trap_t* wasi_proc_exit(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 1 || results->size != 0, "Invalid call WASI proc_exit", NULL);
+      FAIL_IF(args->size != 1 || results->size != 0, "Invalid arguments proc_exit", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       wasm->exit(args->data[0].of.i32);
       return NULL;
@@ -93,7 +94,7 @@ namespace godot {
 
     // WASI args_sizes_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_args_sizes_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI args_sizes_get", NULL);
+      FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
       int32_t offset_count = args->data[0].of.i32;
@@ -106,7 +107,7 @@ namespace godot {
 
     // WASI args_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_args_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI args_get", NULL);
+      FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
       int32_t offset_environ = args->data[0].of.i32;
@@ -124,7 +125,7 @@ namespace godot {
 
     // WASI environ_sizes_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_environ_sizes_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI environ_sizes_get", NULL);
+      FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments environ_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
       int32_t offset_count = args->data[0].of.i32;
@@ -137,13 +138,13 @@ namespace godot {
 
     // WASI environ_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_environ_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI environ_get", NULL);
+      FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments environ_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       return wasi_result(results);
     }
 
     // WASI random_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_random_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI random_get", NULL);
+      FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments random_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
       int32_t offset = args->data[0].of.i32;
@@ -155,7 +156,7 @@ namespace godot {
 
     // WASI clock_time_get: [I32, I64, I32] -> [I32]
     wasm_trap_t* wasi_clock_time_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 3 || results->size != 1, "Invalid call WASI clock_time_get", NULL);
+      FAIL_IF(args->size != 3 || results->size != 1, "Invalid arguments clock_time_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
       int32_t offset = args->data[2].of.i32;
