@@ -136,7 +136,7 @@ namespace godot {
       // TODO: Ensure target is valid and has method
       Variant variant = context->target->callv(context->method, params);
       godot_error error = extract_results(variant, results);
-      if (error) FAIL("Extracting import function results failed", trap("Extracting import function results failed"));
+      if (error) FAIL("Extracting import function results failed", trap("Extracting import function results failed\0"));
       return NULL;
     }
   }

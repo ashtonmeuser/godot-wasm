@@ -3,6 +3,10 @@
 #include "wasi-shim.h"
 #include "godot-wasm.h"
 
+// See https://github.com/WebAssembly/wasi-libc/blob/main/libc-bottom-half/headers/public/wasi/api.h
+#define __WASI_ERRNO_SUCCESS (UINT16_C(0))
+#define __WASI_ERRNO_ACCES (UINT16_C(2))
+
 namespace godot {
   namespace {
     struct wasi_io_vector {
@@ -49,6 +53,15 @@ namespace godot {
       return encoded;
     }
 
+    wasm_trap_t* wasi_result(wasm_val_vec_t* results, int32_t value = __WASI_ERRNO_SUCCESS, const char* message = NULL) {
+      results->data[0].kind = WASM_I32;
+      results->data[0].of.i32 = value;
+      if (value == __WASI_ERRNO_SUCCESS) return NULL;
+      wasm_message_t trap_message;
+      wasm_name_new_from_string_nt(&trap_message, message);
+      return wasm_trap_new(NULL, &trap_message);
+    }
+
     // WASI fd_write: [I32, I32, I32, I32] -> [I32]
     wasm_trap_t* wasi_fd_write(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 4 || results->size != 1, "Invalid call WASI fd_write", NULL);
@@ -67,9 +80,7 @@ namespace godot {
         written += iov.length;
       }
       memcpy(data + offset_written, &written, sizeof(int32_t));
-      results->data[0].kind = WASM_I32;
-      results->data[0].of.i32 = 0;
-      return NULL;
+      return wasi_result(results);
     }
 
     // WASI proc_exit: [I32] -> []
@@ -90,9 +101,7 @@ namespace godot {
       wasi_encoded_strings encoded = encode_args(CMDLINE_ARGS);
       memcpy(data + offset_count, &encoded.count, sizeof(int32_t));
       memcpy(data + offset_length, &encoded.length, sizeof(int32_t));
-      results->data[0].kind = WASM_I32;
-      results->data[0].of.i32 = 0;
-      return NULL;
+      return wasi_result(results);
     }
 
     // WASI args_get: [I32, I32] -> [I32]
@@ -110,9 +119,7 @@ namespace godot {
         offset_environ += sizeof(int32_t);
         offset_buffer += s.length();
       }
-      results->data[0].kind = WASM_I32;
-      results->data[0].of.i32 = 0;
-      return NULL;
+      return wasi_result(results);
     }
 
     // WASI environ_sizes_get: [I32, I32] -> [I32]
@@ -125,17 +132,13 @@ namespace godot {
       int32_t zero = 0;
       memcpy(data + offset_count, &zero, sizeof(int32_t));
       memcpy(data + offset_length, &zero, sizeof(int32_t));
-      results->data[0].kind = WASM_I32;
-      results->data[0].of.i32 = 0;
-      return NULL;
+      return wasi_result(results);
     }
 
     // WASI environ_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_environ_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI environ_get", NULL);
-      results->data[0].kind = WASM_I32;
-      results->data[0].of.i32 = 0;
-      return NULL;
+      return wasi_result(results);
     }
 
     // WASI random_get: [I32, I32] -> [I32]
@@ -147,9 +150,7 @@ namespace godot {
       int32_t length = args->data[1].of.i32;
       PackedByteArray bytes = RANDOM_BYTES(length);
       memcpy(data + offset, BYTE_ARRAY_POINTER(bytes), length);
-      results->data[0].kind = WASM_I32;
-      results->data[0].of.i32 = 0;
-      return NULL;
+      return wasi_result(results);
     }
 
     // WASI clock_time_get: [I32, I64, I32] -> [I32]
@@ -160,9 +161,7 @@ namespace godot {
       int32_t offset = args->data[2].of.i32;
       int64_t t = UNIX_TIME_NS;
       memcpy(data + offset, &t, sizeof(t));
-      results->data[0].kind = WASM_I32;
-      results->data[0].of.i32 = 0;
-      return NULL;
+      return wasi_result(results);
     }
 
     godot_wasm::wasi_callback wasi_factory_factory(const std::vector<wasm_valkind_enum> p_kinds, const std::vector<wasm_valkind_enum> r_kinds, wasm_func_callback_with_env_t c) {
