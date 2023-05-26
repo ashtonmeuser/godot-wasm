@@ -10,11 +10,43 @@ namespace godot {
       int32_t length;
     };
 
+    struct wasi_encoded_strings {
+      int32_t count;
+      int32_t length;
+      std::vector<std::string> args;
+    };
+
     wasi_io_vector get_io_vector(wasm_memory_t* memory, int32_t offset, int32_t index = 0) {
       wasi_io_vector iov;
       byte_t* data = wasm_memory_data(memory) + offset + index * sizeof(wasi_io_vector);
       memcpy(&iov, data, sizeof(wasi_io_vector));
       return iov;
+    }
+
+    template <class T> wasi_encoded_strings encode_args(T args) {
+      wasi_encoded_strings encoded = { 0, 0, {} };
+      String incomplete = "";
+      for (auto i = 0; i < args.size(); i++) {
+        String s = args[i];
+        if (!s.begins_with("--")) { // Invalid; may be value for previous key
+          if (incomplete.is_empty()) continue; // Ignore garbage
+          s = incomplete + "=" + s; // Value for previous key
+          incomplete = ""; // Reset incomplete key value pair
+        } else { // Valid key or key value pair
+          s = s.lstrip("--"); // Just key or key=value
+          auto parts = s.split("=");
+          if (parts.size() < 2) { // Incomplete; may have subsequent value
+            incomplete = s;
+            continue;
+          }
+          s = parts[0] + "=" + parts[1]; // Have both key and value
+        }
+        std::string bytes = std::string(s.utf8().get_data()) + '\0'; // Null termination
+        encoded.count += 1;
+        encoded.args.push_back(bytes);
+        encoded.length += bytes.length();
+      }
+      return encoded;
     }
 
     // WASI fd_write: [I32, I32, I32, I32] -> [I32]
@@ -45,6 +77,41 @@ namespace godot {
       FAIL_IF(args->size != 1 || results->size != 0, "Invalid call WASI proc_exit", NULL);
       Wasm* wasm = (Wasm*)env;
       wasm->exit(args->data[0].of.i32);
+      return NULL;
+    }
+
+    // WASI args_sizes_get: [I32, I32] -> [I32]
+    wasm_trap_t* wasi_args_sizes_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
+      FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI args_sizes_get", NULL);
+      Wasm* wasm = (Wasm*)env;
+      byte_t* data = wasm_memory_data(wasm->stream.ptr()->memory);
+      int32_t offset_count = args->data[0].of.i32;
+      int32_t offset_length = args->data[1].of.i32;
+      wasi_encoded_strings encoded = encode_args(CMDLINE_ARGS);
+      memcpy(data + offset_count, &encoded.count, sizeof(int32_t));
+      memcpy(data + offset_length, &encoded.length, sizeof(int32_t));
+      results->data[0].kind = WASM_I32;
+      results->data[0].of.i32 = 0;
+      return NULL;
+    }
+
+    // WASI args_get: [I32, I32] -> [I32]
+    wasm_trap_t* wasi_args_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
+      FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI args_get", NULL);
+      Wasm* wasm = (Wasm*)env;
+      byte_t* data = wasm_memory_data(wasm->stream.ptr()->memory);
+      int32_t offset_environ = args->data[0].of.i32;
+      int32_t offset_buffer = args->data[1].of.i32;
+      wasi_encoded_strings encoded = encode_args(CMDLINE_ARGS);
+      for (auto i = 0; i < encoded.count; i++) {
+        std::string s = encoded.args[i];
+        memcpy(data + offset_environ, &offset_buffer, sizeof(int32_t));
+        memcpy(data + offset_buffer, s.c_str(), s.length());
+        offset_environ += sizeof(int32_t);
+        offset_buffer += s.length();
+      }
+      results->data[0].kind = WASM_I32;
+      results->data[0].of.i32 = 0;
       return NULL;
     }
 
@@ -112,6 +179,8 @@ namespace godot {
     std::map<std::string, godot_wasm::wasi_callback> factories {
       { "wasi_snapshot_preview1.fd_write", wasi_factory_factory({WASM_I32, WASM_I32, WASM_I32, WASM_I32}, {WASM_I32}, wasi_fd_write) },
       { "wasi_snapshot_preview1.proc_exit", wasi_factory_factory({WASM_I32}, {}, wasi_proc_exit) },
+      { "wasi_snapshot_preview1.args_sizes_get", wasi_factory_factory({WASM_I32, WASM_I32}, {WASM_I32}, wasi_args_sizes_get) },
+      { "wasi_snapshot_preview1.args_get", wasi_factory_factory({WASM_I32, WASM_I32}, {WASM_I32}, wasi_args_get) },
       { "wasi_snapshot_preview1.environ_sizes_get", wasi_factory_factory({WASM_I32, WASM_I32}, {WASM_I32}, wasi_environ_sizes_get) },
       { "wasi_snapshot_preview1.environ_get", wasi_factory_factory({WASM_I32, WASM_I32}, {WASM_I32}, wasi_environ_get) },
       { "wasi_snapshot_preview1.random_get", wasi_factory_factory({WASM_I32, WASM_I32}, {WASM_I32}, wasi_random_get) },
