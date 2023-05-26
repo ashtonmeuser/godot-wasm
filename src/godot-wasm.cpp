@@ -193,7 +193,7 @@ namespace godot {
   void Wasm::reset() {
     module = NULL;
     instance = NULL;
-    memory_index = 0;
+    memory_index = -1;
     stream->memory = NULL;
     import_funcs.clear();
     export_globals.clear();
@@ -279,7 +279,7 @@ namespace godot {
     FAIL_IF(instance == NULL, "Instantiation failed", ERR_CANT_CREATE);
 
     // Set stream peer memory reference
-    stream->memory = wasm_extern_as_memory(get_export_data(instance, memory_index));
+    if (memory_index >= 0) stream->memory = wasm_extern_as_memory(get_export_data(instance, memory_index));
 
     // Call exported WASI initialize function
     if (export_funcs.count("_initialize")) function("_initialize", Array());
@@ -299,11 +299,14 @@ namespace godot {
     FAIL_IF(module == NULL, "Inspection failed", Dictionary());
 
     // Get memory export limits
-    wasm_exporttype_vec_t exports;
-    wasm_module_exports(module, &exports);
-    const wasm_externtype_t* extern_type = wasm_exporttype_type(exports.data[memory_index]);
-    wasm_memorytype_t* memory_type = wasm_externtype_as_memorytype((wasm_externtype_t*)extern_type);
-    const wasm_limits_t* limits = wasm_memorytype_limits(memory_type);
+    wasm_limits_t* limits = NULL; // Unknown if memory not exported
+    if (memory_index >= 0) {
+      wasm_exporttype_vec_t exports;
+      wasm_module_exports(module, &exports);
+      const wasm_externtype_t* extern_type = wasm_exporttype_type(exports.data[memory_index]);
+      wasm_memorytype_t* memory_type = wasm_externtype_as_memorytype((wasm_externtype_t*)extern_type);
+      limits = (wasm_limits_t*)wasm_memorytype_limits(memory_type);
+    }
 
     // Module extern names and signatures
     Dictionary import_func_sigs, export_global_sigs, export_func_sigs;
@@ -316,8 +319,8 @@ namespace godot {
     dict["import_functions"] = import_func_sigs;
     dict["export_globals"] = export_global_sigs;
     dict["export_functions"] = export_func_sigs;
-    dict["memory_min"] = Variant((uint64_t)limits->min * PAGE_SIZE);
-    dict["memory_max"] = Variant((uint64_t)limits->max * PAGE_SIZE);
+    if (limits != NULL) dict["memory_min"] = Variant((uint64_t)limits->min * PAGE_SIZE);
+    if (limits != NULL) dict["memory_max"] = Variant((uint64_t)limits->max * PAGE_SIZE);
     if (stream->memory != NULL) dict["memory_current"] = Variant((uint64_t)wasm_memory_data_size(stream->memory));
 
     return dict;
@@ -357,7 +360,7 @@ namespace godot {
     }
 
     // Call function
-    wasm_val_t results_val[1];
+    wasm_val_t results_val[1]; // Only one return value supported
     results_val[0].kind = WASM_ANYREF;
     results_val[0].of.ref = NULL;
     wasm_val_vec_t f_args = { vect.size(), vect.data() };

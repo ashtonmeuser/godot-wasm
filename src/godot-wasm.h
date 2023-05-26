@@ -20,7 +20,7 @@ namespace godot {
       wasm_store_t* store;
       wasm_module_t* module;
       wasm_instance_t* instance;
-      uint16_t memory_index;
+      int32_t memory_index;
       Dictionary permissions;
       Ref<StreamPeerWasm> stream;
       std::map<String, godot_wasm::context_callback> import_funcs;

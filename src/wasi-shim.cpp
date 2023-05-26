@@ -4,11 +4,12 @@
 #include "godot-wasm.h"
 
 // See https://github.com/WebAssembly/wasi-libc/blob/main/libc-bottom-half/headers/public/wasi/api.h
-#define __WASI_ERRNO_SUCCESS (UINT16_C(0))
-#define __WASI_ERRNO_ACCES (UINT16_C(2))
-#define __WASI_ERRNO_INVAL (UINT16_C(28))
-#define __WASI_CLOCKID_REALTIME (UINT32_C(0))
-#define __WASI_CLOCKID_MONOTONIC (UINT32_C(1))
+#define __WASI_CLOCKID_REALTIME (UINT32_C(0)) // The clock measuring real time
+#define __WASI_CLOCKID_MONOTONIC (UINT32_C(1)) // The store-wide monotonic clock
+#define __WASI_ERRNO_SUCCESS (UINT16_C(0)) // No error occurred
+#define __WASI_ERRNO_ACCES (UINT16_C(2)) // [sic] Permission denied
+#define __WASI_ERRNO_INVAL (UINT16_C(28)) // Invalid argument
+#define __WASI_ERRNO_IO (UINT16_C(29)) // I/O error
 
 namespace godot {
   namespace {
@@ -69,15 +70,17 @@ namespace godot {
     wasm_trap_t* wasi_fd_write(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 4 || results->size != 1, "Invalid arguments fd_write", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
+      wasm_memory_t* memory = wasm->get_stream().ptr()->memory;
+      if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
       if (!wasm->has_permission("print")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
-      byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
+      byte_t* data = wasm_memory_data(memory);
       int32_t fd = args->data[0].of.i32;
       int32_t offset_iov = args->data[1].of.i32;
       int32_t count_iov = args->data[2].of.i32;
       int32_t offset_written = args->data[3].of.i32;
       uint32_t written = 0;
       for (auto i = 0; i < count_iov; i++) {
-        wasi_io_vector iov = get_io_vector(wasm->get_stream().ptr()->memory, offset_iov, i);
+        wasi_io_vector iov = get_io_vector(memory, offset_iov, i);
         std::string message = std::string(data + iov.offset, data + iov.offset + iov.length);
         if (iov.length == 1 && message == "\u000A") continue; // Skip line feed
         fd == 1 ? PRINT(message.c_str()) : PRINT_ERROR(message.c_str());
@@ -100,8 +103,10 @@ namespace godot {
     wasm_trap_t* wasi_args_sizes_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
+      wasm_memory_t* memory = wasm->get_stream().ptr()->memory;
+      if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
       if (!wasm->has_permission("args")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
-      byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
+      byte_t* data = wasm_memory_data(memory);
       int32_t offset_count = args->data[0].of.i32;
       int32_t offset_length = args->data[1].of.i32;
       wasi_encoded_strings encoded = encode_args(CMDLINE_ARGS);
@@ -114,8 +119,10 @@ namespace godot {
     wasm_trap_t* wasi_args_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
+      wasm_memory_t* memory = wasm->get_stream().ptr()->memory;
+      if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
       if (!wasm->has_permission("args")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
-      byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
+      byte_t* data = wasm_memory_data(memory);
       int32_t offset_environ = args->data[0].of.i32;
       int32_t offset_buffer = args->data[1].of.i32;
       wasi_encoded_strings encoded = encode_args(CMDLINE_ARGS);
@@ -133,7 +140,9 @@ namespace godot {
     wasm_trap_t* wasi_environ_sizes_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments environ_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
-      byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
+      wasm_memory_t* memory = wasm->get_stream().ptr()->memory;
+      if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
+      byte_t* data = wasm_memory_data(memory);
       int32_t offset_count = args->data[0].of.i32;
       int32_t offset_length = args->data[1].of.i32;
       int32_t zero = 0;
@@ -152,8 +161,10 @@ namespace godot {
     wasm_trap_t* wasi_random_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments random_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
+      wasm_memory_t* memory = wasm->get_stream().ptr()->memory;
+      if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
       if (!wasm->has_permission("random")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
-      byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
+      byte_t* data = wasm_memory_data(memory);
       int32_t offset = args->data[0].of.i32;
       int32_t length = args->data[1].of.i32;
       PackedByteArray bytes = RANDOM_BYTES(length);
@@ -165,8 +176,10 @@ namespace godot {
     wasm_trap_t* wasi_clock_time_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 3 || results->size != 1, "Invalid arguments clock_time_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
+      wasm_memory_t* memory = wasm->get_stream().ptr()->memory;
+      if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
       if (!wasm->has_permission("time")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
-      byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
+      byte_t* data = wasm_memory_data(memory);
       int32_t clock_id = args->data[0].of.i32;
       int32_t offset = args->data[2].of.i32;
       int64_t t = clock_id == __WASI_CLOCKID_REALTIME ? TIME_REALTIME : TIME_MONOTONIC;
