@@ -7,6 +7,8 @@
 #define __WASI_ERRNO_SUCCESS (UINT16_C(0))
 #define __WASI_ERRNO_ACCES (UINT16_C(2))
 #define __WASI_ERRNO_INVAL (UINT16_C(28))
+#define __WASI_CLOCKID_REALTIME (UINT32_C(0))
+#define __WASI_CLOCKID_MONOTONIC (UINT32_C(1))
 
 namespace godot {
   namespace {
@@ -165,8 +167,9 @@ namespace godot {
       Wasm* wasm = (Wasm*)env;
       if (!wasm->has_permission("time")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
+      int32_t clock_id = args->data[0].of.i32;
       int32_t offset = args->data[2].of.i32;
-      int64_t t = UNIX_TIME_NS;
+      int64_t t = clock_id == __WASI_CLOCKID_REALTIME ? TIME_REALTIME : TIME_MONOTONIC;
       memcpy(data + offset, &t, sizeof(t));
       return wasi_result(results);
     }

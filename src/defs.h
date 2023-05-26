@@ -33,7 +33,8 @@
 #define INSTANTIATE_REF(ref) ref.instantiate()
 #define BYTE_ARRAY_POINTER(array) array.ptr()
 #define CMDLINE_ARGS OS::get_singleton()->get_cmdline_user_args()
-#define UNIX_TIME_NS Time::get_singleton()->get_unix_time_from_system() * 1000000000.0
+#define TIME_REALTIME Time::get_singleton()->get_unix_time_from_system() * 1000000000
+#define TIME_MONOTONIC Time::get_singleton()->get_ticks_usec() * 1000
 #define NULL_VARIANT Variant()
 #define PAGE_SIZE 65536
 
