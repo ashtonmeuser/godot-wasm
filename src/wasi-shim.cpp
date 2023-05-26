@@ -48,6 +48,29 @@ namespace godot {
       return NULL;
     }
 
+    // WASI environ_sizes_get: [I32, I32] -> [I32]
+    wasm_trap_t* wasi_environ_sizes_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
+      FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI environ_sizes_get", NULL);
+      Wasm* wasm = (Wasm*)env;
+      byte_t* data = wasm_memory_data(wasm->stream.ptr()->memory);
+      int32_t offset_count = args->data[0].of.i32;
+      int32_t offset_length = args->data[1].of.i32;
+      int32_t zero = 0;
+      memcpy(data + offset_count, &zero, sizeof(int32_t));
+      memcpy(data + offset_length, &zero, sizeof(int32_t));
+      results->data[0].kind = WASM_I32;
+      results->data[0].of.i32 = 0;
+      return NULL;
+    }
+
+    // WASI environ_get: [I32, I32] -> [I32]
+    wasm_trap_t* wasi_environ_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
+      FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI environ_get", NULL);
+      results->data[0].kind = WASM_I32;
+      results->data[0].of.i32 = 0;
+      return NULL;
+    }
+
     // WASI random_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_random_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI random_get", NULL);
@@ -89,6 +112,8 @@ namespace godot {
     std::map<std::string, godot_wasm::wasi_callback> factories {
       { "wasi_snapshot_preview1.fd_write", wasi_factory_factory({WASM_I32, WASM_I32, WASM_I32, WASM_I32}, {WASM_I32}, wasi_fd_write) },
       { "wasi_snapshot_preview1.proc_exit", wasi_factory_factory({WASM_I32}, {}, wasi_proc_exit) },
+      { "wasi_snapshot_preview1.environ_sizes_get", wasi_factory_factory({WASM_I32, WASM_I32}, {WASM_I32}, wasi_environ_sizes_get) },
+      { "wasi_snapshot_preview1.environ_get", wasi_factory_factory({WASM_I32, WASM_I32}, {WASM_I32}, wasi_environ_get) },
       { "wasi_snapshot_preview1.random_get", wasi_factory_factory({WASM_I32, WASM_I32}, {WASM_I32}, wasi_random_get) },
       { "wasi_snapshot_preview1.clock_time_get", wasi_factory_factory({WASM_I32, WASM_I64, WASM_I32}, {WASM_I32}, wasi_clock_time_get) },
     };
