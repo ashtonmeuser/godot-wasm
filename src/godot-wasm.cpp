@@ -219,28 +219,31 @@ namespace godot {
   }
 
   godot_error Wasm::instantiate(const Dictionary import_map) {
-    // Wire up imports
-    std::vector<wasm_extern_t*> externs;
-    for (const auto &tuple: import_funcs) {
+    // Construct import functions
+    std::map<uint16_t, wasm_extern_t*> extern_map;
+    for (const auto &it: import_funcs) {
       const Dictionary& functions = dict_safe_get(import_map, "functions", Dictionary());
-      if (!functions.keys().has(tuple.first)) {
+      if (!functions.keys().has(it.first)) {
         // Attempt to use default WASI import
-        godot_wasm::wasi_callback callback = godot_wasm::get_wasi_import(tuple.first);
-        FAIL_IF(callback == NULL, "Missing import function " + tuple.first, ERR_CANT_CREATE);
-        externs.push_back(callback(store, this));
+        godot_wasm::wasi_callback callback = godot_wasm::get_wasi_import(it.first);
+        FAIL_IF(callback == NULL, "Missing import function " + it.first, ERR_CANT_CREATE);
+        extern_map[it.second.index] = callback(store, this);
         continue;
       }
-      const Array& import = dict_safe_get(functions, tuple.first, Array());
-      FAIL_IF(import.size() != 2, "Invalid import function " + tuple.first, ERR_CANT_CREATE);
+      const Array& import = dict_safe_get(functions, it.first, Array());
+      FAIL_IF(import.size() != 2, "Invalid import function " + it.first, ERR_CANT_CREATE);
       FAIL_IF(import[0].get_type() != Variant::OBJECT, "Invalid import target", ERR_CANT_CREATE);
       FAIL_IF(import[1].get_type() != Variant::STRING, "Invalid import method", ERR_CANT_CREATE);
-      godot_wasm::context_callback* context = (godot_wasm::context_callback*)&tuple.second;
+      godot_wasm::context_callback* context = (godot_wasm::context_callback*)&it.second;
       context->target = import[0];
       context->method = import[1];
-      externs.push_back(wasm_func_as_extern(create_callback(context)));
+      extern_map[it.second.index] = wasm_func_as_extern(create_callback(context));
     }
-    // TODO: Reorder by import index
-    wasm_extern_vec_t imports = { externs.size(), externs.data() };
+
+    // Sort imports by index
+    std::vector<wasm_extern_t*> extern_list;
+    for (auto &it: extern_map) extern_list.push_back(it.second);
+    wasm_extern_vec_t imports = { extern_list.size(), extern_list.data() };
 
     // Instantiate with imports
     instance = wasm_instance_new(store, module, &imports, NULL);
