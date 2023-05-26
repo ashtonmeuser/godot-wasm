@@ -35,7 +35,7 @@ namespace godot {
           value.kind = WASM_I64;
           value.of.i64 = (int64_t)variant;
           break;
-        case Variant::REAL:
+        case Variant::FLOAT:
           value.kind = WASM_F64;
           value.of.f64 = (float64_t)variant;
           break;
@@ -80,7 +80,7 @@ namespace godot {
     Variant::Type get_value_type(const wasm_valkind_t& kind) {
       switch (kind) {
         case WASM_I32: case WASM_I64: return Variant::INT;
-        case WASM_F32: case WASM_F64: return Variant::REAL;
+        case WASM_F32: case WASM_F64: return Variant::FLOAT;
         default: FAIL("Unsupported value kind", Variant::NIL);
       }
     }
@@ -168,7 +168,7 @@ namespace godot {
     module = NULL;
     instance = NULL;
     memory_index = 0;
-    stream.instantiate();
+    INSTANTIATE_REF(stream);
   }
 
   Wasm::~Wasm() {
@@ -191,7 +191,7 @@ namespace godot {
     return stream;
   };
 
-  godot_error Wasm::compile(PoolByteArray bytecode) {
+  godot_error Wasm::compile(PackedByteArray bytecode) {
     // Reset
     instance = NULL;
     stream->memory = NULL;
@@ -202,7 +202,7 @@ namespace godot {
     // Load binary
     wasm_byte_vec_t wasm_bytes;
     wasm_byte_vec_new_uninitialized(&wasm_bytes, bytecode.size());
-    memcpy(wasm_bytes.data, bytecode.ptr(), bytecode.size());
+    memcpy(wasm_bytes.data, BYTE_ARRAY_POINTER(bytecode), bytecode.size());
 
     // Validate binary
     FAIL_IF(!wasm_module_validate(store, &wasm_bytes), "Invalid binary", ERR_INVALID_DATA);
@@ -255,7 +255,7 @@ namespace godot {
     return OK;
   }
 
-  godot_error Wasm::load(PoolByteArray bytecode, const Dictionary import_map) {
+  godot_error Wasm::load(PackedByteArray bytecode, const Dictionary import_map) {
     // Compile and instantiate in one go
     godot_error err = compile(bytecode);
     if (err != OK) return err;

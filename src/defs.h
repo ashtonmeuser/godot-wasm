@@ -20,11 +20,10 @@
   #define godot_error Error
   #define REGISTRATION_METHOD _bind_methods
 #endif
-#define REAL FLOAT
-#define Reference RefCounted
-#define PoolByteArray PackedByteArray
 #define FAIL(message, ret) do { PRINT_ERROR(message); return ret; } while (0)
 #define FAIL_IF(cond, message, ret) if (unlikely(cond)) FAIL(message, ret)
+#define INSTANTIATE_REF(ref) ref.instantiate()
+#define BYTE_ARRAY_POINTER(array) array.ptr()
 #define NULL_VARIANT Variant()
 #define PAGE_SIZE 65536
 

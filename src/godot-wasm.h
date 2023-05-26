@@ -12,8 +12,8 @@ namespace godot {
     struct context_callback;
   }
 
-  class Wasm : public Reference {
-    GDCLASS(Wasm, Reference);
+  class Wasm : public RefCounted {
+    GDCLASS(Wasm, RefCounted);
 
     private:
       wasm_engine_t* engine;
@@ -33,9 +33,9 @@ namespace godot {
       ~Wasm();
       void _init();
       void exit(int32_t code);
-      godot_error compile(PoolByteArray bytecode);
+      godot_error compile(PackedByteArray bytecode);
       godot_error instantiate(const Dictionary import_map);
-      godot_error load(PoolByteArray bytecode, const Dictionary import_map);
+      godot_error load(PackedByteArray bytecode, const Dictionary import_map);
       Dictionary inspect() const;
       Variant function(String name, Array args) const;
       Variant global(String name) const;
