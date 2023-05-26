@@ -66,14 +66,14 @@ namespace godot {
     wasm_trap_t* wasi_fd_write(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 4 || results->size != 1, "Invalid call WASI fd_write", NULL);
       Wasm* wasm = (Wasm*)env;
-      byte_t* data = wasm_memory_data(wasm->stream.ptr()->memory);
+      byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
       int32_t fd = args->data[0].of.i32;
       int32_t offset_iov = args->data[1].of.i32;
       int32_t count_iov = args->data[2].of.i32;
       int32_t offset_written = args->data[3].of.i32;
       uint32_t written = 0;
       for (auto i = 0; i < count_iov; i++) {
-        wasi_io_vector iov = get_io_vector(wasm->stream.ptr()->memory, offset_iov, i);
+        wasi_io_vector iov = get_io_vector(wasm->get_stream().ptr()->memory, offset_iov, i);
         std::string message = std::string(data + iov.offset, data + iov.offset + iov.length);
         if (iov.length == 1 && message == "\u000A") continue; // Skip line feed
         fd == 1 ? PRINT(message.c_str()) : PRINT_ERROR(message.c_str());
@@ -95,7 +95,7 @@ namespace godot {
     wasm_trap_t* wasi_args_sizes_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI args_sizes_get", NULL);
       Wasm* wasm = (Wasm*)env;
-      byte_t* data = wasm_memory_data(wasm->stream.ptr()->memory);
+      byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
       int32_t offset_count = args->data[0].of.i32;
       int32_t offset_length = args->data[1].of.i32;
       wasi_encoded_strings encoded = encode_args(CMDLINE_ARGS);
@@ -108,7 +108,7 @@ namespace godot {
     wasm_trap_t* wasi_args_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI args_get", NULL);
       Wasm* wasm = (Wasm*)env;
-      byte_t* data = wasm_memory_data(wasm->stream.ptr()->memory);
+      byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
       int32_t offset_environ = args->data[0].of.i32;
       int32_t offset_buffer = args->data[1].of.i32;
       wasi_encoded_strings encoded = encode_args(CMDLINE_ARGS);
@@ -126,7 +126,7 @@ namespace godot {
     wasm_trap_t* wasi_environ_sizes_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI environ_sizes_get", NULL);
       Wasm* wasm = (Wasm*)env;
-      byte_t* data = wasm_memory_data(wasm->stream.ptr()->memory);
+      byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
       int32_t offset_count = args->data[0].of.i32;
       int32_t offset_length = args->data[1].of.i32;
       int32_t zero = 0;
@@ -145,7 +145,7 @@ namespace godot {
     wasm_trap_t* wasi_random_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid call WASI random_get", NULL);
       Wasm* wasm = (Wasm*)env;
-      byte_t* data = wasm_memory_data(wasm->stream.ptr()->memory);
+      byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
       int32_t offset = args->data[0].of.i32;
       int32_t length = args->data[1].of.i32;
       PackedByteArray bytes = RANDOM_BYTES(length);
@@ -157,7 +157,7 @@ namespace godot {
     wasm_trap_t* wasi_clock_time_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 3 || results->size != 1, "Invalid call WASI clock_time_get", NULL);
       Wasm* wasm = (Wasm*)env;
-      byte_t* data = wasm_memory_data(wasm->stream.ptr()->memory);
+      byte_t* data = wasm_memory_data(wasm->get_stream().ptr()->memory);
       int32_t offset = args->data[2].of.i32;
       int64_t t = UNIX_TIME_NS;
       memcpy(data + offset, &t, sizeof(t));
