@@ -2,9 +2,11 @@
 #define GODOT_WASM_DEFS_H
 
 #ifdef GODOT_MODULE // Godot includes when building module
+  #include "core/os/time.h"
   #include "core/io/stream_peer.h"
 #else // Godot addon includes
   #include "godot_cpp/classes/ref_counted.hpp"
+  #include "godot_cpp/classes/time.hpp"
   #include "godot_cpp/classes/stream_peer_extension.hpp"
   #include "godot_cpp/variant/utility_functions.hpp"
 #endif
@@ -24,6 +26,7 @@
 #define FAIL_IF(cond, message, ret) if (unlikely(cond)) FAIL(message, ret)
 #define INSTANTIATE_REF(ref) ref.instantiate()
 #define BYTE_ARRAY_POINTER(array) array.ptr()
+#define UNIX_TIME_NS Time::get_singleton()->get_unix_time_from_system() * 1000000000.0
 #define NULL_VARIANT Variant()
 #define PAGE_SIZE 65536
 
