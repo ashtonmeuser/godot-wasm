@@ -60,7 +60,7 @@ func _change_module(increment: int = 0):
 	var index = modules.find(module) + increment
 	if index < 0 or index >= len(modules): return
 	module = modules[index]
-	_load_wasm("Modules/%s.wasm" % module)
+	_load_wasm("res://Modules/%s.wasm" % module)
 	wasm.function("resize", [int(size.x), int(size.y)])
 	ticks = 0
 
