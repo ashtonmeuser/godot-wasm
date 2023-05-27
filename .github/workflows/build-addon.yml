@@ -50,10 +50,10 @@ jobs:
         if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
         run: |
           cd ${{ github.workspace }}/godot-cpp
-          scons platform=linux
+          scons platform=linux target=template_release
 
       - name: Compile Addon
-        run: scons platform=linux
+        run: scons platform=linux target=template_release
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
@@ -96,10 +96,10 @@ jobs:
         if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
         run: |
           cd ${{ github.workspace }}/godot-cpp
-          scons platform=macos
+          scons platform=macos target=template_release
 
       - name: Compile Addon
-        run: scons platform=macos
+        run: scons platform=macos target=template_release
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
@@ -142,13 +142,13 @@ jobs:
         if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
         run: |
           cd ${{ github.workspace }}\godot-cpp
-          scons platform=windows
+          scons platform=windows target=template_release
 
       - name: MSVC Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Compile Addon
-        run: scons platform=windows
+        run: scons platform=windows target=template_release
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
