@@ -26,7 +26,7 @@ Godot Wasm can be used either as a [GDNative](https://docs.godotengine.org/en/st
 
 ## Installation
 
-Godot Wasm supports installation via addon or module. Installing as an addon is far faster and simpler and requires merely including the asset in your Godot project while installing as a module requires recompilation of the Godot engine.
+Godot Wasm supports installation via GDExtension/GDNative addon or module. Installing as an addon is far faster and simpler and requires merely including the asset in your Godot project while installing as a module requires recompilation of the Godot engine.
 
 ### Addon
 
@@ -51,7 +51,7 @@ Compiling the web/HTML5 export template is not yet supported (see [#18](https://
 
 ## Usage
 
-Once installed as an addon in a Godot project, the Godot Wasm addon class can be accessed via `Wasm`.
+Once installed in a Godot project, the Godot Wasm class can be accessed via `Wasm`.
 
 1. Create a Wasm module or use the [example module](https://github.com/ashtonmeuser/godot-wasm/blob/master/examples/wasm-consume/example.wasm).
 1. Add the Wasm module to your Godot project.
@@ -131,18 +131,19 @@ Sieve (limit=100000) | 62454.1 µs | 341.0 µs | 183.1x | 1053.1 µs | 59.3x
 
 ## Developing
 
-This section is to aid in developing the Godot Wasm addon; not to use the addon in a Godot project.
+This section is to aid in developing the Godot Wasm project; not to use the addon in a Godot project.
 
 These instructions are tailored to UNIX machines.
 
 1. Clone repo and submodules via `git clone --recurse-submodules https://github.com/ashtonmeuser/godot-wasm.git`.
 1. Ensure the correct Godot submodule commit is checked out. Refer to relevant branch of the [godot-cpp project](https://github.com/godotengine/godot-cpp/tree/3.x) e.g. `3.x` to verify submodule hash. At the time of this writing, the hash for the godot-cpp submodule was `1049927a596402cd2e8215cd6624868929f5f18d`.
-1. Download the Wasmer C library from [Wasmer releases](https://github.com/wasmerio/wasmer/releases) and add them to a *wasmer* directory at the root of this project. There should be *include* and *lib* subdirectories within the *wasmer* directory.
 1. Install [SConstruct](https://scons.org/) via `pip install SCons`. SConstruct is what Godot uses to build Godot and generate C++ bindings. For convenience, we'll use the same tool to build the Godot TF Inference addon.
-1. Compile the Godot C++ bindings. From within the *godot-cpp* directory, run `scons target=release platform=PLATFORM generate_bindings=yes` replacing `PLATFORM` with your relevant platform type e.g. `osx`, `linux`, `windows`, etc.
-1. Compile the Godot Wasm addon. From the repository root directory, run `scons platform=PLATFORM` once again replacing `PLATFORM` with your platform. This will create the *addons/godot-wasm/bin/PLATFORM* directory where `PLATFORM` is your platform. You should see a dynamic library (*.dylib*, *.so*, *.dll*, etc.) created within this directory.
-1. Copy the Wasmer dynamic libraries to the appropriate platform directory via `cp -RP wasmer/lib/. addons/godot-wasm/bin/PLATFORM/` replacing `PLATFORM` with your platform.
+1. Compile the Godot C++ bindings. From within the *godot-cpp* directory, run `scons target=template_release generate_bindings=yes platform=PLATFORM` replacing `PLATFORM` with your relevant platform type e.g. `osx`, `linux`, `windows`, etc.
+1. Compile the Godot Wasm addon. From the repository root directory, run `scons target=template_release platform=PLATFORM` once again replacing `PLATFORM` with your platform. This will create the *addons/godot-wasm/bin/PLATFORM* directory where `PLATFORM` is your platform. You should see a dynamic library (*.dylib*, *.so*, *.dll*, etc.) created within this directory. Note that this step will automatically download Wasmer libraries from the [Wasmer releases](https://github.com/wasmerio/wasmer/releases) page if a *wasmer* directory is not found. If you'd prefer to do this manually, download the Wasmer artifact and extract it to into a *wasmer* directory at the root of the Godot Wasm project. Verify that the *wasmer* directory contains *include* and *lib* subdirectories. This step can optionally include the arguments `download_wasmer=yes` and `wasmer_version=vX.Y.Z` (replacing `X`, `Y`, `Z` with major, minor, patch versions) to force a (re)download of Wasmer and override the default Wasmer download version, respectively.
 1. Compress the addons directory via `zip -FSr addons.zip addons`. This allows the addon to be conveniently distributed and imported into Godot. This ZIP file can be imported directly into Godot (see [Installation](https://github.com/ashtonmeuser/godot-wasm#installation)).
+
+> **Note**
+> When building for Godot 3.x, use `target=release` instead of `target=template_release` in the instructions above.
 
 If frequently iterating on the addon using a Godot project, it may help to create a symlink from the Godot project to the compiled addon via `ln -s RELATIVE_PATH_TO_ADDONS addons` from the root directory of your Godot project.
 
