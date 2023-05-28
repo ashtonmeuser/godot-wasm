@@ -37,11 +37,11 @@ namespace godot {
       for (auto i = 0; i < args.size(); i++) {
         String s = args[i];
         if (!s.begins_with("--")) { // Invalid; may be value for previous key
-          if (incomplete.is_empty()) continue; // Ignore garbage
+          if (incomplete == "") continue; // Ignore garbage
           s = incomplete + "=" + s; // Value for previous key
           incomplete = ""; // Reset incomplete key value pair
         } else { // Valid key or key value pair
-          s = s.lstrip("--"); // Just key or key=value
+          s = s.substr(2, -1); // Just key or key=value
           auto parts = s.split("=");
           if (parts.size() < 2) { // Incomplete; may have subsequent value
             incomplete = s;
