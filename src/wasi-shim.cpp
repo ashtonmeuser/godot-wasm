@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 #include <map>
 #include "wasi-shim.h"
 #include "godot-wasm.h"
