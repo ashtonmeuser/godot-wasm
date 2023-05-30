@@ -252,8 +252,8 @@ namespace godot {
     // Set stream peer memory reference
     stream->memory = wasm_extern_as_memory(get_export_data(instance, memory_index));
 
-    // Call exported WASI start function
-    if (export_funcs.count("_start")) function("_start", Array());
+    // Call exported WASI initialize function
+    if (export_funcs.count("_initialize")) function("_initialize", Array());
 
     return OK;
   }
