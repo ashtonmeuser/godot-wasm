@@ -191,8 +191,10 @@ namespace godot {
   }
 
   void Wasm::reset() {
-    module = NULL;
+    // TODO: Use nullptr
+    // TODO: Free memory
     instance = NULL;
+    module = NULL;
     memory_index = -1;
     stream->memory = NULL;
     import_funcs.clear();
