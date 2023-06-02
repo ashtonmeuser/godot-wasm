@@ -40,7 +40,7 @@ func callback(value: int):
 
 func _update_info():
 	var info = wasm.inspect()
-	if info.is_empty():
+	if info.empty():
 		$"%InfoText".set("text", "Error")
 		return
 	var memory_info = ""
