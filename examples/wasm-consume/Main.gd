@@ -1,6 +1,6 @@
 extends Control
 
-const info_template := "[b]Import Globals[/b]\n%s[b]Imports Functions[/b]\n%s[b]Export Globals[/b]\n%s[b]Export Functions[/b]\n%s[b]Memory[/b]\n[indent]Min %s\nMax %s%s[/indent]"
+const info_template := "[b]Import Globals[/b]\n%s[b]Imports Functions[/b]\n%s[b]Export Globals[/b]\n%s[b]Export Functions[/b]\n%s[b]Memory[/b]\n[indent]%s[/indent]"
 var callback_count: int
 onready var wasm: Wasm = Wasm.new()
 
@@ -40,15 +40,19 @@ func callback(value: int):
 
 func _update_info():
 	var info = wasm.inspect()
-	if !info: return $"%InfoText".set("text", "Error")
+	if info.is_empty():
+		$"%InfoText".set("text", "Error")
+		return
+	var memory_info = ""
+	if info.has("memory_min"): memory_info += "\nMin %s" % _pretty_bytes(info.memory_min)
+	if info.has("memory_max"): memory_info += "\nMax %s" % _pretty_bytes(info.memory_max)
+	if info.has("memory_current"): memory_info += "\nCurrent %s" % _pretty_bytes(info.memory_current)
 	$"%InfoText".bbcode_text = info_template % [
 		_pretty_signatures({}),
 		_pretty_signatures(info.import_functions),
 		_pretty_signatures(info.export_globals),
 		_pretty_signatures(info.export_functions),
-		_pretty_bytes(info.memory_min),
-		_pretty_bytes(info.memory_max),
-		"\nCurrent %s" % _pretty_bytes(info.memory_current) if "memory_current" in info else "",
+		memory_info,
 	]
 
 func _update_memory_type(index: int):

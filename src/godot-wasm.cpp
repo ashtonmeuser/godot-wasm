@@ -51,7 +51,7 @@ namespace godot {
       return String(std::string(name->data, name->size).c_str());
     }
 
-    inline Variant dict_safe_get(Dictionary d, String k, Variant e) {
+    inline Variant dict_safe_get(const Dictionary &d, String k, Variant e) {
       return d.has(k) && d[k].get_type() == e.get_type() ? d[k] : e;
     }
 
@@ -136,7 +136,7 @@ namespace godot {
       // TODO: Ensure target is valid and has method
       Variant variant = context->target->callv(context->method, params);
       godot_error error = extract_results(variant, results);
-      if (error) FAIL("Extracting import function results failed", trap("Extracting import function results failed"));
+      if (error) FAIL("Extracting import function results failed", trap("Extracting import function results failed\0"));
       return NULL;
     }
   }
@@ -149,7 +149,9 @@ namespace godot {
       register_method("inspect", &Wasm::inspect);
       register_method("global", &Wasm::global);
       register_method("function", &Wasm::function);
+      register_method("has_permission", &Wasm::has_permission);
       register_property<Wasm, Ref<StreamPeerWasm>>("stream", &Wasm::stream, NULL);
+      register_property<Wasm, Dictionary>("permissions", &Wasm::permissions, Dictionary());
     #else
       ClassDB::bind_method(D_METHOD("compile", "bytecode"), &Wasm::compile);
       ClassDB::bind_method(D_METHOD("instantiate", "import_map"), &Wasm::instantiate);
@@ -157,7 +159,11 @@ namespace godot {
       ClassDB::bind_method(D_METHOD("inspect"), &Wasm::inspect);
       ClassDB::bind_method(D_METHOD("global", "name"), &Wasm::global);
       ClassDB::bind_method(D_METHOD("function", "name", "args"), &Wasm::function);
+      ClassDB::bind_method(D_METHOD("set_permissions"), &Wasm::set_permissions);
+      ClassDB::bind_method(D_METHOD("get_permissions"), &Wasm::get_permissions);
+      ClassDB::bind_method(D_METHOD("has_permission"), &Wasm::has_permission);
       ClassDB::bind_method(D_METHOD("get_stream"), &Wasm::get_stream);
+      ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "permissions"), "set_permissions", "get_permissions");
       ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "stream"), "", "get_stream");
     #endif
   }
@@ -165,10 +171,8 @@ namespace godot {
   Wasm::Wasm() {
     engine = wasm_engine_new();
     store = wasm_store_new(engine);
-    module = NULL;
-    instance = NULL;
-    memory_index = 0;
     INSTANTIATE_REF(stream);
+    reset(); // Set initial state
   }
 
   Wasm::~Wasm() {
@@ -181,23 +185,50 @@ namespace godot {
   void Wasm::_init() { }
 
   void Wasm::exit(int32_t code) {
-    instance = NULL;
-    stream->memory = NULL;
+    reset(); // Reset state
     code ? PRINT_ERROR("Module exited with error " + String::num_int64(code)) : PRINT("Module exited successfully");
     // TODO: Emit signal
+  }
+
+  void Wasm::reset() {
+    // TODO: Use nullptr
+    // TODO: Free memory
+    instance = NULL;
+    module = NULL;
+    memory_index = -1;
+    stream->memory = NULL;
+    import_funcs.clear();
+    export_globals.clear();
+    export_funcs.clear();
+    permissions.clear();
+    permissions["print"] = true;
+    permissions["time"] = true;
+    permissions["random"] = true;
+    permissions["args"] = true;
+    permissions["exit"] = true;
   }
 
   Ref<StreamPeerWasm> Wasm::get_stream() const {
     return stream;
   };
 
+  void Wasm::set_permissions(const Dictionary &update) {
+    for (auto i = 0; i < permissions.keys().size(); i++) {
+      Variant key = permissions.keys()[i];
+      permissions[key] = dict_safe_get(update, key, permissions[key]);
+    }
+  }
+
+  Dictionary Wasm::get_permissions() const {
+    return permissions;
+  }
+
+  bool Wasm::has_permission(String permission) const {
+    return dict_safe_get(permissions, permission, false);
+  }
+
   godot_error Wasm::compile(PackedByteArray bytecode) {
-    // Reset
-    instance = NULL;
-    stream->memory = NULL;
-    import_funcs.clear();
-    export_globals.clear();
-    export_funcs.clear();
+    reset(); // Reset state
 
     // Load binary
     wasm_byte_vec_t wasm_bytes;
@@ -250,7 +281,7 @@ namespace godot {
     FAIL_IF(instance == NULL, "Instantiation failed", ERR_CANT_CREATE);
 
     // Set stream peer memory reference
-    stream->memory = wasm_extern_as_memory(get_export_data(instance, memory_index));
+    if (memory_index >= 0) stream->memory = wasm_extern_as_memory(get_export_data(instance, memory_index));
 
     // Call exported WASI initialize function
     if (export_funcs.count("_initialize")) function("_initialize", Array());
@@ -270,11 +301,14 @@ namespace godot {
     FAIL_IF(module == NULL, "Inspection failed", Dictionary());
 
     // Get memory export limits
-    wasm_exporttype_vec_t exports;
-    wasm_module_exports(module, &exports);
-    const wasm_externtype_t* extern_type = wasm_exporttype_type(exports.data[memory_index]);
-    wasm_memorytype_t* memory_type = wasm_externtype_as_memorytype((wasm_externtype_t*)extern_type);
-    const wasm_limits_t* limits = wasm_memorytype_limits(memory_type);
+    wasm_limits_t* limits = NULL; // Unknown if memory not exported
+    if (memory_index >= 0) {
+      wasm_exporttype_vec_t exports;
+      wasm_module_exports(module, &exports);
+      const wasm_externtype_t* extern_type = wasm_exporttype_type(exports.data[memory_index]);
+      wasm_memorytype_t* memory_type = wasm_externtype_as_memorytype((wasm_externtype_t*)extern_type);
+      limits = (wasm_limits_t*)wasm_memorytype_limits(memory_type);
+    }
 
     // Module extern names and signatures
     Dictionary import_func_sigs, export_global_sigs, export_func_sigs;
@@ -287,8 +321,8 @@ namespace godot {
     dict["import_functions"] = import_func_sigs;
     dict["export_globals"] = export_global_sigs;
     dict["export_functions"] = export_func_sigs;
-    dict["memory_min"] = Variant((uint64_t)limits->min * PAGE_SIZE);
-    dict["memory_max"] = Variant((uint64_t)limits->max * PAGE_SIZE);
+    if (limits != NULL) dict["memory_min"] = Variant((uint64_t)limits->min * PAGE_SIZE);
+    if (limits != NULL) dict["memory_max"] = Variant((uint64_t)limits->max * PAGE_SIZE);
     if (stream->memory != NULL) dict["memory_current"] = Variant((uint64_t)wasm_memory_data_size(stream->memory));
 
     return dict;
@@ -328,7 +362,7 @@ namespace godot {
     }
 
     // Call function
-    wasm_val_t results_val[1];
+    wasm_val_t results_val[1]; // Only one return value supported
     results_val[0].kind = WASM_ANYREF;
     results_val[0].of.ref = NULL;
     wasm_val_vec_t f_args = { vect.size(), vect.data() };
