@@ -167,7 +167,7 @@ namespace godot {
       ClassDB::bind_method(D_METHOD("function", "name", "args"), &Wasm::function);
       ClassDB::bind_method(D_METHOD("set_permissions"), &Wasm::set_permissions);
       ClassDB::bind_method(D_METHOD("get_permissions"), &Wasm::get_permissions);
-      ClassDB::bind_method(D_METHOD("has_permission"), &Wasm::has_permission);
+      ClassDB::bind_method(D_METHOD("has_permission", "permission"), &Wasm::has_permission);
       ClassDB::bind_method(D_METHOD("get_stream"), &Wasm::get_stream);
       ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "permissions"), "set_permissions", "get_permissions");
       ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "stream"), "", "get_stream");
