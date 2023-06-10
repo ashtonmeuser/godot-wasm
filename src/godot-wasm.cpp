@@ -262,9 +262,9 @@ namespace godot {
       const Dictionary& functions = dict_safe_get(import_map, "functions", Dictionary());
       if (!functions.keys().has(it.first)) {
         // Attempt to use default WASI import
-        godot_wasm::wasi_callback callback = godot_wasm::get_wasi_import(it.first);
+        auto callback = godot_wasm::get_wasi_import(store, this, it.first);
         FAIL_IF(callback == NULL, "Missing import function " + it.first, ERR_CANT_CREATE);
-        extern_map[it.second.index] = callback(store, this);
+        extern_map[it.second.index] = callback;
         continue;
       }
       const Array& import = dict_safe_get(functions, it.first, Array());
