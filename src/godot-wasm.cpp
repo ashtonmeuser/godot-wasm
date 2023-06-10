@@ -18,6 +18,12 @@ namespace godot {
   }
 
   namespace {
+    template <typename T> void unset(T* p, void (*f)(T*)) {
+      if (p == NULL) return;
+      f(p);
+      p = NULL;
+    }
+
     Variant decode_variant(wasm_val_t value) {
       switch (value.kind) {
         case WASM_I32: return Variant(value.of.i32);
@@ -172,31 +178,30 @@ namespace godot {
     engine = wasm_engine_new();
     store = wasm_store_new(engine);
     INSTANTIATE_REF(stream);
-    reset(); // Set initial state
+    reset_instance(); // Set initial state
   }
 
   Wasm::~Wasm() {
-    if (instance) wasm_instance_delete(instance);
-    if (module) wasm_module_delete(module);
-    if (store != NULL) wasm_store_delete(store);
-    if (engine != NULL) wasm_engine_delete(engine);
+    reset_instance();
+    unset(module, wasm_module_delete);
+    unset(store, wasm_store_delete);
+    unset(engine, wasm_engine_delete);
   }
 
   void Wasm::_init() { }
 
   void Wasm::exit(int32_t code) {
-    reset(); // Reset state
+    reset_instance(); // Reset instance state
     code ? PRINT_ERROR("Module exited with error " + String::num_int64(code)) : PRINT("Module exited successfully");
     // TODO: Emit signal
   }
 
-  void Wasm::reset() {
+  void Wasm::reset_instance() {
     // TODO: Use nullptr
     // TODO: Free memory
-    instance = NULL;
-    module = NULL;
+    unset(instance, wasm_instance_delete);
+    unset(stream->memory, wasm_memory_delete);
     memory_index = -1;
-    stream->memory = NULL;
     import_funcs.clear();
     export_globals.clear();
     export_funcs.clear();
@@ -228,7 +233,8 @@ namespace godot {
   }
 
   godot_error Wasm::compile(PackedByteArray bytecode) {
-    reset(); // Reset state
+    reset_instance(); // Reset instance
+    unset(module, wasm_module_delete); // Reset module
 
     // Load binary
     wasm_byte_vec_t wasm_bytes;
