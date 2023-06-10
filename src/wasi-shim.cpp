@@ -14,6 +14,8 @@
 
 namespace godot {
   namespace {
+    typedef std::tuple<const std::vector<wasm_valkind_enum>, const std::vector<wasm_valkind_enum>, const wasm_func_callback_with_env_t> callback_signature;
+
     struct wasi_io_vector {
       int32_t offset;
       int32_t length;
@@ -58,7 +60,7 @@ namespace godot {
       return encoded;
     }
 
-    wasm_trap_t* wasi_result(wasm_val_vec_t* results, int32_t value = __WASI_ERRNO_SUCCESS, const char* message = NULL) {
+    wasm_trap_t* wasi_result(wasm_val_vec_t* results, int32_t value = __WASI_ERRNO_SUCCESS, const char* message = nullptr) {
       results->data[0].kind = WASM_I32;
       results->data[0].of.i32 = value;
       if (value == __WASI_ERRNO_SUCCESS) return NULL;
@@ -188,33 +190,35 @@ namespace godot {
       return wasi_result(results);
     }
 
-    godot_wasm::wasi_callback wasi_factory_factory(const std::vector<wasm_valkind_enum> p_kinds, const std::vector<wasm_valkind_enum> r_kinds, wasm_func_callback_with_env_t c) {
+    wasm_extern_t* wasi_callback(wasm_store_t* store, Wasm* wasm, callback_signature signature) {
       auto p_types = new std::vector<wasm_valtype_t*>;
       auto r_types = new std::vector<wasm_valtype_t*>;
-      for (auto &it: p_kinds) p_types->push_back(wasm_valtype_new(it));
-      for (auto &it: r_kinds) r_types->push_back(wasm_valtype_new(it));
+      for (auto &it: std::get<0>(signature)) p_types->push_back(wasm_valtype_new(it));
+      for (auto &it: std::get<1>(signature)) r_types->push_back(wasm_valtype_new(it));
       wasm_valtype_vec_t params = { p_types->size(), p_types->data() };
       wasm_valtype_vec_t results = { r_types->size(), r_types->data() };
-      wasm_functype_t* t = wasm_functype_new(&params, &results);
-      return [t, c](wasm_store_t* s, Wasm* w) { return wasm_func_as_extern(wasm_func_new_with_env(s, t, c, w, NULL)); };
+      wasm_functype_t* functype = wasm_functype_new(&params, &results);
+      auto callback = wasm_func_as_extern(wasm_func_new_with_env(store, functype, std::get<2>(signature), wasm, NULL));
+      wasm_functype_delete(functype);
+      return callback;
     }
 
-    std::map<std::string, godot_wasm::wasi_callback> factories {
-      { "wasi_snapshot_preview1.fd_write", wasi_factory_factory({WASM_I32, WASM_I32, WASM_I32, WASM_I32}, {WASM_I32}, wasi_fd_write) },
-      { "wasi_snapshot_preview1.proc_exit", wasi_factory_factory({WASM_I32}, {}, wasi_proc_exit) },
-      { "wasi_snapshot_preview1.args_sizes_get", wasi_factory_factory({WASM_I32, WASM_I32}, {WASM_I32}, wasi_args_sizes_get) },
-      { "wasi_snapshot_preview1.args_get", wasi_factory_factory({WASM_I32, WASM_I32}, {WASM_I32}, wasi_args_get) },
-      { "wasi_snapshot_preview1.environ_sizes_get", wasi_factory_factory({WASM_I32, WASM_I32}, {WASM_I32}, wasi_environ_sizes_get) },
-      { "wasi_snapshot_preview1.environ_get", wasi_factory_factory({WASM_I32, WASM_I32}, {WASM_I32}, wasi_environ_get) },
-      { "wasi_snapshot_preview1.random_get", wasi_factory_factory({WASM_I32, WASM_I32}, {WASM_I32}, wasi_random_get) },
-      { "wasi_snapshot_preview1.clock_time_get", wasi_factory_factory({WASM_I32, WASM_I64, WASM_I32}, {WASM_I32}, wasi_clock_time_get) },
+    std::map<std::string, callback_signature> signatures {
+      { "wasi_snapshot_preview1.fd_write", { {WASM_I32, WASM_I32, WASM_I32, WASM_I32}, {WASM_I32}, wasi_fd_write } },
+      { "wasi_snapshot_preview1.proc_exit", { {WASM_I32}, {}, wasi_proc_exit } },
+      { "wasi_snapshot_preview1.args_sizes_get", { {WASM_I32, WASM_I32}, {WASM_I32}, wasi_args_sizes_get } },
+      { "wasi_snapshot_preview1.args_get", { {WASM_I32, WASM_I32}, {WASM_I32}, wasi_args_get } },
+      { "wasi_snapshot_preview1.environ_sizes_get", { {WASM_I32, WASM_I32}, {WASM_I32}, wasi_environ_sizes_get } },
+      { "wasi_snapshot_preview1.environ_get", { {WASM_I32, WASM_I32}, {WASM_I32}, wasi_environ_get } },
+      { "wasi_snapshot_preview1.random_get", { {WASM_I32, WASM_I32}, {WASM_I32}, wasi_random_get } },
+      { "wasi_snapshot_preview1.clock_time_get", { {WASM_I32, WASM_I64, WASM_I32}, {WASM_I32}, wasi_clock_time_get } },
     };
   }
 
   namespace godot_wasm {
-    wasi_callback get_wasi_import(const String name) {
-      std::string s = std::string(name.utf8().get_data());
-      return factories.count(s) ? factories[s] : NULL;
+    wasm_extern_t* get_wasi_import(wasm_store_t* store, Wasm* wasm, const String name) {
+      std::string key = std::string(name.utf8().get_data());
+      return signatures.count(key) ? wasi_callback(store, wasm, signatures[key]) : NULL;
     }
   }
 }
