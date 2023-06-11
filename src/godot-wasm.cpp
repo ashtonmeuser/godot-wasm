@@ -251,6 +251,7 @@ namespace godot {
   godot_error Wasm::instantiate(const Dictionary import_map) {
     // Construct import functions
     std::map<uint16_t, wasm_func_t*> extern_map;
+    DEFER(for (auto &it: extern_map) wasm_func_delete(it.second));
     for (const auto &it: import_funcs) {
       const Dictionary& functions = dict_safe_get(import_map, "functions", Dictionary());
       if (!functions.keys().has(it.first)) {
@@ -278,9 +279,6 @@ namespace godot {
     // Instantiate with imports
     instance = wasm_instance_new(store, module, &imports, NULL);
     FAIL_IF(instance == NULL, "Instantiation failed", ERR_CANT_CREATE);
-
-    // Cleanup imports
-    for (auto &it: extern_map) wasm_func_delete(it.second);
 
     // Set stream peer memory reference
     if (memory_index >= 0) {
