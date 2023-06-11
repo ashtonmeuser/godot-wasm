@@ -2,6 +2,7 @@
 #include <vector>
 #include "godot-wasm.h"
 #include "wasi-shim.h"
+#include "defer.h"
 
 namespace godot {
   namespace godot_wasm {
@@ -75,12 +76,6 @@ namespace godot {
         results->data[0] = encode_variant(variant);
         return results->data[0].kind == WASM_ANYREF ? ERR_INVALID_DATA : OK;
       } else return ERR_INVALID_DATA;
-    }
-
-    wasm_extern_t* get_export_data(const wasm_instance_t* instance, uint16_t index) {
-      wasm_extern_vec_t exports;
-      wasm_instance_exports(instance, &exports);
-      return exports.data[index];
     }
 
     Variant::Type get_value_type(const wasm_valkind_t& kind) {
@@ -238,6 +233,7 @@ namespace godot {
 
     // Load binary
     wasm_byte_vec_t wasm_bytes;
+    DEFER(wasm_byte_vec_delete(&wasm_bytes));
     wasm_byte_vec_new_uninitialized(&wasm_bytes, bytecode.size());
     memcpy(wasm_bytes.data, BYTE_ARRAY_POINTER(bytecode), bytecode.size());
 
@@ -246,7 +242,6 @@ namespace godot {
 
     // Compile
     module = wasm_module_new(store, &wasm_bytes);
-    wasm_byte_vec_delete(&wasm_bytes);
     FAIL_IF(module == NULL, "Compilation failed", ERR_COMPILATION_FAILED);
 
     // Map names to export indices
@@ -287,7 +282,13 @@ namespace godot {
     FAIL_IF(instance == NULL, "Instantiation failed", ERR_CANT_CREATE);
 
     // Set stream peer memory reference
-    if (memory_index >= 0) stream->memory = wasm_extern_as_memory(get_export_data(instance, memory_index));
+    if (memory_index >= 0) {
+      wasm_extern_vec_t exports;
+      DEFER(wasm_extern_vec_delete(&exports));
+      wasm_instance_exports(instance, &exports);
+      wasm_extern_t* data = exports.data[memory_index];
+      stream->memory = wasm_extern_as_memory(wasm_extern_copy(data));
+    }
 
     // Call exported WASI initialize function
     if (export_funcs.count("_initialize")) function("_initialize", Array());
@@ -340,7 +341,11 @@ namespace godot {
     FAIL_IF(!export_globals.count(name), "Unknown global name " + name, NULL_VARIANT);
 
     // Retrieve exported global
-    const wasm_global_t* global = wasm_extern_as_global(get_export_data(instance, export_globals.at(name).index));
+    wasm_extern_vec_t exports;
+    DEFER(wasm_extern_vec_delete(&exports));
+    wasm_instance_exports(instance, &exports);
+    wasm_extern_t* data = exports.data[export_globals.at(name).index];
+    const wasm_global_t* global = wasm_extern_as_global(data);
     FAIL_IF(global == NULL, "Failed to retrieve global export " + name, NULL_VARIANT);
 
     // Extract result
@@ -355,7 +360,11 @@ namespace godot {
     FAIL_IF(!export_funcs.count(name), "Unknown function name " + name, NULL_VARIANT);
 
     // Retrieve exported function
-    const wasm_func_t* func = wasm_extern_as_func(get_export_data(instance, export_funcs.at(name).index));
+    wasm_extern_vec_t exports;
+    DEFER(wasm_extern_vec_delete(&exports));
+    wasm_instance_exports(instance, &exports);
+    wasm_extern_t* data = exports.data[export_funcs.at(name).index];
+    const wasm_func_t* func = wasm_extern_as_func(data);
     FAIL_IF(func == NULL, "Failed to retrieve function export " + name, NULL_VARIANT);
 
     // Construct args
@@ -389,6 +398,7 @@ namespace godot {
   godot_error Wasm::map_names() {
     // Module imports
     wasm_importtype_vec_t imports;
+    DEFER(wasm_importtype_vec_delete(&imports));
     wasm_module_imports(module, &imports);
     for (uint16_t i = 0; i < imports.size; i++) {
       const wasm_externtype_t* type = wasm_importtype_type(imports.data[i]);
@@ -404,6 +414,7 @@ namespace godot {
 
     // Module exports
     wasm_exporttype_vec_t exports;
+    DEFER(wasm_exporttype_vec_delete(&exports));
     wasm_module_exports(module, &exports);
     for (uint16_t i = 0; i < exports.size; i++) {
       const wasm_externtype_t* type = wasm_exporttype_type(exports.data[i]);
@@ -428,10 +439,10 @@ namespace godot {
 
   wasm_func_t* Wasm::create_callback(godot_wasm::context_callback* context) {
     wasm_importtype_vec_t imports;
+    DEFER(wasm_importtype_vec_delete(&imports));
     wasm_module_imports(module, &imports);
     const wasm_externtype_t* type = wasm_importtype_type(imports.data[context->index]);
     const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
-    wasm_func_t* func = wasm_func_new_with_env(store, func_type, callback_wrapper, context, NULL);
-    return func;
+    return wasm_func_new_with_env(store, func_type, callback_wrapper, context, NULL);
   }
 }

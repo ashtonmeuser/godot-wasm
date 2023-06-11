@@ -3,6 +3,7 @@
 #include <map>
 #include "wasi-shim.h"
 #include "godot-wasm.h"
+#include "defer.h"
 
 // See https://github.com/WebAssembly/wasi-libc/blob/main/libc-bottom-half/headers/public/wasi/api.h
 #define __WASI_CLOCKID_REALTIME (UINT32_C(0)) // The clock measuring real time
@@ -198,9 +199,8 @@ namespace godot {
       wasm_valtype_vec_t params = { p_types->size(), p_types->data() };
       wasm_valtype_vec_t results = { r_types->size(), r_types->data() };
       wasm_functype_t* functype = wasm_functype_new(&params, &results);
-      auto callback = wasm_func_as_extern(wasm_func_new_with_env(store, functype, std::get<2>(signature), wasm, NULL));
-      wasm_functype_delete(functype);
-      return callback;
+      DEFER(wasm_functype_delete(functype));
+      return wasm_func_as_extern(wasm_func_new_with_env(store, functype, std::get<2>(signature), wasm, NULL));
     }
 
     std::map<std::string, callback_signature> signatures {
