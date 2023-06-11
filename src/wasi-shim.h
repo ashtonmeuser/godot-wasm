@@ -9,7 +9,7 @@ namespace godot {
   class Wasm; // Forward declare to avoid circular dependency
 
   namespace godot_wasm {
-    wasm_extern_t* get_wasi_import(wasm_store_t* store, Wasm* wasm, const String name);
+    wasm_func_t* get_wasi_callback(wasm_store_t* store, Wasm* wasm, const String name);
   }
 }
 

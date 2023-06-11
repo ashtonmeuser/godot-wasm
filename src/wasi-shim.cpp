@@ -191,7 +191,7 @@ namespace godot {
       return wasi_result(results);
     }
 
-    wasm_extern_t* wasi_callback(wasm_store_t* store, Wasm* wasm, callback_signature signature) {
+    wasm_func_t* wasi_callback(wasm_store_t* store, Wasm* wasm, callback_signature signature) {
       auto p_types = new std::vector<wasm_valtype_t*>;
       auto r_types = new std::vector<wasm_valtype_t*>;
       for (auto &it: std::get<0>(signature)) p_types->push_back(wasm_valtype_new(it));
@@ -200,7 +200,7 @@ namespace godot {
       wasm_valtype_vec_t results = { r_types->size(), r_types->data() };
       wasm_functype_t* functype = wasm_functype_new(&params, &results);
       DEFER(wasm_functype_delete(functype));
-      return wasm_func_as_extern(wasm_func_new_with_env(store, functype, std::get<2>(signature), wasm, NULL));
+      return wasm_func_new_with_env(store, functype, std::get<2>(signature), wasm, NULL);
     }
 
     std::map<std::string, callback_signature> signatures {
@@ -216,7 +216,7 @@ namespace godot {
   }
 
   namespace godot_wasm {
-    wasm_extern_t* get_wasi_import(wasm_store_t* store, Wasm* wasm, const String name) {
+    wasm_func_t* get_wasi_callback(wasm_store_t* store, Wasm* wasm, const String name) {
       std::string key = std::string(name.utf8().get_data());
       return signatures.count(key) ? wasi_callback(store, wasm, signatures[key]) : NULL;
     }

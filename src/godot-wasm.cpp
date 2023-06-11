@@ -192,8 +192,6 @@ namespace godot {
   }
 
   void Wasm::reset_instance() {
-    // TODO: Use nullptr
-    // TODO: Free memory
     unset(instance, wasm_instance_delete);
     unset(stream->memory, wasm_memory_delete);
     memory_index = -1;
@@ -252,12 +250,12 @@ namespace godot {
 
   godot_error Wasm::instantiate(const Dictionary import_map) {
     // Construct import functions
-    std::map<uint16_t, wasm_extern_t*> extern_map;
+    std::map<uint16_t, wasm_func_t*> extern_map;
     for (const auto &it: import_funcs) {
       const Dictionary& functions = dict_safe_get(import_map, "functions", Dictionary());
       if (!functions.keys().has(it.first)) {
         // Attempt to use default WASI import
-        auto callback = godot_wasm::get_wasi_import(store, this, it.first);
+        auto callback = godot_wasm::get_wasi_callback(store, this, it.first);
         FAIL_IF(callback == NULL, "Missing import function " + it.first, ERR_CANT_CREATE);
         extern_map[it.second.index] = callback;
         continue;
@@ -269,17 +267,20 @@ namespace godot {
       godot_wasm::context_callback* context = (godot_wasm::context_callback*)&it.second;
       context->target = import[0];
       context->method = import[1];
-      extern_map[it.second.index] = wasm_func_as_extern(create_callback(context));
+      extern_map[it.second.index] = create_callback(context);
     }
 
     // Sort imports by index
     std::vector<wasm_extern_t*> extern_list;
-    for (auto &it: extern_map) extern_list.push_back(it.second);
+    for (auto &it: extern_map) extern_list.push_back(wasm_func_as_extern(it.second));
     wasm_extern_vec_t imports = { extern_list.size(), extern_list.data() };
 
     // Instantiate with imports
     instance = wasm_instance_new(store, module, &imports, NULL);
     FAIL_IF(instance == NULL, "Instantiation failed", ERR_CANT_CREATE);
+
+    // Cleanup imports
+    for (auto &it: extern_map) wasm_func_delete(it.second);
 
     // Set stream peer memory reference
     if (memory_index >= 0) {
