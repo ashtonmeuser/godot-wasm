@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://d40co37swb17"]
+
+[ext_resource type="Script" path="res://utils/TestRunner.gd" id="1_hns0s"]
+
+[node name="Main" type="RichTextLabel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/normal_font_size = 24
+theme_override_font_sizes/bold_font_size = 24
+bbcode_enabled = true
+scroll_following = true
+script = ExtResource("1_hns0s")
