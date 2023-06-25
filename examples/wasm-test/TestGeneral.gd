@@ -93,6 +93,8 @@ func test_invalid_function():
 func test_uninstantiated_function():
 	var wasm = Wasm.new()
 	var buffer = read_file("simple")
+	var error = wasm.compile(buffer)
+	expect_eq(error, OK)
 	var result = wasm.function("add", [1, 2])
 	expect_eq(result, null)
 	expect_error("Not instantiated")
@@ -126,6 +128,8 @@ func test_invalid_global():
 func test_uninstantiated_global():
 	var wasm = Wasm.new()
 	var buffer = read_file("simple")
+	var error = wasm.compile(buffer)
+	expect_eq(error, OK)
 	var result = wasm.global("global_const")
 	expect_eq(result, null)
 	expect_error("Not instantiated")
