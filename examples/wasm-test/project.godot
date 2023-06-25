@@ -25,6 +25,10 @@ file_logging/max_log_files=1
 window/size/viewport_width=512
 window/size/viewport_height=512
 
+[editor]
+
+run/main_run_args="-- --key=val"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
