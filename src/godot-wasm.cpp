@@ -19,7 +19,7 @@ namespace godot {
   }
 
   namespace {
-    template <typename T> void unset(T* p, void (*f)(T*)) {
+    template <typename T> void unset(T*& p, void (*f)(T*)) {
       if (p == NULL) return;
       f(p);
       p = NULL;
