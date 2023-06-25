@@ -46,6 +46,9 @@ func expect_error(s: String):
 		position = _log_file.get_position()
 	_log_file.seek(position)
 
+func expect(a):
+	if !a: _fail("Expect truthy: %s" % a)
+
 func expect_eq(a, b):
 	if a != b: _fail("Expect equal: %s != %s" % [a, b])
 

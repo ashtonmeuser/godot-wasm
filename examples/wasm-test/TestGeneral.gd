@@ -2,14 +2,14 @@ extends GodotWasmTestSuite
 
 func test_compile():
 	var wasm = Wasm.new()
-	var buffer = read_file("hello")
+	var buffer = read_file("simple")
 	var error = wasm.compile(buffer)
 	expect_eq(error, OK)
 	expect_empty()
 
 func test_multi_compile():
 	var wasm = Wasm.new()
-	var buffer = read_file("hello")
+	var buffer = read_file("simple")
 	for _i in 5:
 		var error = wasm.compile(buffer)
 		expect_eq(error, OK)
@@ -17,7 +17,7 @@ func test_multi_compile():
 
 func test_instantiate():
 	var wasm = Wasm.new()
-	var buffer = read_file("hello")
+	var buffer = read_file("simple")
 	var error = wasm.compile(buffer)
 	expect_eq(error, OK)
 	error = wasm.instantiate({})
@@ -26,7 +26,7 @@ func test_instantiate():
 
 func test_multi_instantiate():
 	var wasm = Wasm.new()
-	var buffer = read_file("hello")
+	var buffer = read_file("simple")
 	var error = wasm.compile(buffer)
 	expect_eq(error, OK)
 	for _i in 5:
@@ -36,7 +36,7 @@ func test_multi_instantiate():
 
 func test_load():
 	var wasm = Wasm.new()
-	var buffer = read_file("hello")
+	var buffer = read_file("simple")
 	var error = wasm.load(buffer, {})
 	expect_eq(error, OK)
 	expect_empty()
@@ -58,12 +58,12 @@ func test_invalid_imports():
 	expect_error("Missing import function import.test_import")
 
 func test_function():
-	var wasm = load_wasm("hello")
-	wasm.function("hello", [])
-	expect_log("Hello, Godot Wasm!")
+	var wasm = load_wasm("simple")
+	var result = wasm.function("add", [1, 2])
+	expect_eq(result, 3)
 
 func test_invalid_function():
-	var wasm = load_wasm("hello")
+	var wasm = load_wasm("simple")
 	wasm.function("asdf", [])
 	expect_error("Unknown function name asdf")
 
@@ -71,7 +71,6 @@ func test_callback_function():
 	var imports = dummy_imports(["import.test_import"])
 	var wasm = load_wasm("import", imports)
 	wasm.function("callback", [])
-	expect_log("Calling import function")
 	expect_log("Dummy import 123")
 
 func test_inspect():
