@@ -28,7 +28,7 @@
   #define PRINT_ERROR(message) Godot::print_error("Godot Wasm: " + String(message), __func__, __FILE__, __LINE__)
   #define GDCLASS GODOT_CLASS
   #define REGISTRATION_METHOD _register_methods
-  #define RANDOM_BYTES(n) Crypto().generate_random_bytes(n)
+  #define RANDOM_BYTES(n) [](int32_t i){ auto c = Crypto::_new(); return c->generate_random_bytes(i); }(n)
 #endif
 #define FLOAT REAL
 #define RefCounted Reference
