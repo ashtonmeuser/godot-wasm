@@ -28,3 +28,9 @@ func dummy_imports(functions: Array = []) -> Dictionary:
 	for function in functions:
 		imports.functions[function] = [self, "dummy"]
 	return imports
+
+func make_bytes(data: Array):
+	return PackedByteArray(data)
+
+func get_cmdline_user_args() -> Array:
+	return OS.get_cmdline_user_args()

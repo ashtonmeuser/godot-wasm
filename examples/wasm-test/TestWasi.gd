@@ -14,7 +14,7 @@ func test_proc_exit():
 	expect_error("Module exited with error 1")
 
 func test_args_get():
-	var args = OS.get_cmdline_user_args()
+	var args = get_cmdline_user_args()
 	var wasm = load_wasm("wasi")
 	var result = wasm.function("args_get", [])
 	for arg in args: expect_log(arg.trim_prefix("--"))
@@ -34,7 +34,7 @@ func test_clock_time_get():
 	var time = Time.get_unix_time_from_system() * 1000
 	var wasm = load_wasm("wasi")
 	var result = wasm.function("clock_time_get", [])
-	expect(abs(time - result) < 10.0) # Within ten seconds
+	expect_within(result, time, 10.0) # Within ten seconds
 
 func test_permissions():
 	var wasm = load_wasm("wasi")

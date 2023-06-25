@@ -6,14 +6,13 @@ enum LogDestination { All, UI }
 
 @onready var _log_label: RichTextLabel = get_tree().get_current_scene() as RichTextLabel
 @onready var _log_file = FileAccess.open("user://logs/test.log", FileAccess.READ)
-@onready var _headless: bool = RenderingServer.get_video_adapter_api_version().is_empty()
 
 func _ready():
 	record("Log dir: %s" % OS.get_user_data_dir())
 
 	var results = Results.new()
 
-	var regex = RegEx.create_from_string("^Test\\w+\\.gd")
+	var regex = TestSuite.make_regex("^Test\\w+\\.gd")
 	for file in DirAccess.get_files_at("res://"):
 		# Find relevant test suites
 		if regex.search(file) == null: continue
@@ -26,12 +25,12 @@ func _ready():
 		suite.connect("test_error", self.handle_test_error)
 		suite.connect("test_pass", self.handle_test_pass.bind(results))
 		suite.connect("test_fail", self.handle_test_fail.bind(results))
-		suite.run(self, _log_file)
+		suite.run(_log_file)
 
 	record("Tests complete", LogLevel.Title)
 	record("Passed: %d/%d" % [results.passed, results.total], LogLevel.Error if results.failed else LogLevel.Success)
 
-	if _headless: get_tree().quit(results.failed)
+	if !OS.get_cmdline_args().has("--keepalive=yes"): get_tree().quit(results.failed)
 
 func _exit_tree():
 	_log_file.close()
@@ -68,16 +67,16 @@ func inherits(child: Script, parent: Script) -> bool:
 
 # Logging
 
-func record(s, l: LogLevel = LogLevel.Default, d: LogDestination = LogDestination.All):
+func record(s, l: int = LogLevel.Default, d: int = LogDestination.All):
 	if d != LogDestination.UI: record_console(s, l)
 	record_ui(s, l)
 
-func record_console(s, l: LogLevel):
+func record_console(s, l: int):
 	if l == LogLevel.Title: s = "----- %s -----" % s
 	if l == LogLevel.Error: push_error(s)
 	else: print(s)
 
-func record_ui(s, l: LogLevel):
+func record_ui(s, l: int):
 	if !_log_label: return
 	if l == LogLevel.Success: s = "[color=green]%s[/color]" % s
 	elif l == LogLevel.Error: s = "[color=red]%s[/color]" % s

@@ -27,7 +27,7 @@ window/size/viewport_height=512
 
 [editor]
 
-run/main_run_args="-- --key=val"
+run/main_run_args="--keepalive=yes -- --key=val"
 
 [rendering]
 

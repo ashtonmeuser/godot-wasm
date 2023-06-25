@@ -41,7 +41,7 @@ func test_stream():
 	result = wasm.stream.seek(offset).get_u8()
 	expect_eq(result, 0xF1)
 	# Raw bytes
-	var data = PackedByteArray([0xF0, 0xF1, 0xF2, 0xF3])
+	var data = make_bytes([0xF0, 0xF1, 0xF2, 0xF3])
 	var error = wasm.stream.seek(offset).put_data(data)
 	expect_eq(error, OK)
 	result = wasm.stream.seek(offset).get_data(4)
@@ -65,7 +65,7 @@ func test_stream_position_increment():
 	var wasm = load_wasm("memory")
 	var offset = wasm.global("offset")
 	# Auto-increment raw bytes
-	var data = PackedByteArray([0xF0, 0xF1, 0xF2, 0xF3])
+	var data = make_bytes([0xF0, 0xF1, 0xF2, 0xF3])
 	var error = wasm.stream.seek(offset).put_data(data)
 	expect_eq(error, OK)
 	expect_eq(wasm.stream.get_position(), offset + 4)

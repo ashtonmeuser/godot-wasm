@@ -1,17 +1,15 @@
 extends RefCounted
 class_name TestSuite
 
-signal test_start(case: String)
-signal test_error(message: String)
-signal test_pass(case: String)
-signal test_fail(case: String)
+signal test_start(case)
+signal test_error(message)
+signal test_pass(case)
+signal test_fail(case)
 
-var _runner: TestRunner # Responsible for running this test suite
-var _log_file: FileAccess # Log file used to check for output and/or errors
+var _log_file # Log file used to check for output and/or errors
 var _error: bool = false # If the current test case has failed
 
-func run(r: TestRunner, f: FileAccess):
-	_runner = r
+func run(f):
 	_log_file = f
 
 	# Run all tests
@@ -39,7 +37,7 @@ func expect_empty():
 func expect_error(s: String):
 	expect_log("(USER )?ERROR: " + s)
 	# Account for error stack trace
-	var regex = RegEx.create_from_string("^\\s+at:\\s")
+	var regex = make_regex("^\\s+at:\\s")
 	var position = _log_file.get_position()
 	while _log_file.get_position() < _log_file.get_length():
 		if !regex.search(_log_file.get_line()): break
@@ -50,10 +48,13 @@ func expect(a):
 	if !a: _fail("Expect truthy: %s" % a)
 
 func expect_eq(a, b):
-	if a != b: _fail("Expect equal: %s != %s" % [a, b])
+	if _comparable(a) != _comparable(b): _fail("Expect equal: %s != %s" % [a, b])
 
 func expect_ne(a, b):
-	if a == b: _fail("Expect not equal: %s == %s" % [a, b])
+	if _comparable(a) == _comparable(b): _fail("Expect not equal: %s == %s" % [a, b])
+
+func expect_within(a, b, c):
+	if abs(a - b) > c: _fail("Expect within: %s != %s ± %s" % [a, b, c])
 
 func expect_includes(o, v: String):
 	if o is Dictionary:
@@ -75,3 +76,11 @@ func _fail(message: String):
 	_error = true # Flag test case failed
 	emit_signal("test_error", message)
 	print_stack()
+
+static func _comparable(o):
+	return o.hash() if (o is Dictionary or o is Object) else o
+
+static func make_regex(pattern: String) -> RegEx:
+	var regex = RegEx.new()
+	assert(regex.compile(pattern) == OK, "Invalid regex pattern: %s" % pattern)
+	return regex
