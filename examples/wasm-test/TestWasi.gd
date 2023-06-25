@@ -36,6 +36,18 @@ func test_clock_time_get():
 	var result = wasm.function("clock_time_get", [])
 	expect(abs(time - result) < 10.0) # Within ten seconds
 
+func test_permissions():
+	var wasm = load_wasm("wasi")
+	expect_contains(wasm.permissions, "print")
+	expect_eq(wasm.permissions.get("print"), true)
+	wasm.permissions = { "print": false }
+	expect_eq(wasm.permissions.get("print"), false)
+	var permission = wasm.has_permission("print")
+	expect_eq(permission, false)
+	wasm.permissions = { "print": true }
+	permission = wasm.has_permission("print")
+	expect_eq(permission, true)
+
 func test_invalid_permissions():
 	# TODO: No exit permissions causes crash on proc_exit
 	# TODO: Args & env not affected by permissions
