@@ -55,12 +55,19 @@ func expect_eq(a, b):
 func expect_ne(a, b):
 	if a == b: _fail("Expect not equal: %s == %s" % [a, b])
 
-func expect_contains(o, v: String):
+func expect_includes(o, v: String):
 	if o is Dictionary:
 		if !o.keys().has(v): _fail("Expect contains: %s ∉ %s" % [v, o.keys()])
 	elif o is Array:
 		if !o.has(v): _fail("Expect contains: %s ∉ %s" % [v, o])
 	else: _fail("Expect contains: Invalid object")
+
+func expect_excludes(o, v: String):
+	if o is Dictionary:
+		if o.keys().has(v): _fail("Expect excludes: %s ∈ %s" % [v, o.keys()])
+	elif o is Array:
+		if o.has(v): _fail("Expect excludes: %s ∈ %s" % [v, o])
+	else: _fail("Expect excludes: Invalid object")
 
 # General utils
 

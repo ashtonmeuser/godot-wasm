@@ -38,7 +38,7 @@ func test_clock_time_get():
 
 func test_permissions():
 	var wasm = load_wasm("wasi")
-	expect_contains(wasm.permissions, "print")
+	expect_includes(wasm.permissions, "print")
 	expect_eq(wasm.permissions.get("print"), true)
 	wasm.permissions = { "print": false }
 	expect_eq(wasm.permissions.get("print"), false)

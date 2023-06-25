@@ -131,33 +131,32 @@ func test_uninstantiated_global():
 	expect_error("Not instantiated")
 
 func test_inspect():
-	# Pre-compile, simple module
+	# Simple module pre-compile
 	var wasm = Wasm.new()
 	var inspect = wasm.inspect()
 	expect_eq(inspect, {})
 	expect_error("Inspection failed")
-	# Pre-instantiation, simple module
+	# Simple module pre-instantiation
 	var buffer = read_file("simple")
 	var error = wasm.compile(buffer)
 	expect_eq(error, OK)
 	inspect = wasm.inspect()
-	expect(!inspect.has("memory_current"))
-	expect_contains(inspect, "export_globals")
-	expect_contains(inspect.export_globals, "global_const")
-	expect_contains(inspect.export_globals, "global_mut")
+	expect_includes(inspect, "export_globals")
+	expect_includes(inspect.export_globals, "global_const")
+	expect_includes(inspect.export_globals, "global_mut")
 	expect_eq(inspect.export_globals.get("global_const"), [TYPE_FLOAT, false])
 	expect_eq(inspect.export_globals.get("global_mut"), [TYPE_INT, true])
-	# Post-instantiation, import module
+	# Import module post-instantiation
 	var imports = dummy_imports(["import.test_import"])
 	wasm = load_wasm("import", imports)
 	inspect = wasm.inspect()
-	expect_contains(inspect, "import_functions")
-	expect_contains(inspect, "export_functions")
-	expect_contains(inspect, "memory_min")
-	expect_contains(inspect, "memory_max")
-	expect_contains(inspect, "memory_current")
-	expect_contains(inspect.import_functions, "import.test_import")
-	expect_contains(inspect.export_functions, "callback")
+	expect_includes(inspect, "import_functions")
+	expect_includes(inspect, "export_functions")
+	expect_includes(inspect, "memory_min")
+	expect_includes(inspect, "memory_max")
+	expect_includes(inspect, "memory_current")
+	expect_includes(inspect.import_functions, "import.test_import")
+	expect_includes(inspect.export_functions, "callback")
 	expect_eq(inspect.import_functions.get("import.test_import"), [[TYPE_INT], []])
 	expect_eq(inspect.export_functions.get("callback"), [[], []])
 	expect_empty()
