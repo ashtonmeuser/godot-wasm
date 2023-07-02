@@ -1,0 +1,62 @@
+name: Setup mono
+description: Setup mono builds and mono base class libraries.
+inputs:
+  mono-release: 
+    description: The release file to download.
+    default: ""
+  mono-bcl:
+    description: The release bcl file to download.
+    default: ""
+  mono-installs-path:
+    description: Path to dump the mono-release into.
+    default: $HOME/mono-installs
+  mono-bcl-path:
+    description: Path to dump the mono-bcl into.
+    default: $HOME/mono-bcls
+  mono-build-repo:
+    description: Github repository to download the prebuilt mono releaes from
+    default: ""
+  mono-build-tag:
+    description: Release tag to download from the mono-build-repo
+    default: ""
+runs:
+  using: "composite"
+  steps:
+    - name: Setup default inputs
+      shell: bash
+      run: |
+        echo "INPUT_MONO_BUILD_REPO=${{ inputs.mono-build-repo != '' && inputs.mono-build-repo || env.GODOT_MONO_BUILD_REPO }}" >> $GITHUB_ENV
+        echo "INPUT_MONO_BUILD_TAG=${{ inputs.mono-build-tag != '' && inputs.mono-build-tag || env.GODOT_MONO_BUILD_TAG }}" >> $GITHUB_ENV
+
+    - name: Download mono release ${{ inputs.mono-release }}
+      if: ${{ inputs.mono-release != '' }}
+      uses: dsaltares/fetch-gh-release-asset@master
+      with:
+        repo: "${{ env.INPUT_MONO_BUILD_REPO }}"
+        version: "tags/${{ env.INPUT_MONO_BUILD_TAG }}"
+        file: "${{ inputs.mono-release }}.zip"
+    
+    - name: Extract mono release
+      if: ${{ inputs.mono-release != '' }}
+      shell: bash
+      run: | 
+        7z x "${{ inputs.mono-release }}.zip" -o${{ inputs.mono-installs-path }}
+
+    - name: Download mono base class library ${{ inputs.mono-bcl }}
+      if: ${{ inputs.mono-bcl != '' }}
+      uses: dsaltares/fetch-gh-release-asset@master
+      with:
+        repo: "${{ env.INPUT_MONO_BUILD_REPO }}"
+        version: "tags/${{ env.INPUT_MONO_BUILD_TAG }}"
+        file: "${{ inputs.mono-bcl }}.zip"
+    
+    - name: Extract mono base class library
+      if: ${{ inputs.mono-bcl != '' }}
+      shell: bash
+      run: |
+        mkdir -p ${{ inputs.mono-bcl-path }}
+        7z x "${{ inputs.mono-bcl }}.zip" -otemp
+        pushd temp
+        mv -v * ${{ inputs.mono-bcl-path }}
+        popd
+        rm -r temp
