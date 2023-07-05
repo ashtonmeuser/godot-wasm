@@ -4,27 +4,33 @@ class_name TestRunner
 enum LogLevel { Default, Success, Error, Title }
 enum LogDestination { All, UI }
 
-@onready var _log_label: RichTextLabel = get_tree().get_current_scene() as RichTextLabel
-@onready var _log_file = FileAccess.open("user://logs/test.log", FileAccess.READ)
+onready var _log_label: RichTextLabel = get_tree().get_current_scene() as RichTextLabel
+onready var _log_file = File.new()
 
 func _ready():
 	record("Log dir: %s" % OS.get_user_data_dir())
 
+	_log_file.open("user://logs/test.log", File.READ)
+
 	var results = Results.new()
 
 	var regex = TestSuite.make_regex("^Test\\w+\\.gd")
-	for file in DirAccess.get_files_at("res://"):
-		# Find relevant test suites
+	var dir = Directory.new()
+	if dir.open("res://") != OK: return get_tree().quit(1)
+	dir.list_dir_begin()
+	while true:
+		var file = dir.get_next()
+		if !file: break
 		if regex.search(file) == null: continue
 		var script = load(file) as Script
 		if !inherits(script, TestSuite): continue
 		var suite: TestSuite = script.new()
 		# Run suite
 		record("Running test suite: %s" % file)
-		suite.connect("test_start", self.handle_test_start.bind(results))
-		suite.connect("test_error", self.handle_test_error)
-		suite.connect("test_pass", self.handle_test_pass.bind(results))
-		suite.connect("test_fail", self.handle_test_fail.bind(results))
+		suite.connect("test_start", self, "handle_test_start", [results])
+		suite.connect("test_error", self, "handle_test_error")
+		suite.connect("test_pass", self, "handle_test_pass", [results])
+		suite.connect("test_fail", self, "handle_test_fail", [results])
 		suite.run(_log_file)
 
 	record("Tests complete", LogLevel.Title)
@@ -81,4 +87,4 @@ func record_ui(s, l: int):
 	if l == LogLevel.Success: s = "[color=green]%s[/color]" % s
 	elif l == LogLevel.Error: s = "[color=red]%s[/color]" % s
 	elif l == LogLevel.Title: s = "[b]%s[/b]" % s
-	_log_label.append_text("%s\n" % s)
+	_log_label.bbcode_text += "%s\n" % s
