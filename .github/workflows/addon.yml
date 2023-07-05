@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
 
 env:
-  GODOT_MAJOR: 4
-  TARGET: template_release
-  GODOT_REF: 4.0.2-stable
+  GODOT_MAJOR: 3
+  TARGET: release
+  GODOT_REF: 3.5.2-stable
   LIBRARY_PATH: addons/godot-wasm/bin
   WASMER_VERSION: v3.1.1
 
@@ -17,11 +17,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [linux, macos, windows]
+        platform: [linux, osx, windows]
         include:
           - platform: linux
             os: ubuntu-latest
-          - platform: macos
+          - platform: osx
             os: macos-11
           - platform: windows
             os: windows-latest
@@ -61,11 +61,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [linux, macos, windows]
+        platform: [linux, osx, windows]
         include:
           - platform: linux
             os: ubuntu-latest
-          - platform: macos
+          - platform: osx
             os: macos-11
           - platform: windows
             os: windows-latest
