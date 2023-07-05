@@ -376,25 +376,27 @@ namespace godot {
     FAIL_IF(func == NULL, "Failed to retrieve function export " + name, NULL_VARIANT);
 
     // Construct args
-    std::vector<wasm_val_t> vect;
+    std::vector<wasm_val_t> args_vec;
     for (uint16_t i = 0; i < args.size(); i++) {
       Variant variant = args[i];
       wasm_val_t value = encode_variant(variant);
       FAIL_IF(value.kind == WASM_ANYREF, "Invalid argument type", NULL_VARIANT);
-      vect.push_back(value);
+      args_vec.push_back(value);
     }
+    wasm_val_vec_t f_args = { args_vec.size(), args_vec.data() };
+
+    // Construct return values
+    std::vector<wasm_val_t> results_vec(context.return_count);
+    wasm_val_vec_t f_results = { results_vec.size(), results_vec.data() };
 
     // Call function
-    wasm_val_t results_val[context.return_count]; // Support multi-value return
-    wasm_val_vec_t f_args = { vect.size(), vect.data() };
-    wasm_val_vec_t f_results = WASM_ARRAY_VEC(results_val);
     FAIL_IF(wasm_func_call(func, &f_args, &f_results), "Failed calling function " + name, NULL_VARIANT);
 
     // Extract result(s)
     if (context.return_count == 0) return NULL_VARIANT;
-    if (context.return_count == 1) return decode_variant(results_val[0]);
+    if (context.return_count == 1) return decode_variant(results_vec[0]);
     Array results = Array();
-    for (uint16_t i = 0; i < context.return_count; i++) results.append(decode_variant(results_val[i]));
+    for (uint16_t i = 0; i < context.return_count; i++) results.append(decode_variant(results_vec[i]));
     return results;
   }
 
