@@ -43,7 +43,7 @@ func test_load():
 
 func test_invalid_binary():
 	var wasm = Wasm.new()
-	var buffer = "asdf".to_utf8_buffer()
+	var buffer = "asdf".to_utf8()
 	var error = wasm.compile(buffer)
 	expect_eq(error, ERR_INVALID_DATA)
 	expect_error("Invalid binary")
@@ -148,7 +148,7 @@ func test_inspect():
 	expect_includes(inspect, "export_globals")
 	expect_includes(inspect.export_globals, "global_const")
 	expect_includes(inspect.export_globals, "global_mut")
-	expect_eq(inspect.export_globals.get("global_const"), [TYPE_FLOAT, false])
+	expect_eq(inspect.export_globals.get("global_const"), [TYPE_REAL, false])
 	expect_eq(inspect.export_globals.get("global_mut"), [TYPE_INT, true])
 	# Import module post-instantiation
 	var imports = dummy_imports(["import.test_import"])
