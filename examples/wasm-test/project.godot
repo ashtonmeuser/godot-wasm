@@ -1,0 +1,68 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "TestSuite",
+"class": "GodotWasmTestSuite",
+"language": "GDScript",
+"path": "res://utils/GodotWasmTestSuite.gd"
+}, {
+"base": "Node",
+"class": "TestRunner",
+"language": "GDScript",
+"path": "res://utils/TestRunner.gd"
+}, {
+"base": "Reference",
+"class": "TestSuite",
+"language": "GDScript",
+"path": "res://utils/TestSuite.gd"
+}, {
+"base": "",
+"class": "Wasm",
+"language": "NativeScript",
+"path": "res://addons/godot-wasm/Wasm.gdns"
+} ]
+_global_script_class_icons={
+"GodotWasmTestSuite": "",
+"TestRunner": "",
+"TestSuite": "",
+"Wasm": ""
+}
+
+[application]
+
+config/name="Wasm Test"
+run/main_scene="res://Main.tscn"
+
+[debug]
+
+gdscript/warnings/return_value_discarded=false
+
+[display]
+
+window/size/width=512
+window/size/height=512
+
+[editor]
+
+main_run_args="--keepalive=yes"
+
+[gui]
+
+common/drop_mouse_on_gui_input_disabled=true
+
+[logging]
+
+file_logging/enable_file_logging=true
+file_logging/log_path="user://logs/test.log"
+
+[physics]
+
+common/enable_pause_aware_picking=true
