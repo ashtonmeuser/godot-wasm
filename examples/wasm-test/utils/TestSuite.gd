@@ -53,6 +53,9 @@ func expect_eq(a, b):
 func expect_ne(a, b):
 	if _comparable(a) == _comparable(b): _fail("Expect not equal: %s == %s" % [a, b])
 
+func expect_type(a, t):
+	if typeof(a) != t: _fail("Expect type: %s != %s" % [typeof(a), t])
+
 func expect_within(a, b, c):
 	if abs(a - b) > c: _fail("Expect within: %s != %s ± %s" % [a, b, c])
 
