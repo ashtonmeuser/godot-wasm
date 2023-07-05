@@ -9,7 +9,8 @@
 namespace godot {
   namespace godot_wasm {
     struct context_extern;
-    struct context_callback;
+    struct context_func_import;
+    struct context_func_export;
   }
 
   class Wasm : public RefCounted {
@@ -23,12 +24,12 @@ namespace godot {
       int32_t memory_index;
       Dictionary permissions;
       Ref<StreamPeerWasm> stream;
-      std::map<String, godot_wasm::context_callback> import_funcs;
+      std::map<String, godot_wasm::context_func_import> import_funcs;
       std::map<String, godot_wasm::context_extern> export_globals;
-      std::map<String, godot_wasm::context_extern> export_funcs;
+      std::map<String, godot_wasm::context_func_export> export_funcs;
       void reset_instance();
       godot_error map_names();
-      wasm_func_t* create_callback(godot_wasm::context_callback* context);
+      wasm_func_t* create_callback(godot_wasm::context_func_import* context);
 
     public:
       static void REGISTRATION_METHOD();
