@@ -10,7 +10,7 @@ runs:
     - name: Load Cache
       uses: actions/cache@v3
       env:
-        CACHE_NAME: ${{ env.PLATFORM }}-${{ env.GODOT_VERSION }}-${{ github.job }}
+        CACHE_NAME: ${{ env.PLATFORM }}-${{ env.GODOT_MAJOR }}-${{ github.workflow }}
       with:
         path: ${{ inputs.scons-cache }}
         key: ${{ env.CACHE_NAME }}-${{ github.ref }}-${{ github.sha }}

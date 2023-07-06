@@ -1,0 +1,28 @@
+name: Install Dependencies
+description: Install dependencies for building Godot
+runs:
+  using: composite
+  steps:
+    - name: Install Linux Dependencies
+      if: ${{ env.PLATFORM }} == 'linux'
+      shell: bash
+      run: |
+          sudo apt update
+          sudo apt -y install build-essential pkg-config libx11-dev libxcursor-dev \
+            libxinerama-dev libgl1-mesa-dev libglu-dev libasound2-dev libpulse-dev \
+            libudev-dev libxi-dev libxrandr-dev yasm
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install Python Packages
+      shell: bash
+      run: python -m pip install scons
+
+    - name: Install Windows Python Packages
+      if: ${{ env.PLATFORM }} == 'windows'
+      shell: bash
+      run: python -m pip install pywin32
+
