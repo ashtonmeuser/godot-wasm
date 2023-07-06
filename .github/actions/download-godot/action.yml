@@ -1,0 +1,26 @@
+name: Download Godot
+description: Download appropriate Godot executable
+inputs:
+  version:
+    description: The Godot version to download
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Linux File Pattern
+      if: runner.os == 'Linux'
+      shell: bash
+      run: echo "FILE='(linux\.x86_64|x11\.64)'" >> $GITHUB_ENV
+
+    - name: MacOS File Pattern
+      if: runner.os == 'macOS'
+      shell: bash
+      run: echo "FILE='(macos|osx)\.universal'" >> $GITHUB_ENV
+
+    - name: Download Godot
+      uses: dsaltares/fetch-gh-release-asset@master
+      with:
+        repo: godotengine/godot
+        version: tags/${{ inputs.version }}
+        regex: true
+        file: ${{ env.FILE }}
