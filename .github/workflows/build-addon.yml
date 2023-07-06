@@ -48,6 +48,7 @@ jobs:
         uses: ./.github/actions/godot-cpp
         with:
           platform: ${{ env.PLATFORM }}
+          target: ${{ env.TARGET }}
 
       - name: Sconstruct Cache
         uses: ./.github/actions/scons-cache
