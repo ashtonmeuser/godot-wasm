@@ -6,6 +6,7 @@ on:
 
 env:
   GODOT_MAJOR: 4
+  TARGET: template_release
   LIBRARY_PATH: addons/godot-wasm/bin
   WASMER_VERSION: v3.1.1
 
@@ -21,48 +22,44 @@ jobs:
         with:
           submodules: recursive
 
-      # - name: Install Dependencies
-      #   run: |
-      #     sudo apt update
-      #     sudo apt -y install build-essential pkg-config libx11-dev libxcursor-dev \
-      #       libxinerama-dev libgl1-mesa-dev libglu-dev libasound2-dev libpulse-dev \
-      #       libudev-dev libxi-dev libxrandr-dev yasm
-
-      # - name: Setup Python
-      #   uses: actions/setup-python@v4
-      #   with:
-      #     python-version: '3.10'
-
-      # - name: Install Python Packages
-      #   run: python -m pip install scons
-
       - name: Install Dependencies
         uses: ./.github/actions/install-deps
 
-      - name: Submodule Hash
-        run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_ENV
+      # - name: Submodule Hash
+      #   run: echo "SUBMODULE_HASH=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_ENV
 
-      - name: Cache Godot Library
-        id: cache-godot-cpp
-        uses: actions/cache@v3
+      # - name: Cache Godot Library
+      #   id: cache-godot-cpp
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: |
+      #       ${{ github.workspace }}/godot-cpp/bin
+      #       ${{ github.workspace }}/godot-cpp/include
+      #       ${{ github.workspace }}/godot-cpp/gen
+      #     key: ${{ env.PLATFORM }}-${{ env.SUBMODULE_HASH }}
+
+      # - name: Compile Godot Library
+      #   if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
+      #   run: |
+      #     cd ${{ github.workspace }}/godot-cpp
+      #     scons platform=linux target=template_release
+
+      - name: Godot CPP
+        uses: ./.github/actions/godot-cpp
         with:
-          path: |
-            ${{ github.workspace }}/godot-cpp/bin
-            ${{ github.workspace }}/godot-cpp/include
-            ${{ github.workspace }}/godot-cpp/gen
-          key: ${{ runner.os }}-${{ env.SUBMODULE_HASH }}-${{ secrets.GODOT_CPP_CACHE_VERSION }}
-
-      - name: Compile Godot Library
-        if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
-        run: |
-          cd ${{ github.workspace }}/godot-cpp
-          scons platform=linux target=template_release
+          platform: ${{ env.PLATFORM }}
 
       - name: Sconstruct Cache
         uses: ./.github/actions/scons-cache
+        with:
+          platform: ${{ env.PLATFORM }}
+          godot-major: ${{ env.GODOT_MAJOR }}
 
       - name: Build Addon
         uses: ./.github/actions/build-addon
+        with:
+          platform: ${{ env.PLATFORM }}
+          target: ${{ env.TARGET }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
@@ -71,27 +68,27 @@ jobs:
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/linux
           if-no-files-found: error
 
-  test-linux:
-    needs: build-linux
-    name: Test Linux
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+  # test-linux:
+  #   needs: build-linux
+  #   name: Test Linux
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
 
-      - name: Download Godot
-        uses: ./.github/actions/godot-download
-        with:
-          version: 4.0-stable
+  #     - name: Download Godot
+  #       uses: ./.github/actions/godot-download
+  #       with:
+  #         version: 4.0-stable
 
-      - name: Download Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: linux
-          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
+  #     - name: Download Artifact
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: linux
+  #         path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
 
-      - name: Show Files
-        run: ls -R
+  #     - name: Show Files
+  #       run: ls -R
 
   # build-osx:
   #   name: Build OSX

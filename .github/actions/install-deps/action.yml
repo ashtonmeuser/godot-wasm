@@ -4,7 +4,7 @@ runs:
   using: composite
   steps:
     - name: Install Linux Dependencies
-      if: env.PLATFORM == 'linux'
+      if: runner.os == 'Linux'
       shell: bash
       run: |
           sudo apt update
@@ -22,7 +22,7 @@ runs:
       run: python -m pip install scons
 
     - name: Install Windows Python Packages
-      if: env.PLATFORM == 'windows'
+      if: runner.os == 'Windows'
       shell: bash
       run: python -m pip install pywin32
 
