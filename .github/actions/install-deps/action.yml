@@ -1,6 +1,7 @@
 name: Install Dependencies
 description: Install dependencies for building Godot
 runs:
+  using: composite
   steps:
     - name: Install Linux Dependencies
       if: env.PLATFORM == 'linux'
