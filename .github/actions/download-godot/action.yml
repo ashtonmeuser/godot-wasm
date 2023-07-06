@@ -10,7 +10,7 @@ runs:
     - name: Linux File Pattern
       if: runner.os == 'Linux'
       shell: bash
-      run: echo "FILE='(linux\.x86_64|x11\.64)'" >> $GITHUB_ENV
+      run: echo "FILE=linux\.x86_64" >> $GITHUB_ENV
 
     - name: MacOS File Pattern
       if: runner.os == 'macOS'
