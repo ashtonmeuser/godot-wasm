@@ -15,6 +15,7 @@ runs:
   steps:
     - name: Submodule Hash
       id: submodule-hash
+      shell: bash
       run: echo "hash=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_OUTPUT
 
     - name: Cache Godot Library
@@ -29,6 +30,7 @@ runs:
 
     - name: Compile Godot Library
       if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
+      shell: bash
       run: |
         cd ${{ github.workspace }}/godot-cpp
         scons platform=${{ inputs.platform }} target=${{ inputs.target }}
