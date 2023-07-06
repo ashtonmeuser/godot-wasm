@@ -15,6 +15,7 @@ runs:
   steps:
     - name: Cache Base Name
       id: cache-name
+      shell: bash
       run: echo "name=${{ inputs.platform }}-${{ inputs.godot-major }}-${{ github.workflow }}" >> $GITHUB_OUTPUT
 
     - name: Load Cache
