@@ -1,10 +1,11 @@
-name: Build Addon
+name: Addon
 on:
   push:
     branches: [master, godot-3]
   workflow_dispatch:
 
 env:
+  GODOT_VERSION: 4.0
   LIBRARY_PATH: addons/godot-wasm/bin
   WASMER_VERSION: v3.1.1
 
@@ -12,6 +13,8 @@ jobs:
   build-linux:
     name: Build Linux
     runs-on: ubuntu-latest
+    env:
+      PLATFORM: linux
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -52,8 +55,11 @@ jobs:
           cd ${{ github.workspace }}/godot-cpp
           scons platform=linux target=template_release
 
-      - name: Compile Addon
-        run: scons platform=linux target=template_release
+      - name: Sconstruct Cache
+        uses: ./.github/actions/scons-cache
+
+      - name: Build Addon
+        uses: ./.github/actions/build-addon
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
