@@ -11,6 +11,7 @@ runs:
   using: composite
   steps:
     - name: Scons Build
+      shell: bash
       env:
         SCONS_CACHE: ${{ inputs.scons-cache }}
         SCONS_CACHE_LIMIT: 6000 # Limit to 6 GiB
