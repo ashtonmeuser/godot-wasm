@@ -8,12 +8,22 @@
 
 config_version=5
 
-_global_script_classes=[{
-"base": "RefCounted",
+_global_script_classes=[ {
+"base": "TestSuite",
+"class": &"GodotWasmTestSuite",
+"language": &"GDScript",
+"path": "res://utils/GodotWasmTestSuite.gd"
+}, {
+"base": "Node",
+"class": &"TestRunner",
+"language": &"GDScript",
+"path": "res://utils/TestRunner.gd"
+}, {
+"base": "Reference",
 "class": &"TestSuite",
 "language": &"GDScript",
 "path": "res://utils/TestSuite.gd"
-}]
+} ]
 
 [application]
 
