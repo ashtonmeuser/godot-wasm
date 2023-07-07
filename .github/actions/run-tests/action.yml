@@ -1,0 +1,12 @@
+name: Run Tests
+description: Run the Godot Wasm test project
+inputs:
+  executable:
+    description: The Godot executable
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Run Tests
+      shell: bash
+      run: ${{ inputs.executable }} --headless --no-window --debug --path examples/wasm-test

@@ -37,7 +37,7 @@ func expect_empty():
 func expect_error(s: String):
 	expect_log("(USER )?ERROR: " + s)
 	# Account for error stack trace
-	var regex = make_regex("^\\s+at:\\s")
+	var regex = TestSuite.make_regex("^\\s+at:\\s")
 	var position = _log_file.get_position()
 	while _log_file.get_position() < _log_file.get_length():
 		if !regex.search(_log_file.get_line()): break
@@ -80,7 +80,7 @@ func _fail(message: String):
 	emit_signal("test_error", message)
 	print_stack()
 
-static func _comparable(o):
+func _comparable(o):
 	return o.hash() if (o is Dictionary or o is Object) else o
 
 static func make_regex(pattern: String) -> RegEx:

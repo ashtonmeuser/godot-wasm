@@ -4,18 +4,27 @@ inputs:
   version:
     description: The Godot version to download
     required: true
+outputs:
+  executable:
+    description: The downloaded Godot executable
+    value: ${{ steps.unzip-godot.outputs.executable.value }}
 runs:
   using: composite
   steps:
     - name: Linux File Pattern
       if: runner.os == 'Linux'
       shell: bash
-      run: echo "FILE=linux\.x86_64" >> $GITHUB_ENV
+      run: echo "FILE=(linux\.x86_64|x11\.64)" >> $GITHUB_ENV
 
     - name: MacOS File Pattern
       if: runner.os == 'macOS'
       shell: bash
-      run: echo "FILE='(macos|osx)\.universal'" >> $GITHUB_ENV
+      run: echo "FILE=(macos|osx)\.universal" >> $GITHUB_ENV
+
+    - name: Windows File Pattern
+      if: runner.os == 'Windows'
+      shell: bash
+      run: echo "FILE=win64.exe" >> $GITHUB_ENV
 
     - name: Download Godot
       uses: dsaltares/fetch-gh-release-asset@master
@@ -23,4 +32,13 @@ runs:
         repo: godotengine/godot
         version: tags/${{ inputs.version }}
         regex: true
+        target: godot.zip
         file: ${{ env.FILE }}
+
+    - name: Unzip Godot
+      id: unzip-godot
+      shell: bash
+      run: |
+        unzip godot.zip
+        rm godot.zip
+        echo "executable=$( find . -maxdepth 1 -regex '${{ env.FILE }}' )" >> $GITHUB_OUTPUT

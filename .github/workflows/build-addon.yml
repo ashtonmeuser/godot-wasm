@@ -7,7 +7,7 @@ on:
 env:
   GODOT_MAJOR: 4
   TARGET: template_release
-  TEST_VERSION: 4.0.3-stable
+  GODOT_REF: 4.0.3-stable
   LIBRARY_PATH: addons/godot-wasm/bin
   WASMER_VERSION: v3.1.1
 
@@ -26,7 +26,7 @@ jobs:
       - name: Install Dependencies
         uses: ./.github/actions/install-deps
 
-      - name: Godot CPP
+      - name: Build Godot CPP
         uses: ./.github/actions/godot-cpp
         with:
           platform: ${{ env.PLATFORM }}
@@ -47,31 +47,39 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: linux
-          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/linux
+          name: ${{ env.PLATFORM }}
+          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ env.PLATFORM }}
           if-no-files-found: error
 
   test-linux:
     needs: build-linux
     name: Test Linux
     runs-on: ubuntu-latest
+    env:
+      PLATFORM: linux
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Download Godot
+        id: download-godot
         uses: ./.github/actions/download-godot
         with:
-          version: ${{ env.TEST_VERSION }}
+          version: ${{ env.GODOT_REF }}
 
-      - name: Download Artifact
+      - name: Download Addon
         uses: actions/download-artifact@v3
         with:
-          name: linux
+          name: ${{ env.PLATFORM }}
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
 
       - name: Show Files
         run: ls -R
+
+      - name: Run Tests
+        uses: ./.github/actions/run-tests
+        with:
+          executable: ${{ steps.download-godot.outputs.executable }}
 
   # build-osx:
   #   name: Build OSX
