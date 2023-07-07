@@ -8,6 +8,13 @@
 
 config_version=5
 
+_global_script_classes=[{
+"base": "RefCounted",
+"class": &"TestSuite",
+"language": &"GDScript",
+"path": "res://utils/TestSuite.gd"
+}]
+
 [application]
 
 config/name="Wasm Test"
