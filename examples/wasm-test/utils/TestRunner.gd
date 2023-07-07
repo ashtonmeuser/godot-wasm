@@ -1,8 +1,6 @@
 extends Node
 class_name TestRunner
 
-const TestSuite2 = preload("res://utils/TestSuite.gd")
-
 enum LogLevel { Default, Success, Error, Title }
 enum LogDestination { All, UI }
 
@@ -14,13 +12,13 @@ func _ready():
 
 	var results = Results.new()
 
-	var regex = TestSuite2.make_regex("^Test\\w+\\.gd")
+	var regex = TestSuite.make_regex("^Test\\w+\\.gd")
 	for file in DirAccess.get_files_at("res://"):
 		# Find relevant test suites
 		if regex.search(file) == null: continue
 		var script = load(file) as Script
-		if !inherits(script, TestSuite2): continue
-		var suite: TestSuite2 = script.new()
+		if !inherits(script, TestSuite): continue
+		var suite: TestSuite = script.new()
 		# Run suite
 		record("Running test suite: %s" % file)
 		suite.connect("test_start", self.handle_test_start.bind(results))
