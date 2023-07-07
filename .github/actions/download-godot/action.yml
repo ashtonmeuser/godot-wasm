@@ -35,10 +35,10 @@ runs:
         target: godot.zip
         file: ${{ env.FILE }}
 
-    - name: Unzip Godot
-      id: unzip-godot
-      shell: bash
-      run: |
-        unzip godot.zip
-        rm godot.zip
-        echo "executable=$( find . -maxdepth 1 -regex '${{ env.FILE }}' )" >> $GITHUB_OUTPUT
+    # - name: Unzip Godot
+    #   id: unzip-godot
+    #   shell: bash
+    #   run: |
+    #     unzip godot.zip
+    #     rm godot.zip
+    #     echo "executable=$( find . -maxdepth 1 -regex '${{ env.FILE }}' )" >> $GITHUB_OUTPUT
