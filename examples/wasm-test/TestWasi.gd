@@ -34,7 +34,7 @@ func test_clock_time_get():
 	var time = Time.get_unix_time_from_system() * 1000
 	var wasm = load_wasm("wasi")
 	var result = wasm.function("clock_time_get", [])
-	expect_within(result, time, 10.0) # Within ten seconds
+	expect_within(result, time, 1000.0) # Within one second
 
 func test_permissions():
 	var wasm = load_wasm("wasi")
