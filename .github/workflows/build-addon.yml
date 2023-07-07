@@ -71,7 +71,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.PLATFORM }}
-          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
+          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ env.PLATFORM }}
 
       - name: Show Files
         run: ls -R
