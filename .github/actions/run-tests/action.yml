@@ -9,4 +9,4 @@ runs:
   steps:
     - name: Run Tests
       shell: bash
-      run: ./${{ inputs.executable }} --headless --no-window --debug --path examples/test-custom-classes
+      run: ./${{ inputs.executable }} --headless --no-window --debug --path examples/wasm-test
