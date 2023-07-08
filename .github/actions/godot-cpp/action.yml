@@ -34,5 +34,5 @@ runs:
       run: |
         ls -R
         pwd
-        cd ${{ github.workspace }}/godot-cpp
+        cd godot-cpp
         scons platform=${{ inputs.platform }} target=${{ inputs.target }}
