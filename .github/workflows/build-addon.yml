@@ -55,32 +55,41 @@ jobs:
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ matrix.platform }}
           if-no-files-found: error
 
-  # test-linux:
-  #   needs: build-linux
-  #   name: Test Linux
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     PLATFORM: linux
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v3
+  test-addon:
+    needs: build-addon
+    name: Test Addon
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [linux, macos, windows]
+        include:
+          - platform: linux
+            os: ubuntu-latest
+          - platform: macos
+            os: macos-11
+          - platform: windows
+            os: windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-  #     - name: Download Godot
-  #       id: download-godot
-  #       uses: ./.github/actions/download-godot
-  #       with:
-  #         version: ${{ env.GODOT_REF }}
+      - name: Download Godot
+        id: download-godot
+        uses: ./.github/actions/download-godot
+        with:
+          version: ${{ env.GODOT_REF }}
 
-  #     - name: Download Addon
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: ${{ env.PLATFORM }}
-  #         path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ env.PLATFORM }}
+      - name: Download Addon
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.platform }}
+          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ matrix.platform }}
 
-  #     - name: Run Tests
-  #       uses: ./.github/actions/run-tests
-  #       with:
-  #         executable: ${{ steps.download-godot.outputs.executable }}
+      - name: Run Tests
+        uses: ./.github/actions/run-tests
+        with:
+          executable: ${{ steps.download-godot.outputs.executable }}
 
   # build-osx:
   #   name: Build OSX

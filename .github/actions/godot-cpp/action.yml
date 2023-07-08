@@ -32,7 +32,5 @@ runs:
       if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        ls -R
-        pwd
         cd godot-cpp
         scons platform=${{ inputs.platform }} target=${{ inputs.target }}
