@@ -19,7 +19,7 @@ runs:
     - name: MacOS File Pattern
       if: runner.os == 'macOS'
       shell: bash
-      run: echo "FILE=([^m][^o][^n][^o][^_])(macos|osx)\.universal" >> $GITHUB_ENV
+      run: echo "FILE=(macos|osx)\.universal" >> $GITHUB_ENV
 
     - name: Windows File Pattern
       if: runner.os == 'Windows'
@@ -40,7 +40,7 @@ runs:
       shell: bash
       run: |
         ls
-        zip_file=$( ls | grep -E '${{ env.FILE }}' )
+        zip_file=$( ls | grep -E '${{ env.FILE }}' | grep -v '_mono_' )
         echo "$zip_file"
         unzip "$zip_file"
         rm "$zip_file"
