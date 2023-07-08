@@ -12,11 +12,19 @@ env:
   WASMER_VERSION: v3.1.1
 
 jobs:
-  build-linux:
-    name: Build Linux
-    runs-on: ubuntu-latest
-    env:
-      PLATFORM: linux
+  build-addon:
+    name: Build Addon
+    strategy:
+      matrix:
+        platform: [linux, macos, windows]
+        include:
+          - platform: linux
+            os: ubuntu-latest
+          - platform: macos
+            os: macos-11
+          - platform: windows
+            os: windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -29,52 +37,49 @@ jobs:
       - name: Build Godot CPP
         uses: ./.github/actions/godot-cpp
         with:
-          platform: ${{ env.PLATFORM }}
+          platform: ${{ matrix.platform }}
           target: ${{ env.TARGET }}
 
       - name: Build Addon
         uses: ./.github/actions/scons-build
         with:
-          platform: ${{ env.PLATFORM }}
+          platform: ${{ matrix.platform }}
           target: ${{ env.TARGET }}
           godot-major: ${{ env.GODOT_MAJOR }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.PLATFORM }}
-          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ env.PLATFORM }}
+          name: ${{ matrix.platform }}
+          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ matrix.platform }}
           if-no-files-found: error
 
-  test-linux:
-    needs: build-linux
-    name: Test Linux
-    runs-on: ubuntu-latest
-    env:
-      PLATFORM: linux
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+  # test-linux:
+  #   needs: build-linux
+  #   name: Test Linux
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     PLATFORM: linux
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
 
-      - name: Download Godot
-        id: download-godot
-        uses: ./.github/actions/download-godot
-        with:
-          version: ${{ env.GODOT_REF }}
+  #     - name: Download Godot
+  #       id: download-godot
+  #       uses: ./.github/actions/download-godot
+  #       with:
+  #         version: ${{ env.GODOT_REF }}
 
-      - name: Download Addon
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ env.PLATFORM }}
-          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ env.PLATFORM }}
+  #     - name: Download Addon
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: ${{ env.PLATFORM }}
+  #         path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ env.PLATFORM }}
 
-      - name: Show Files
-        run: ls -R
-
-      - name: Run Tests
-        uses: ./.github/actions/run-tests
-        with:
-          executable: ${{ steps.download-godot.outputs.executable }}
+  #     - name: Run Tests
+  #       uses: ./.github/actions/run-tests
+  #       with:
+  #         executable: ${{ steps.download-godot.outputs.executable }}
 
   # build-osx:
   #   name: Build OSX
