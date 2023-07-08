@@ -39,7 +39,9 @@ runs:
       id: unzip-godot
       shell: bash
       run: |
+        ls
         zip_file=$( ls | grep -E '${{ env.FILE }}' )
+        echo "$zip_file"
         unzip "$zip_file"
         rm "$zip_file"
         echo "executable=$( ls | grep -E '${{ env.FILE }}' )"
