@@ -15,6 +15,7 @@ jobs:
   build-addon:
     name: Build Addon
     strategy:
+      fail-fast: false
       matrix:
         platform: [linux, macos, windows]
         include:
