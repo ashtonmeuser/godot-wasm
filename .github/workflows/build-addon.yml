@@ -32,17 +32,12 @@ jobs:
           platform: ${{ env.PLATFORM }}
           target: ${{ env.TARGET }}
 
-      - name: Sconstruct Cache
-        uses: ./.github/actions/scons-cache
-        with:
-          platform: ${{ env.PLATFORM }}
-          godot-major: ${{ env.GODOT_MAJOR }}
-
       - name: Build Addon
-        uses: ./.github/actions/build-addon
+        uses: ./.github/actions/scons-build
         with:
           platform: ${{ env.PLATFORM }}
           target: ${{ env.TARGET }}
+          godot-major: ${{ env.GODOT_MAJOR }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
