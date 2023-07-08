@@ -32,8 +32,8 @@ func _ready():
 
 	if !OS.get_cmdline_args().has("--keepalive=yes"): get_tree().quit(results.failed)
 
-func _exit_tree():
-	_log_file.close()
+#func _exit_tree():
+#	_log_file.close()
 
 # Test event handlers
 

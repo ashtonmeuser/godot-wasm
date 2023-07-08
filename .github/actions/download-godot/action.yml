@@ -19,7 +19,7 @@ runs:
     - name: MacOS File Pattern
       if: runner.os == 'macOS'
       shell: bash
-      run: echo "FILE=(macos|osx)\.universal" >> $GITHUB_ENV
+      run: echo "FILE=([^m][^o][^n][^o][^_])(macos|osx)\.universal" >> $GITHUB_ENV
 
     - name: Windows File Pattern
       if: runner.os == 'Windows'
@@ -32,7 +32,7 @@ runs:
         repo: godotengine/godot
         version: tags/${{ inputs.version }}
         regex: true
-        target: '' # Defaults to regex and prepended on filename
+        target: './' # Defaults to regex prepended to filename
         file: ${{ env.FILE }}
 
     - name: Unzip Godot
