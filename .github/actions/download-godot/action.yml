@@ -43,6 +43,11 @@ runs:
         zip_file=$( ls | grep -E '${{ env.FILE }}' | grep -v '_mono_' )
         echo "$zip_file"
         unzip "$zip_file"
-        rm "$zip_file"
+        ls | grep -E '${{ env.FILE }}.*\.zip' | xargs rm
         echo "executable=$( ls | grep -E '${{ env.FILE }}' )"
         echo "executable=$( ls | grep -E '${{ env.FILE }}' )" >> $GITHUB_OUTPUT
+
+    - name: MacOS Executable
+      if: runner.os == 'macOS'
+      shell: bash
+      run: echo "executable=Godot.app/Contents/MacOS/Godot" >> $GITHUB_OUTPUT
