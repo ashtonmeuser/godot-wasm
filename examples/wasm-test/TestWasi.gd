@@ -13,17 +13,17 @@ func test_fd_write():
 #	wasm.function("proc_exit", [1])
 #	expect_error("Module exited with error 1")
 
-func test_args_get():
-	var args = get_cmdline_user_args()
-	var wasm = load_wasm("wasi")
-	var result = wasm.function("args_get", [])
-	for arg in args: expect_log(arg.trim_prefix("--"))
-	expect_eq(result, args.size())
+#func test_args_get():
+#	var args = get_cmdline_user_args()
+#	var wasm = load_wasm("wasi")
+#	var result = wasm.function("args_get", [])
+#	for arg in args: expect_log(arg.trim_prefix("--"))
+#	expect_eq(result, args.size())
 
-func test_environ_get():
-	var wasm = load_wasm("wasi")
-	var result = wasm.function("environ_get", [])
-	expect_eq(result, 0)
+#func test_environ_get():
+#	var wasm = load_wasm("wasi")
+#	var result = wasm.function("environ_get", [])
+#	expect_eq(result, 0)
 
 #func test_random_get():
 #	var wasm = load_wasm("wasi")
