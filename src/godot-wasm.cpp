@@ -187,10 +187,10 @@ namespace godot {
   }
 
   Wasm::~Wasm() {
-    reset_instance();
-    unset(module, wasm_module_delete);
-    unset(store, wasm_store_delete);
-    unset(engine, wasm_engine_delete);
+    // reset_instance();
+    // unset(module, wasm_module_delete);
+    // unset(store, wasm_store_delete);
+    // unset(engine, wasm_engine_delete);
   }
 
   void Wasm::_init() { }
