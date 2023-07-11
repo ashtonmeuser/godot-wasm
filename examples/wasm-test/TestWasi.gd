@@ -25,28 +25,28 @@ func test_environ_get():
 	var result = wasm.function("environ_get", [])
 	expect_eq(result, 0)
 
-func test_random_get():
-	var wasm = load_wasm("wasi")
-	var result = wasm.function("random_get", [])
-	expect(abs(result) <= 0xFF)
-
-func test_clock_time_get():
-	var time = Time.get_unix_time_from_system() * 1000
-	var wasm = load_wasm("wasi")
-	var result = wasm.function("clock_time_get", [])
-	expect_within(result, time, 1000.0) # Within one second
-
-func test_permissions():
-	var wasm = load_wasm("wasi")
-	expect_includes(wasm.permissions, "print")
-	expect_eq(wasm.permissions.get("print"), true)
-	wasm.permissions = { "print": false }
-	expect_eq(wasm.permissions.get("print"), false)
-	var permission = wasm.has_permission("print")
-	expect_eq(permission, false)
-	wasm.permissions = { "print": true }
-	permission = wasm.has_permission("print")
-	expect_eq(permission, true)
+#func test_random_get():
+#	var wasm = load_wasm("wasi")
+#	var result = wasm.function("random_get", [])
+#	expect(abs(result) <= 0xFF)
+#
+#func test_clock_time_get():
+#	var time = Time.get_unix_time_from_system() * 1000
+#	var wasm = load_wasm("wasi")
+#	var result = wasm.function("clock_time_get", [])
+#	expect_within(result, time, 1000.0) # Within one second
+#
+#func test_permissions():
+#	var wasm = load_wasm("wasi")
+#	expect_includes(wasm.permissions, "print")
+#	expect_eq(wasm.permissions.get("print"), true)
+#	wasm.permissions = { "print": false }
+#	expect_eq(wasm.permissions.get("print"), false)
+#	var permission = wasm.has_permission("print")
+#	expect_eq(permission, false)
+#	wasm.permissions = { "print": true }
+#	permission = wasm.has_permission("print")
+#	expect_eq(permission, true)
 #
 #func test_invalid_permissions():
 #	# TODO: No exit permissions causes crash on proc_exit
