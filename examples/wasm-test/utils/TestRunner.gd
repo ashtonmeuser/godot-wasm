@@ -30,7 +30,8 @@ func _ready():
 	record("Tests complete", LogLevel.Title)
 	record("Passed: %d/%d" % [results.passed, results.total], LogLevel.Error if results.failed else LogLevel.Success)
 
-	if !OS.get_cmdline_args().has("--keepalive=yes"): get_tree().quit(results.failed)
+#	if !OS.get_cmdline_args().has("--keepalive=yes"): get_tree().quit(results.failed)
+	get_tree().call_deferred("quit", 0)
 
 #func _exit_tree():
 #	_log_file.close()
