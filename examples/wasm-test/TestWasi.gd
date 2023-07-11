@@ -7,14 +7,14 @@ func test_compile():
 	expect_eq(error, OK)
 	expect_empty()
 
-#func test_instantiate():
-#	var wasm = Wasm.new()
-#	var buffer = read_file("wasi")
-#	var error = wasm.compile(buffer)
-#	expect_eq(error, OK)
-#	error = wasm.instantiate({})
-#	expect_eq(error, OK)
-#	expect_empty()
+func test_instantiate():
+	var wasm = Wasm.new()
+	var buffer = read_file("wasi")
+	var error = wasm.compile(buffer)
+	expect_eq(error, OK)
+	error = wasm.instantiate({})
+	expect_eq(error, OK)
+	expect_empty()
 
 #func test_fd_write():
 #	var wasm = load_wasm("wasi")
