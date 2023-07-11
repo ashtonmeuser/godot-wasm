@@ -7,7 +7,7 @@ inputs:
 outputs:
   executable:
     description: The downloaded Godot executable
-    value: ${{ env.EXECUTABLE }}
+    value: ${{ steps.set-output.outputs.executable }}
 runs:
   using: composite
   steps:
@@ -36,7 +36,6 @@ runs:
         file: ${{ env.FILE }}
 
     - name: Unzip Godot
-      id: unzip-godot
       shell: bash
       run: |
         ls
@@ -51,3 +50,9 @@ runs:
       if: runner.os == 'macOS'
       shell: bash
       run: echo "EXECUTABLE=Godot.app/Contents/MacOS/Godot" >> $GITHUB_ENV
+
+    - name: Set Output
+      id: set-output
+      shell: bash
+      run: echo "executable=${{ env.EXECUTABLE }}" >> $GITHUB_OUTPUT
+
