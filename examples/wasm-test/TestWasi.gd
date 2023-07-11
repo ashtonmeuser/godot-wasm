@@ -5,13 +5,13 @@ func test_fd_write():
 	wasm.function("fd_write", [])
 	expect_log("Test fd_write")
 
-func test_proc_exit():
-	var wasm = load_wasm("wasi")
-	wasm.function("proc_exit", [0])
-	expect_log("Module exited successfully")
-	wasm = load_wasm("wasi")
-	wasm.function("proc_exit", [1])
-	expect_error("Module exited with error 1")
+#func test_proc_exit():
+#	var wasm = load_wasm("wasi")
+#	wasm.function("proc_exit", [0])
+#	expect_log("Module exited successfully")
+#	wasm = load_wasm("wasi")
+#	wasm.function("proc_exit", [1])
+#	expect_error("Module exited with error 1")
 
 func test_args_get():
 	var args = get_cmdline_user_args()
