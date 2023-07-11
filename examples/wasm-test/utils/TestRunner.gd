@@ -33,7 +33,7 @@ func _ready():
 #	if !OS.get_cmdline_args().has("--keepalive=yes"): get_tree().quit(results.failed)
 #	get_tree().call_deferred("quit", 0)
 	print("Quitting in 5s")
-	get_tree().create_timer(5.0).connect("timeout", get_tree().quit)
+	get_tree().create_timer(5.0).connect("timeout", get_tree().quit.bind(0))
 
 #func _exit_tree():
 #	_log_file.close()
