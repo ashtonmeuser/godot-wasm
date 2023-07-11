@@ -38,12 +38,9 @@ runs:
     - name: Unzip Godot
       shell: bash
       run: |
-        ls
         zip_file=$( ls | grep -E '${{ env.FILE }}' | grep -v '_mono_' )
-        echo "$zip_file"
         unzip "$zip_file"
         ls | grep -E '${{ env.FILE }}.*\.zip' | xargs rm
-        echo "$( ls | grep -E '${{ env.FILE }}' )"
         echo "EXECUTABLE=$( ls | grep -E '${{ env.FILE }}' )" >> $GITHUB_ENV
 
     - name: MacOS Executable
