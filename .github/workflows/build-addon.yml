@@ -86,6 +86,10 @@ jobs:
           name: ${{ matrix.platform }}
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ matrix.platform }}
 
+      - name: Setup tmate Session
+        if: runner.os == 'Windows'
+        uses: mxschmitt/action-tmate@v3
+
       - name: Run Tests
         uses: ./.github/actions/run-tests
         with:
