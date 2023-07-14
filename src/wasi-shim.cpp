@@ -115,9 +115,14 @@ namespace godot {
       byte_t* data = wasm_memory_data(memory);
       int32_t offset_count = args->data[0].of.i32;
       int32_t offset_length = args->data[1].of.i32;
+      int32_t zero = 0;
+      std::cout << offset_count << std::endl;
+      std::cout << offset_length << std::endl;
       wasi_encoded_strings encoded = encode_args(CMDLINE_ARGS);
-      memcpy(data + offset_count, &encoded.count, sizeof(int32_t));
-      memcpy(data + offset_length, &encoded.length, sizeof(int32_t));
+      // memcpy(data + offset_count, &encoded.count, sizeof(int32_t));
+      // memcpy(data + offset_length, &encoded.length, sizeof(int32_t));
+      memcpy(data + offset_count, &zero, sizeof(int32_t));
+      memcpy(data + offset_length, &zero, sizeof(int32_t));
       return wasi_result(results);
     }
 

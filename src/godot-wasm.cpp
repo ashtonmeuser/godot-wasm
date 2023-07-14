@@ -29,6 +29,7 @@ namespace godot {
 
   namespace {
     template <typename T> void unset(T*& p, void (*f)(T*)) {
+      std::cout << "unset" << std::endl;
       if (p == NULL) return;
       f(p);
       p = NULL;
@@ -203,18 +204,18 @@ namespace godot {
   }
 
   void Wasm::reset_instance() {
-    // unset(instance, wasm_instance_delete);
-    // unset(stream->memory, wasm_memory_delete);
-    // memory_index = -1;
-    // import_funcs.clear();
-    // export_globals.clear();
-    // export_funcs.clear();
-    // permissions.clear();
-    // permissions["print"] = true;
-    // permissions["time"] = true;
-    // permissions["random"] = true;
-    // permissions["args"] = true;
-    // permissions["exit"] = true;
+    unset(instance, wasm_instance_delete);
+    unset(stream->memory, wasm_memory_delete);
+    memory_index = -1;
+    import_funcs.clear();
+    export_globals.clear();
+    export_funcs.clear();
+    permissions.clear();
+    permissions["print"] = true;
+    permissions["time"] = true;
+    permissions["random"] = true;
+    permissions["args"] = true;
+    permissions["exit"] = true;
   }
 
   Ref<StreamPeerWasm> Wasm::get_stream() const {
