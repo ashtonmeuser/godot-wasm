@@ -3,6 +3,7 @@
 #include "godot-wasm.h"
 #include "wasi-shim.h"
 #include "defer.h"
+#include "stdio.h"
 
 namespace godot {
   namespace godot_wasm {
@@ -202,18 +203,18 @@ namespace godot {
   }
 
   void Wasm::reset_instance() {
-    unset(instance, wasm_instance_delete);
-    unset(stream->memory, wasm_memory_delete);
-    memory_index = -1;
-    import_funcs.clear();
-    export_globals.clear();
-    export_funcs.clear();
-    permissions.clear();
-    permissions["print"] = true;
-    permissions["time"] = true;
-    permissions["random"] = true;
-    permissions["args"] = true;
-    permissions["exit"] = true;
+    // unset(instance, wasm_instance_delete);
+    // unset(stream->memory, wasm_memory_delete);
+    // memory_index = -1;
+    // import_funcs.clear();
+    // export_globals.clear();
+    // export_funcs.clear();
+    // permissions.clear();
+    // permissions["print"] = true;
+    // permissions["time"] = true;
+    // permissions["random"] = true;
+    // permissions["args"] = true;
+    // permissions["exit"] = true;
   }
 
   Ref<StreamPeerWasm> Wasm::get_stream() const {
@@ -259,6 +260,7 @@ namespace godot {
   }
 
   godot_error Wasm::instantiate(const Dictionary import_map) {
+    std::cout << "instantiate 0" << std::endl;
     // Construct import functions
     std::map<uint16_t, wasm_func_t*> extern_map;
     DEFER(for (auto &it: extern_map) wasm_func_delete(it.second));
@@ -280,15 +282,20 @@ namespace godot {
       context->method = import[1];
       extern_map[it.second.index] = create_callback(context);
     }
+    std::cout << "instantiate 1" << std::endl;
 
     // Sort imports by index
     std::vector<wasm_extern_t*> extern_list;
     for (auto &it: extern_map) extern_list.push_back(wasm_func_as_extern(it.second));
     wasm_extern_vec_t imports = { extern_list.size(), extern_list.data() };
 
+    std::cout << "instantiate 2" << std::endl;
+
     // Instantiate with imports
     instance = wasm_instance_new(store, module, &imports, NULL);
     FAIL_IF(instance == NULL, "Instantiation failed", ERR_CANT_CREATE);
+
+    std::cout << "instantiate 3" << std::endl;
 
     // Set stream peer memory reference
     if (memory_index >= 0) {
@@ -299,8 +306,12 @@ namespace godot {
       stream->memory = wasm_extern_as_memory(wasm_extern_copy(data));
     }
 
+    std::cout << "instantiate 4" << std::endl;
+
     // Call exported WASI initialize function
     if (export_funcs.count("_initialize")) function("_initialize", Array());
+
+    std::cout << "instantiate 5" << std::endl;
 
     return OK;
   }

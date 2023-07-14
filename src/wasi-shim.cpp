@@ -4,6 +4,7 @@
 #include "wasi-shim.h"
 #include "godot-wasm.h"
 #include "defer.h"
+#include "stdio.h"
 
 // See https://github.com/WebAssembly/wasi-libc/blob/main/libc-bottom-half/headers/public/wasi/api.h
 #define __WASI_CLOCKID_REALTIME (UINT32_C(0)) // The clock measuring real time
@@ -105,6 +106,7 @@ namespace godot {
 
     // WASI args_sizes_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_args_sizes_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
+      std::cout << "args_sizes_get" << std::endl;
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       wasm_memory_t* memory = wasm->get_stream().ptr()->memory;
@@ -121,6 +123,7 @@ namespace godot {
 
     // WASI args_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_args_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
+      std::cout << "args_get" << std::endl;
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       wasm_memory_t* memory = wasm->get_stream().ptr()->memory;

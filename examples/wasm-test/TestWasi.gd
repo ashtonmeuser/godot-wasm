@@ -12,7 +12,7 @@ func test_compile():
 
 func test_instantiate():
 	var wasm = Wasm.new()
-	var buffer = read_file("wasi")
+	var buffer = read_file("wasi_args_get")
 	var error = wasm.compile(buffer)
 	expect_eq(error, OK)
 	var imports = {}
@@ -34,12 +34,13 @@ func test_instantiate():
 #	wasm.function("proc_exit", [1])
 #	expect_error("Module exited with error 1")
 
-#func test_args_get():
-#	var args = get_cmdline_user_args()
-#	var wasm = load_wasm("wasi")
-#	var result = wasm.function("args_get", [])
-#	for arg in args: expect_log(arg.trim_prefix("--"))
-#	expect_eq(result, args.size())
+func test_args_get():
+	var args = get_cmdline_user_args()
+	var wasm = load_wasm("wasi")
+	var result = wasm.function("args_get", [])
+	for arg in args: expect_log(arg.trim_prefix("--"))
+	expect_eq(result, args.size())
+	print(args)
 #
 #func test_environ_get():
 #	var wasm = load_wasm("wasi")
