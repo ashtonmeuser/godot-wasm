@@ -7,6 +7,12 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Run Tests
+    - name: Run Tests Unix
+      if: runner.os != 'Windows'
       shell: bash
+      run: ./${{ inputs.executable }} --headless --no-window --debug --path examples/wasm-test
+
+    - name: Run Tests Windows
+      if: runner.os == 'Windows'
+      shell: pwsh
       run: ./${{ inputs.executable }} --headless --no-window --debug --path examples/wasm-test
