@@ -1,5 +1,8 @@
 extends GodotWasmTestSuite
 
+func dummy_fd_write(a, b, c, d) -> int:
+	return 0
+
 func test_compile():
 	var wasm = Wasm.new()
 	var buffer = read_file("wasi")
@@ -12,7 +15,9 @@ func test_instantiate():
 	var buffer = read_file("wasi")
 	var error = wasm.compile(buffer)
 	expect_eq(error, OK)
-	error = wasm.instantiate({})
+	var imports = {}
+#	imports = { "functions": { "wasi_snapshot_preview1.fd_write": [self, "dummy_fd_write"] } }
+	error = wasm.instantiate(imports)
 	expect_eq(error, OK)
 	expect_empty()
 
