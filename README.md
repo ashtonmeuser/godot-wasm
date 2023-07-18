@@ -20,7 +20,7 @@
 > **Warning**
 > This project is still in its infancy. Interfaces are liable to change with each release until v1.0.
 
-A Godot addon allowing for loading and interacting with [WebAssembly (Wasm)](https://webassembly.org) modules from GDScript via the [Wasmer](https://wasmer.io) as the WebAssembly runtime.
+A Godot extension allowing for loading and interacting with [WebAssembly (Wasm)](https://webassembly.org) modules from GDScript via the [Wasmer](https://wasmer.io) WebAssembly runtime.
 
 ## Documentation
 
