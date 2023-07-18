@@ -19,10 +19,15 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://utils/TestRunner.gd"
 }, {
-"base": "Reference",
+"base": "Resource",
 "class": "TestSuite",
 "language": "GDScript",
 "path": "res://utils/TestSuite.gd"
+}, {
+"base": "Object",
+"class": "Utils",
+"language": "GDScript",
+"path": "res://utils/Utils.gd"
 }, {
 "base": "",
 "class": "Wasm",
@@ -33,6 +38,7 @@ _global_script_class_icons={
 "GodotWasmTestSuite": "",
 "TestRunner": "",
 "TestSuite": "",
+"Utils": "",
 "Wasm": ""
 }
 

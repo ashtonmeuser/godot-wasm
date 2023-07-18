@@ -1,4 +1,4 @@
-extends Reference
+extends Resource
 class_name TestSuite
 
 signal test_start(case)
@@ -39,7 +39,7 @@ func expect_empty():
 func expect_error(s: String):
 	expect_log("(USER )?ERROR: " + s)
 	# Account for error stack trace
-	var regex = make_regex("^\\s+at:\\s")
+	var regex = Utils.make_regex("^\\s+at:\\s")
 	var position = _log_file.get_position()
 	while _log_file.get_position() < _log_file.get_len():
 		if !regex.search(_log_file.get_line()): break
@@ -50,10 +50,10 @@ func expect(a):
 	if !a: _fail("Expect truthy: %s" % a)
 
 func expect_eq(a, b):
-	if _comparable(a) != _comparable(b): _fail("Expect equal: %s != %s" % [a, b])
+	if Utils.comparable(a) != Utils.comparable(b): _fail("Expect equal: %s != %s" % [a, b])
 
 func expect_ne(a, b):
-	if _comparable(a) == _comparable(b): _fail("Expect not equal: %s == %s" % [a, b])
+	if Utils.comparable(a) == Utils.comparable(b): _fail("Expect not equal: %s == %s" % [a, b])
 
 func expect_type(a, t):
 	if typeof(a) != t: _fail("Expect type: %s != %s" % [typeof(a), t])
@@ -81,11 +81,3 @@ func _fail(message: String):
 	_error = true # Flag test case failed
 	emit_signal("test_error", message)
 	print_stack()
-
-static func _comparable(o):
-	return o.hash() if (o is Dictionary or o is Object) else o
-
-static func make_regex(pattern: String) -> RegEx:
-	var regex = RegEx.new()
-	assert(regex.compile(pattern) == OK, "Invalid regex pattern: %s" % pattern)
-	return regex

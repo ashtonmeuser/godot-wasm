@@ -1,4 +1,6 @@
 .DS_Store
 .import/
-.godot/
+.godot/**
 *.import
+!.godot/extension_list.cfg
+!.godot/global_script_class_cache.cfg

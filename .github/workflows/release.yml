@@ -19,9 +19,10 @@ jobs:
         run: rm -rf ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
 
       - name: Download Artifact
+        # Non-standard download action required for cross-workflow downloads
         uses: dawidd6/action-download-artifact@v2
         with:
-          workflow: build-addon.yml
+          workflow: addon.yml
           commit: ${{ github.sha }}
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
 

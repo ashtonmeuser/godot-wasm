@@ -14,7 +14,7 @@ func _ready():
 
 	var results = Results.new()
 
-	var regex = TestSuite.make_regex("^Test\\w+\\.gd")
+	var regex = Utils.make_regex("^Test\\w+\\.gd")
 	var dir = Directory.new()
 	if dir.open("res://") != OK: return get_tree().quit(1)
 	dir.list_dir_begin()

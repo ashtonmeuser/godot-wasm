@@ -180,6 +180,8 @@ namespace godot {
   Wasm::Wasm() {
     engine = wasm_engine_new();
     store = wasm_store_new(engine);
+    module = NULL;
+    instance = NULL;
     INSTANTIATE_REF(stream);
     reset_instance(); // Set initial state
   }

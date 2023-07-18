@@ -1,0 +1,36 @@
+name: Godot CPP
+description: Build Godot CPP bindings
+inputs:
+  platform:
+    description: The Godot platform to build
+    required: true
+  target:
+    description: The Godot target to build
+    required: true
+  scons-cache:
+    description: The Sconstruct cache path
+    default: ${{ github.workspace }}/.scons-cache/
+runs:
+  using: composite
+  steps:
+    - name: Submodule Hash
+      id: submodule-hash
+      shell: bash
+      run: echo "hash=$( git rev-parse HEAD:godot-cpp )" >> $GITHUB_OUTPUT
+
+    - name: Cache Godot Library
+      id: cache-godot-cpp
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{ github.workspace }}/godot-cpp/bin
+          ${{ github.workspace }}/godot-cpp/include
+          ${{ github.workspace }}/godot-cpp/gen
+        key: ${{ inputs.platform }}-${{ steps.submodule-hash.outputs.hash }}
+
+    - name: Compile Godot Library
+      if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        cd godot-cpp
+        scons platform=${{ inputs.platform }} target=${{ inputs.target }}
