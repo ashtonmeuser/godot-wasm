@@ -6,8 +6,8 @@
   </a>
 </p>
 <p align="center">
-  <a href="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/build-addon.yml">
-    <img src="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/build-addon.yml/badge.svg" alt="Build Status">
+  <a href="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/addon.yml">
+    <img src="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/addon.yml/badge.svg" alt="Addon Status">
   </a>
   <a href="https://github.com/ashtonmeuser/godot-wasm/blob/master/LICENSE">
     <img src="https://img.shields.io/github/license/ashtonmeuser/godot-wasm" alt="License">
@@ -20,132 +20,24 @@
 > **Warning**
 > This project is still in its infancy. Interfaces are liable to change with each release until v1.0.
 
-A Godot addon allowing for loading and interacting with [WebAssembly (Wasm)](https://webassembly.org) modules from GDScript. Note that this project is still in development.
+A Godot addon allowing for loading and interacting with [WebAssembly (Wasm)](https://webassembly.org) modules from GDScript via the [Wasmer](https://wasmer.io) as the WebAssembly runtime.
 
-Godot Wasm can be used either as a [GDNative](https://docs.godotengine.org/en/stable/tutorials/scripting/gdnative/what_is_gdnative.html) addon or Godot module. It uses [Wasmer](https://wasmer.io) as the WebAssembly runtime.
+## Documentation
 
-## Installation
+Please refer to the [Godot Wasm wiki](https://github.com/ashtonmeuser/godot-wasm/wiki) for guides, FAQs, class documentation, etc.
 
-Godot Wasm supports installation via GDExtension/GDNative addon or module. Installing as an addon is far faster and simpler and requires merely including the asset in your Godot project while installing as a module requires recompilation of the Godot engine.
+## Getting Started
 
-### Addon
+Godot Wasm can be used as a [GDExtension/GDNative addon](https://docs.godotengine.org/en/4.0/) or [Godot module](https://docs.godotengine.org/en/4.0/contributing/development/core_and_modules/custom_modules_in_cpp.html). See the [Installation wiki page](https://github.com/ashtonmeuser/godot-wasm/wiki/Getting-Started#installation) for full instructions.
 
-Installation in a Godot project can be done entirely through Godot's built-in Asset Library. Recompilation of the engine is *not* required. Using the Asset Library tab within the Godot editor, search for "Godot Wasm", and follow the prompts to install. You can also explore the [Godot Wasm asset page](https://godotengine.org/asset-library/asset/1798) in a browser. Note that the Asset Library has an approval process that can take several days and may therefore be a version or two behind.
+Using Godot Wasm involves the following.
+1. Create a WebAssembly (Wasm) module using a language of your choice. See [FAQ](https://github.com/ashtonmeuser/godot-wasm/wiki/FAQs#how-do-i-build-a-wasm-module) for more information.
+1. Create a new Godot Wasm instance `var wasm = Wasm.new()`
+1. Read your Wasm module bytecode `var bytecode = FileAccess.open("res://my_module.wasm", FileAccess.READ)`
+1. Compile and instantiate your Wasm module using Godot Wasm via `wasm.load(bytecode)`
+1. Call functions exported by the Wasm module `wasm.function("my_function", [])`
 
-Alternatively, you can download the repository as a ZIP file and import manualy via the same Asset Library tab within the Godot editor.
-1. Download a ZIP of Godot Wasm from the [repository](https://github.com/ashtonmeuser/godot-wasm).
-1. In Godot's Asset Library tab, click Import and select the downloaded ZIP file. Follow prompts to complete installation of the addon.
-
-### Godot Module
-
-Installation as a Godot module requires recompilation of the Godot engine.
-
-1. Clone or download the [Godot engine](https://github.com/godotengine/godot) following [this guide](https://docs.godotengine.org/en/3.5/development/compiling/getting_source.html).
-1. Download the Godot Wasm source via the [releases page](https://github.com/ashtonmeuser/godot-wasm/releases) or Code → Download ZIP on GitHub.
-1. Include the entire Godot Wasm directory within the *godot/modules* directory.
-1. Rename the Godot Wasm directory to *wasm*. All project files e.g. *SCsub* should now be in *godot/modules/wasm*.
-
-Recompile the Godot engine following [this guide](https://docs.godotengine.org/en/3.5/development/compiling/index.html#toc-devel-compiling). More information on custom Godot modules can be found in [this guide](https://docs.godotengine.org/en/3.5/development/cpp/custom_modules_in_cpp.html).
-
-Compiling the web/HTML5 export template is not yet supported (see [#18](https://github.com/ashtonmeuser/godot-wasm/issues/18)).
-
-## Usage
-
-Once installed in a Godot project, the Godot Wasm class can be accessed via `Wasm`.
-
-1. Create a Wasm module or use the [example module](https://github.com/ashtonmeuser/godot-wasm/blob/master/examples/wasm-consume/example.wasm).
-1. Add the Wasm module to your Godot project.
-1. In GDScript, instantiate the `Wasm` class via `var wasm = Wasm.new()`.
-1. Load your Wasm module bytecode as follows replacing `YOUR_WASM_MODULE_PATH` with the path to your Wasm module e.g. *example.wasm*. The `Wasm.load()` method accepts a [PoolByteArray](https://docs.godotengine.org/en/stable/classes/class_poolbytearray.html) and a dictionary defining Wasm module imports. All imports should be satisfied and may differ with each Wasm module.
-    ```
-    var file = File.new()
-    file.open("res://YOUR_WASM_MODULE_PATH", File.READ)
-    var buffer = file.get_buffer(file.get_len())
-    var imports = { "functions": { "index.callback": [self, "callback"] } } # Set imports according to Wasm module
-    wasm.load(buffer, imports)
-    file.close()
-    ```
-1. Access global constants and mutables exported by the Wasm module via `wasm.global("YOUR_GLOBAL_NAME")` replacing `YOUR_GLOBAL_NAME` with the name of an exported Wasm module global.
-1. Define an array containing the arguments to be supplied to your exported Wasm module function via `var args = [1, 2]`. Ensure the number of arguments and argument types match those expected by the exported Wasm module function.
-1. Call a function exported by your Wasm module via `wasm.function("YOUR_FUNCTION_NAME", args)` replacing `YOUR_FUNCTION_NAME` with the name of the exported Wasm module function.
-
-### Exporting Godot Project
-
-> **Note**
-> Exporting to web/HTML5 is not supported. See [#15](https://github.com/ashtonmeuser/godot-wasm/issues/15) and [#18](https://github.com/ashtonmeuser/godot-wasm/issues/18).
-
-Exporting to Windows, macOS, and Linux is officially supported. Exporting from Godot may require the following additional steps. See the export configuration of the [example Godot project](https://github.com/ashtonmeuser/godot-wasm/tree/master/examples) for a practical illustration.
-
-1. For macOS exports, disable library validation in Project → Export → Options.
-1. If your project contains Wasm files, they'll need to be marked for export. Add `*.wasm` in Project → Export → Resources.
-
-### Writing to Wasm Module Memory
-
-Writing data to exported Wasm memory is supported via a familiar [StreamPeer](https://docs.godotengine.org/en/3.5/classes/class_streampeer.html) interface. This StreamPeer is available under the `stream` property of the `Wasm` object.
-
-The internal StreamPeerWasm class mirrors the `seek()` and `get_position()` methods of [StreamPeerBuffer](https://docs.godotengine.org/en/3.5/classes/class_streampeerbuffer.html#class-streampeerbuffer) with the addition of `seek()` returning a reference to the StreamPeer allowing chaining i.e. `wasm.stream.seek(0).get_u64()`.
-
-Note that, as mentioned in Godot's  [StreamPeer documentation](https://docs.godotengine.org/en/stable/classes/class_streampeer.html#class-streampeer-method-put-string), writing strings via `put_string()` and `put_utf8_string()` will prepend four bytes containing the length of the string.
-
-## Examples
-
-[Examples](https://github.com/ashtonmeuser/godot-wasm/tree/master/examples) are provided for both creating and consuming/using a Wasm module.
-
-### Wasm Consume (Godot)
-
-A simple example of loading a Wasm module, displaying the structure of its imports and exports, calling its exported functions, and providing GDScript callbacks via import functions. Some computationally-expensive benchmarks e.g. [prime sieve](https://en.wikipedia.org/wiki/Sieve_of_Atkin) in GDScript and Wasm can be compared. The Wasm module used is that generated by the [Wasm Create example](#wasm-create-assemblyscript). All logic for this Godot project exists in `Main.gd`.
-
-### Wasm Create (AssemblyScript)
-
-An example [AssemblyScript](https://www.assemblyscript.org) project which creates a simple Wasm module with the following exported entities.
-
-Entity | Type | Description
---|--|--
-`global_const` | Global `i64` | Global constant
-`global_var` | Global `f64` | Global mutable
-`memory_value` | Global `i64` | Used to store first eight bytes of memory to demonstrate memory manipulation
-`update_memory` | Function `() → void` | Updates the value of `memory_value`
-`add` | Function `(i64, i64) → i64` | Adds two integers
-`fibonacci` | Function `(i64) → i64` | Return Fibonacci number at the position provided
-`sieve` | Function `(i64) → i32` | Return largest prime number up to the limit provided
-
-From the example directory (*examples/wasm-create*), install or update Node modules `npm i`. Run `npm run build` to build the Wasm module. This will create and populate a *build* directory containing the Wasm module, *example.wasm*, amongst other build artifacts. If you have the [Wasmer CLI](https://docs.wasmer.io/ecosystem/wasmer/getting-started) installed, run `wasmer inspect build/example.wasm` to view the Wasm module imports and exports.
-
-Note that WebAssembly is a large topic and thoroughly documenting the creation of Wasm modules is beyond the scope of this project. AssemblyScript is just one of [many ways](https://github.com/appcypher/awesome-wasm-langs#awesome-webassembly-languages-) to create a Wasm module.
-
-### Wasm Visualizations
-
-An example of displaying graphics generated by Wasm modules. Graphics are read directly from the Wasm module memory using the [StreamPeer](https://docs.godotengine.org/en/3.5/classes/class_streampeer.html) interface.
-
-## Benchmarks
-
-Comparison of GDScript, GDNative, and Wasm (n=1000, p95). The following benchmarks were run on macOS 12.6.3, 16GB RAM, 2.8 GHz i7. The project was exported to avoid GDScript slowdown likely caused by performance monitoring. Speedup figures for both GDNative and Wasm are relative to GDScript. The benchmarks used are 1) a [DP Nth Fibonacci number](https://www.geeksforgeeks.org/program-for-nth-fibonacci-number/) and 2) a [Sieve of Atkin](https://www.geeksforgeeks.org/sieve-of-atkin/).
-
-Benchmark | GDScript | GDNative | WRT GDScript | Wasm | WRT GDScript
---|--|--|--|--|--
-Fibonacci (index=20) | 6.0 µs | 1.0 µs | 6.0x | 4.0 µs | 1.5x
-Fibonacci (index=50) | 13.0 µs | 1.0 µs | 13.0x | 4.0 µs | 3.3x
-Sieve (limit=1000) | 704.1 µs | 4.0 µs | 176.0x | 30.0 µs | 23.5x
-Sieve (limit=10000) | 6331.8 µs | 52.0 µs | 121.8x | 134.1 µs | 47.2x
-Sieve (limit=100000) | 62454.1 µs | 341.0 µs | 183.1x | 1053.1 µs | 59.3x
-
-## Developing
-
-This section is to aid in developing the Godot Wasm project; not to use the addon in a Godot project.
-
-These instructions are tailored to UNIX machines.
-
-1. Clone repo and submodules via `git clone --recurse-submodules https://github.com/ashtonmeuser/godot-wasm.git`.
-1. Ensure the correct Godot submodule commit is checked out. Refer to relevant branch of the [godot-cpp project](https://github.com/godotengine/godot-cpp/tree/3.x) e.g. `3.x` to verify submodule hash. At the time of this writing, the hash for the godot-cpp submodule was `1049927a596402cd2e8215cd6624868929f5f18d`.
-1. Install [SConstruct](https://scons.org/) via `pip install SCons`. SConstruct is what Godot uses to build Godot and generate C++ bindings. For convenience, we'll use the same tool to build the Godot TF Inference addon.
-1. Compile the Godot C++ bindings. From within the *godot-cpp* directory, run `scons target=template_release generate_bindings=yes platform=PLATFORM` replacing `PLATFORM` with your relevant platform type e.g. `osx`, `linux`, `windows`, etc.
-1. Compile the Godot Wasm addon. From the repository root directory, run `scons target=template_release platform=PLATFORM` once again replacing `PLATFORM` with your platform. This will create the *addons/godot-wasm/bin/PLATFORM* directory where `PLATFORM` is your platform. You should see a dynamic library (*.dylib*, *.so*, *.dll*, etc.) created within this directory. Note that this step will automatically download Wasmer libraries from the [Wasmer releases](https://github.com/wasmerio/wasmer/releases) page if a *wasmer* directory is not found. If you'd prefer to do this manually, download the Wasmer artifact and extract it to into a *wasmer* directory at the root of the Godot Wasm project. Verify that the *wasmer* directory contains *include* and *lib* subdirectories. This step can optionally include the arguments `download_wasmer=yes` and `wasmer_version=vX.Y.Z` (replacing `X`, `Y`, `Z` with major, minor, patch versions) to force a (re)download of Wasmer and override the default Wasmer download version, respectively.
-1. Compress the addons directory via `zip -FSr addons.zip addons`. This allows the addon to be conveniently distributed and imported into Godot. This ZIP file can be imported directly into Godot (see [Installation](https://github.com/ashtonmeuser/godot-wasm#installation)).
-
-> **Note**
-> When building for Godot 3.x, use `target=release` instead of `target=template_release` in the instructions above.
-
-If frequently iterating on the addon using a Godot project, it may help to create a symlink from the Godot project to the compiled addon via `ln -s RELATIVE_PATH_TO_ADDONS addons` from the root directory of your Godot project.
+See the [Usage wiki page](https://github.com/ashtonmeuser/godot-wasm/wiki/Getting-Started#usage) for full instructions.
 
 ## Known Issues
 
@@ -163,27 +55,3 @@ There have been numerous discussions around modding/sandboxing support for Godot
 - [Proposal](https://github.com/godotengine/godot-proposals/issues/147) Add WASM (WASI) host support (including, but not limited to, the HTML5 target)
 - [Proposal](https://github.com/godotengine/godot-proposals/issues/4642): Add a method to disallow using all global classes in a particular GDScript
 - [Pull Request](https://github.com/godotengine/godot/pull/61831): Added globals disabled feature to GDScript class
-
-## Roadmap
-
-Please feel free submit a PR or an [issue](https://github.com/ashtonmeuser/godot-wasm/issues).
-
-- [x] Load module
-- [x] Export functions
-- [x] Export global constants
-- [x] Export global mutables
-- [ ] Export tables
-- [x] Export memories
-- [x] Import functions
-- [ ] Import globals
-- [x] Map export names to indices (access function/global by name)
-- [x] Inspect module exports
-- [x] ~~Automatically provide [AssemblyScript special imports](https://www.assemblyscript.org/concepts.html#special-imports)~~ Deferring language all language-specific implementation in favour of WASI
-- [ ] Automatically cast to 32-bit values
-- [x] Inspect function signatures
-- [ ] Set export globals
-- [ ] WASI permissions model
-- [ ] WASI clock and random support
-- [ ] WASI filesystem support
-- [ ] WASI environment variable support
-- [ ] WASI CLI argument support
