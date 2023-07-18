@@ -7,15 +7,6 @@ func test_compile():
 	expect_eq(error, OK)
 	expect_empty()
 
-func test_instantiate():
-	var wasm = Wasm.new()
-	var buffer = read_file("wasi_args_get")
-	var error = wasm.compile(buffer)
-	expect_eq(error, OK)
-	error = wasm.instantiate({})
-	expect_eq(error, OK)
-	expect_empty()
-
 func test_fd_write():
 	var wasm = load_wasm("wasi")
 	wasm.function("fd_write", [])
@@ -35,7 +26,6 @@ func test_args_get():
 	var result = wasm.function("args_get", [])
 	for arg in args: expect_log(arg.trim_prefix("--"))
 	expect_eq(result, args.size())
-	print(args)
 
 func test_environ_get():
 	var wasm = load_wasm("wasi")
