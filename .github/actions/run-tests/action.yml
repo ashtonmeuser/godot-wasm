@@ -10,9 +10,9 @@ runs:
     - name: Run Tests Unix
       if: runner.os != 'Windows'
       shell: bash
-      run: ./${{ inputs.executable }} --headless --no-window --debug --path examples/wasm-test
+      run: ./${{ inputs.executable }} --headless --no-window --debug --path examples/wasm-test --key=val
 
     - name: Run Tests Windows
       if: runner.os == 'Windows'
       shell: pwsh # See https://github.com/ashtonmeuser/godot-wasm/issues/48
-      run: ./${{ inputs.executable }} --headless --no-window --debug --path examples/wasm-test
+      run: ./${{ inputs.executable }} --headless --no-window --debug --path examples/wasm-test --key=val
