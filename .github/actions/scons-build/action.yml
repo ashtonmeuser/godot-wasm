@@ -8,7 +8,7 @@ inputs:
     description: The Godot target to build
     required: true
   godot-major:
-    description: The major version of Godot being targeted
+    description: The major version of Godot being targeted used in cache name
     required: true
   scons-flags:
     description: Additional Sconstruct flags
