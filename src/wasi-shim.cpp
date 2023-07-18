@@ -4,7 +4,6 @@
 #include "wasi-shim.h"
 #include "godot-wasm.h"
 #include "defer.h"
-#include "stdio.h"
 
 // See https://github.com/WebAssembly/wasi-libc/blob/main/libc-bottom-half/headers/public/wasi/api.h
 #define __WASI_CLOCKID_REALTIME (UINT32_C(0)) // The clock measuring real time
@@ -106,7 +105,6 @@ namespace godot {
 
     // WASI args_sizes_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_args_sizes_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      std::cout << "args_sizes_get" << std::endl;
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       wasm_memory_t* memory = wasm->get_stream().ptr()->memory;
@@ -115,20 +113,14 @@ namespace godot {
       byte_t* data = wasm_memory_data(memory);
       int32_t offset_count = args->data[0].of.i32;
       int32_t offset_length = args->data[1].of.i32;
-      int32_t zero = 0;
-      std::cout << offset_count << std::endl;
-      std::cout << offset_length << std::endl;
       wasi_encoded_strings encoded = encode_args(CMDLINE_ARGS);
-      // memcpy(data + offset_count, &encoded.count, sizeof(int32_t));
-      // memcpy(data + offset_length, &encoded.length, sizeof(int32_t));
-      memcpy(data + offset_count, &zero, sizeof(int32_t));
-      memcpy(data + offset_length, &zero, sizeof(int32_t));
+      memcpy(data + offset_count, &encoded.count, sizeof(int32_t));
+      memcpy(data + offset_length, &encoded.length, sizeof(int32_t));
       return wasi_result(results);
     }
 
     // WASI args_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_args_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      std::cout << "args_get" << std::endl;
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       wasm_memory_t* memory = wasm->get_stream().ptr()->memory;
