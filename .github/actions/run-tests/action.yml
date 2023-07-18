@@ -14,5 +14,5 @@ runs:
 
     - name: Run Tests Windows
       if: runner.os == 'Windows'
-      shell: pwsh
+      shell: pwsh # See https://github.com/ashtonmeuser/godot-wasm/issues/48
       run: ./${{ inputs.executable }} --headless --no-window --debug --path examples/wasm-test
