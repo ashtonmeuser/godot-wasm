@@ -37,8 +37,12 @@ runs:
           ${{ steps.cache-name.outputs.name }}-${{ github.ref }}
           ${{ steps.cache-name.outputs.name }}
 
+    - name: MSVC Developer Command Prompt
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@v1
+
     - name: Scons Build
-      shell: bash
+      shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
       env:
         SCONS_CACHE: ${{ inputs.scons-cache }}
-      run: scons p=${{ inputs.platform }} target=${{ inputs.target }} ${{ inputs.scons-flags }}
+      run: scons platform=${{ inputs.platform }} target=${{ inputs.target }} ${{ inputs.scons-flags }}

@@ -10,6 +10,9 @@ inputs:
   scons-cache:
     description: The Sconstruct cache path
     default: ${{ github.workspace }}/.scons-cache/
+  scons-flags:
+    description: Additional Sconstruct flags
+    default: ''
 runs:
   using: composite
   steps:
@@ -33,4 +36,4 @@ runs:
       shell: bash
       run: |
         cd godot-cpp
-        scons platform=${{ inputs.platform }} target=${{ inputs.target }}
+        scons platform=${{ inputs.platform }} target=${{ inputs.target }} generate_bindings=yes ${{ inputs.scons-flags }}
