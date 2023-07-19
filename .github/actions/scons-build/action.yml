@@ -41,4 +41,4 @@ runs:
       shell: bash
       env:
         SCONS_CACHE: ${{ inputs.scons-cache }}
-      run: scons p=${{ inputs.platform }} target=${{ inputs.target }} ${{ inputs.scons-flags }}
+      run: scons platform=${{ inputs.platform }} target=${{ inputs.target }} ${{ inputs.scons-flags }}

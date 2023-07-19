@@ -17,11 +17,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [linux, macos, windows]
+        platform: [linux, osx, windows]
         include:
           - platform: linux
             os: ubuntu-latest
-          - platform: macos
+          - platform: osx
             os: macos-11
           - platform: windows
             os: windows-latest
@@ -40,6 +40,7 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
           target: ${{ env.TARGET }}
+          scons-flags: generate_bindings=yes
 
       - name: Build Addon
         uses: ./.github/actions/scons-build
@@ -61,11 +62,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [linux, macos, windows]
+        platform: [linux, osx, windows]
         include:
           - platform: linux
             os: ubuntu-latest
-          - platform: macos
+          - platform: osx
             os: macos-11
           - platform: windows
             os: windows-latest
