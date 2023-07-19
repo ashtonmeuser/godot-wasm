@@ -12,7 +12,7 @@ func _ready():
 
 	var results = Results.new()
 
-	var regex = TestSuite.make_regex("^Test\\w+\\.gd")
+	var regex = Utils.make_regex("^Test\\w+\\.gd")
 	for file in DirAccess.get_files_at("res://"):
 		# Find relevant test suites
 		if regex.search(file) == null: continue
