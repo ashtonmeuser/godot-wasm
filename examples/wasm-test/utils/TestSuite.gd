@@ -8,7 +8,6 @@ signal test_fail(case)
 
 var _log_file # Log file used to check for output and/or errors
 var _error: bool = false # If the current test case has failed
-var _position: int # Cursor within log file
 
 func run(f):
 	_log_file = f
@@ -19,7 +18,6 @@ func run(f):
 		_error = false # Reset test case error flag
 		emit_signal("test_start", method.name) # Alert runner of test case
 		_log_file.seek_end() # Go to end of log file
-		_position = _log_file.get_position()
 		call(method.name) # Run test
 		if _error: emit_signal("test_fail", method.name)
 		else: emit_signal("test_pass", method.name)
