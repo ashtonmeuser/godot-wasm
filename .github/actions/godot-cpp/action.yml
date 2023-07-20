@@ -36,4 +36,4 @@ runs:
       shell: bash
       run: |
         cd godot-cpp
-        scons platform=${{ inputs.platform }} target=${{ inputs.target }} ${{ inputs.scons-flags }}
+        scons platform=${{ inputs.platform }} target=${{ inputs.target }} generate_bindings=yes ${{ inputs.scons-flags }}

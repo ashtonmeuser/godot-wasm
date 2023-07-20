@@ -40,7 +40,6 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
           target: ${{ env.TARGET }}
-          scons-flags: generate_bindings=yes
 
       - name: Build Addon
         uses: ./.github/actions/scons-build
