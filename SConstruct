@@ -6,6 +6,7 @@ from utils import download_wasmer, VERSION_DEFAULT
 opts = Variables([], ARGUMENTS)
 
 # Define options
+opts.Add(EnumVariable("wasm_runtime", "Wasm runtime used", "wasmer", ["wasmer", "wasmtime"]))
 opts.Add(BoolVariable("download_wasmer", "Download Wasmer library", "no"))
 opts.Add("wasmer_version", "Wasmer library version", VERSION_DEFAULT)
 
@@ -30,11 +31,17 @@ if env["platform"] == "windows":
 env.Append(CPPDEFINES=["GDEXTENSION"])
 
 # Explicit static libraries
-wasmer_lib = env.File("wasmer/lib/{}wasmer{}".format(env["LIBPREFIX"], env.get("LIBWASMERSUFFIX", env["LIBSUFFIX"])))
+runtime_lib = env.File(
+    "{runtime}/lib/{prefix}{runtime}{suffix}".format(
+        runtime=env["wasm_runtime"],
+        prefix=env["LIBPREFIX"],
+        suffix=env.get("LIBWASMERSUFFIX", env["LIBSUFFIX"]),
+    )
+)
 
 # CPP includes and libraries
-env.Append(CPPPATH=[".", "wasmer/include"])
-env.Append(LIBS=[wasmer_lib])
+env.Append(CPPPATH=[".", "{}/include".format(env["wasm_runtime"])])
+env.Append(LIBS=[runtime_lib])
 
 # Godot Wasm sources
 source = ["register_types.cpp", env.Glob("src/*.cpp")]
