@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="StreamPeerWasm" inherits="StreamPeer" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+<class name="WasmMemory" inherits="StreamPeer" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
 	<brief_description>
 		A [StreamPeer] interface for interacting with the memory of an instantiated Wasm module.
 	</brief_description>
@@ -17,12 +17,12 @@
 			</description>
 		</method>
 		<method name="seek">
-			<return type="StreamPeerWasm" />
+			<return type="WasmMemory" />
 			<param index="0" name="p_pos" type="int" />
 			<description>
 				Set the memory offset of the [StreamPeer].
 				Values will be read from and written to this position.
-				This method returns the [code]SteamPeerWasm[/code] and can therefore be chained e.g. [code]wasm.stream.seek(0).get_64()[/code].
+				This method returns the [code]SteamPeerWasm[/code] and can therefore be chained e.g. [code]wasm.memory.seek(0).get_64()[/code].
 			</description>
 		</method>
 	</methods>
