@@ -37,6 +37,8 @@ namespace godot {
       void _init();
       void set_memory(const wasm_memory_t* memory);
       wasm_memory_t* get_memory() const;
+      Dictionary inspect() const;
+      godot_error grow(uint32_t pages);
       Ref<StreamPeerWasm> seek(int p_pos);
       uint32_t get_position() const;
       godot_error INTERFACE_GET_DATA override;

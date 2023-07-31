@@ -1,5 +1,6 @@
 #include "wasmer.h"
 #include "stream-peer-wasm.h"
+#include "store.h"
 
 #ifdef GDNATIVE
   #define INTERFACE_DEFINE interface = { { 3, 1 }, this, &_get_data, &_get_partial_data, &_put_data, &_put_partial_data, &_get_available_bytes, NULL }
@@ -19,9 +20,13 @@
 namespace godot {
   void StreamPeerWasm::REGISTRATION_METHOD() {
     #ifdef GDNATIVE
+      register_method("inspect", &StreamPeerWasm::inspect);
+      register_method("grow", &StreamPeerWasm::grow);
       register_method("seek", &StreamPeerWasm::seek);
       register_method("get_position", &StreamPeerWasm::get_position);
     #else
+      ClassDB::bind_method(D_METHOD("inspect"), &StreamPeerWasm::inspect);
+      ClassDB::bind_method(D_METHOD("grow", "pages"), &StreamPeerWasm::grow);
       ClassDB::bind_method(D_METHOD("seek", "p_pos"), &StreamPeerWasm::seek);
       ClassDB::bind_method(D_METHOD("get_position"), &StreamPeerWasm::get_position);
     #endif
@@ -48,6 +53,26 @@ namespace godot {
 
   wasm_memory_t* StreamPeerWasm::get_memory() const {
     return memory;
+  }
+
+  Dictionary StreamPeerWasm::inspect() const {
+    if (memory == NULL) return Dictionary();
+    auto limits = wasm_memorytype_limits(wasm_memory_type(memory));
+    Dictionary dict;
+    dict["min"] = limits->min * PAGE_SIZE;
+    dict["max"] = limits->max * PAGE_SIZE;
+    dict["current"] = wasm_memory_size(memory) * PAGE_SIZE;
+    return dict;
+  }
+
+  godot_error StreamPeerWasm::grow(uint32_t pages) {
+    if (!memory) { // Create new memory
+      const wasm_limits_t limits = { pages, wasm_limits_max_default };
+      memory = wasm_memory_new(STORE, wasm_memorytype_new(&limits));
+      return memory ? OK : FAILED;
+    }
+    FAIL_IF(memory == NULL, "Invalid stream peer memory asdf", ERR_INVALID_DATA);
+    return wasm_memory_grow(memory, pages) ? OK : FAILED;
   }
 
   Ref<StreamPeerWasm> StreamPeerWasm::seek(int p_pos) {
