@@ -47,7 +47,7 @@ namespace godot {
   }
 
   void WasmMemory::set_memory(const wasm_memory_t* memory) {
-    if (memory) wasm_memory_delete(this->memory);
+    if (this->memory != NULL) wasm_memory_delete(this->memory);
     this->memory = (wasm_memory_t*)memory;
   }
 
