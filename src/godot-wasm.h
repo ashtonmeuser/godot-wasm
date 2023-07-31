@@ -17,8 +17,6 @@ namespace godot {
     GDCLASS(Wasm, RefCounted);
 
     private:
-      wasm_engine_t* engine;
-      wasm_store_t* store;
       wasm_module_t* module;
       wasm_instance_t* instance;
       int32_t memory_index;

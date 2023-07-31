@@ -3,6 +3,7 @@
 #include "godot-wasm.h"
 #include "wasi-shim.h"
 #include "defer.h"
+#include "store.h"
 
 namespace godot {
   namespace godot_wasm {
@@ -179,8 +180,6 @@ namespace godot {
   }
 
   Wasm::Wasm() {
-    engine = wasm_engine_new();
-    store = wasm_store_new(engine);
     module = NULL;
     instance = NULL;
     INSTANTIATE_REF(stream);
@@ -190,8 +189,6 @@ namespace godot {
   Wasm::~Wasm() {
     reset_instance();
     unset(module, wasm_module_delete);
-    unset(store, wasm_store_delete);
-    unset(engine, wasm_engine_delete);
   }
 
   void Wasm::_init() { }
@@ -247,10 +244,10 @@ namespace godot {
     memcpy(wasm_bytes.data, BYTE_ARRAY_POINTER(bytecode), bytecode.size());
 
     // Validate binary
-    FAIL_IF(!wasm_module_validate(store, &wasm_bytes), "Invalid binary", ERR_INVALID_DATA);
+    FAIL_IF(!wasm_module_validate(STORE, &wasm_bytes), "Invalid binary", ERR_INVALID_DATA);
 
     // Compile
-    module = wasm_module_new(store, &wasm_bytes);
+    module = wasm_module_new(STORE, &wasm_bytes);
     FAIL_IF(module == NULL, "Compilation failed", ERR_COMPILATION_FAILED);
 
     // Map names to export indices
@@ -267,7 +264,7 @@ namespace godot {
       const Dictionary& functions = dict_safe_get(import_map, "functions", Dictionary());
       if (!functions.keys().has(it.first)) {
         // Attempt to use default WASI import
-        auto callback = godot_wasm::get_wasi_callback(store, this, it.first);
+        auto callback = godot_wasm::get_wasi_callback(STORE, this, it.first);
         FAIL_IF(callback == NULL, "Missing import function " + it.first, ERR_CANT_CREATE);
         extern_map[it.second.index] = callback;
         continue;
@@ -288,7 +285,7 @@ namespace godot {
     wasm_extern_vec_t imports = { extern_list.size(), extern_list.data() };
 
     // Instantiate with imports
-    instance = wasm_instance_new(store, module, &imports, NULL);
+    instance = wasm_instance_new(STORE, module, &imports, NULL);
     FAIL_IF(instance == NULL, "Instantiation failed", ERR_CANT_CREATE);
 
     // Set stream peer memory reference
@@ -454,6 +451,6 @@ namespace godot {
     wasm_module_imports(module, &imports);
     const wasm_externtype_t* type = wasm_importtype_type(imports.data[context->index]);
     const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
-    return wasm_func_new_with_env(store, func_type, callback_wrapper, context, NULL);
+    return wasm_func_new_with_env(STORE, func_type, callback_wrapper, context, NULL);
   }
 }
