@@ -1,6 +1,6 @@
 #include "register_types.h"
 #include "src/godot-wasm.h"
-#include "src/stream-peer-wasm.h"
+#include "src/wasm-memory.h"
 
 using namespace godot;
 
@@ -10,7 +10,7 @@ void initialize_wasm_module(ModuleInitializationLevel p_level) {
   }
 
   ClassDB::register_class<Wasm>();
-  ClassDB::register_class<StreamPeerWasm>();
+  ClassDB::register_class<WasmMemory>();
 }
 
 void uninitialize_wasm_module(ModuleInitializationLevel p_level) {

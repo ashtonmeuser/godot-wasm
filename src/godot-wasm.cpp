@@ -191,7 +191,7 @@ namespace godot {
       register_method("global", &Wasm::global);
       register_method("function", &Wasm::function);
       register_method("has_permission", &Wasm::has_permission);
-      register_property<Wasm, Ref<StreamPeerWasm>>("stream", &Wasm::stream, NULL);
+      register_property<Wasm, Ref<WasmMemory>>("memory", &Wasm::memory, NULL);
       register_property<Wasm, Dictionary>("permissions", &Wasm::permissions, Dictionary());
     #else
       ClassDB::bind_method(D_METHOD("compile", "bytecode"), &Wasm::compile);
@@ -203,9 +203,9 @@ namespace godot {
       ClassDB::bind_method(D_METHOD("set_permissions"), &Wasm::set_permissions);
       ClassDB::bind_method(D_METHOD("get_permissions"), &Wasm::get_permissions);
       ClassDB::bind_method(D_METHOD("has_permission", "permission"), &Wasm::has_permission);
-      ClassDB::bind_method(D_METHOD("get_stream"), &Wasm::get_stream);
+      ClassDB::bind_method(D_METHOD("get_memory"), &Wasm::get_memory);
       ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "permissions"), "set_permissions", "get_permissions");
-      ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "stream"), "", "get_stream");
+      ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "memory"), "", "get_memory");
     #endif
   }
 
@@ -231,7 +231,7 @@ namespace godot {
   void Wasm::reset_instance() {
     unset(instance, wasm_instance_delete);
     unset(memory_context);
-    stream = Ref<StreamPeerWasm>(NULL);
+    memory = Ref<WasmMemory>(NULL);
     import_funcs.clear();
     export_globals.clear();
     export_funcs.clear();
@@ -243,8 +243,8 @@ namespace godot {
     permissions["exit"] = true;
   }
 
-  Ref<StreamPeerWasm> Wasm::get_stream() const {
-    return stream;
+  Ref<WasmMemory> Wasm::get_memory() const {
+    return memory;
   };
 
   void Wasm::set_permissions(const Dictionary &update) {
@@ -311,9 +311,9 @@ namespace godot {
     }
 
     // Configure import memory
-    StreamPeerWasm* import_memory = NULL;
+    WasmMemory* import_memory = NULL;
     if (memory_context && memory_context->import) {
-      import_memory = dict_safe_get<StreamPeerWasm>(import_map, "memory");
+      import_memory = dict_safe_get<WasmMemory>(import_map, "memory");
       FAIL_IF(import_memory == NULL, "Missing import memory", ERR_CANT_CREATE);
       FAIL_IF(import_memory->get_memory() == NULL, "Invalid import memory", ERR_CANT_CREATE);
       // TODO: Validate memory limits
@@ -329,16 +329,16 @@ namespace godot {
     instance = wasm_instance_new(STORE, module, &imports, NULL);
     FAIL_IF(instance == NULL, "Instantiation failed", ERR_CANT_CREATE);
 
-    // Set stream peer memory reference
+    // Set memory reference
     if (import_memory) {
-      stream = Ref<StreamPeerWasm>(import_memory);
+      memory = Ref<WasmMemory>(import_memory);
     } else if (memory_context && !memory_context->import) {
       wasm_extern_vec_t exports;
       DEFER(wasm_extern_vec_delete(&exports));
       wasm_instance_exports(instance, &exports);
       wasm_extern_t* data = exports.data[memory_context->index];
-      stream = Ref<StreamPeerWasm>(memnew(StreamPeerWasm()));
-      stream->set_memory(wasm_extern_as_memory(wasm_extern_copy(data)));
+      memory = Ref<WasmMemory>(memnew(WasmMemory()));
+      memory->set_memory(wasm_extern_as_memory(wasm_extern_copy(data)));
     }
 
     // Call exported WASI initialize function
@@ -369,7 +369,7 @@ namespace godot {
     dict["import_functions"] = import_func_sigs;
     dict["export_globals"] = export_global_sigs;
     dict["export_functions"] = export_func_sigs;
-    dict["memory"] = stream != NULL && stream->get_memory() ? stream->inspect() : get_memory_limits(module, memory_context);
+    dict["memory"] = memory != NULL && memory->get_memory() ? memory->inspect() : get_memory_limits(module, memory_context);
     return dict;
   }
 

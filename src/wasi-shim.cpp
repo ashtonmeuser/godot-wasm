@@ -74,7 +74,7 @@ namespace godot {
     wasm_trap_t* wasi_fd_write(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 4 || results->size != 1, "Invalid arguments fd_write", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
-      wasm_memory_t* memory = wasm->get_stream().ptr()->get_memory();
+      wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
       if (!wasm->has_permission("print")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
@@ -107,7 +107,7 @@ namespace godot {
     wasm_trap_t* wasi_args_sizes_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
-      wasm_memory_t* memory = wasm->get_stream().ptr()->get_memory();
+      wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
       if (!wasm->has_permission("args")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
@@ -123,7 +123,7 @@ namespace godot {
     wasm_trap_t* wasi_args_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
-      wasm_memory_t* memory = wasm->get_stream().ptr()->get_memory();
+      wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
       if (!wasm->has_permission("args")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
@@ -144,7 +144,7 @@ namespace godot {
     wasm_trap_t* wasi_environ_sizes_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments environ_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
-      wasm_memory_t* memory = wasm->get_stream().ptr()->get_memory();
+      wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
       byte_t* data = wasm_memory_data(memory);
       int32_t offset_count = args->data[0].of.i32;
@@ -165,7 +165,7 @@ namespace godot {
     wasm_trap_t* wasi_random_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments random_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
-      wasm_memory_t* memory = wasm->get_stream().ptr()->get_memory();
+      wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
       if (!wasm->has_permission("random")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
@@ -180,7 +180,7 @@ namespace godot {
     wasm_trap_t* wasi_clock_time_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 3 || results->size != 1, "Invalid arguments clock_time_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
-      wasm_memory_t* memory = wasm->get_stream().ptr()->get_memory();
+      wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
       if (!wasm->has_permission("time")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
