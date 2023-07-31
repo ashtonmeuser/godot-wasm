@@ -32,10 +32,14 @@ Godot Wasm can be used as a [GDExtension/GDNative addon](https://docs.godotengin
 
 Using Godot Wasm involves the following.
 1. Create a WebAssembly (Wasm) module using a language of your choice. See [FAQ](https://github.com/ashtonmeuser/godot-wasm/wiki/FAQs#how-do-i-build-a-wasm-module) for more information.
-1. Create a new Godot Wasm instance `var wasm = Wasm.new()`
-1. Read your Wasm module bytecode `var bytecode = FileAccess.open("res://my_module.wasm", FileAccess.READ)`
-1. Compile and instantiate your Wasm module using Godot Wasm via `wasm.load(bytecode)`
-1. Call functions exported by the Wasm module `wasm.function("my_function", [])`
+1. Create a new Godot Wasm instance, read your Wasm module bytecode, and instantiate the Godot Wasm module. The following assumes a Wasm module that requires no imports.
+    ```
+    var wasm = Wasm.new()
+    var file = FileAccess.open("res://my_module.wasm", FileAccess.READ)
+    var bytecode = file.get_buffer(file.get_length())
+    wasm.load(bytecode, {})
+    ```
+1. The Wasm module is now instantiated and can be interacted with from GDScript. For example, an exported function may be invoked using via `wasm.function("my_function", [my_arg])`.
 
 See the [Usage wiki page](https://github.com/ashtonmeuser/godot-wasm/wiki/Getting-Started#usage) for full instructions.
 
