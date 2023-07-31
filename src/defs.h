@@ -20,6 +20,7 @@
   #define RANDOM_BYTES(n) Crypto::create()->generate_random_bytes(n)
 #else
   #define OK GODOT_OK
+  #define FAILED GODOT_FAILED
   #define ERR_INVALID_DATA GODOT_ERR_INVALID_DATA
   #define ERR_COMPILATION_FAILED GODOT_ERR_COMPILATION_FAILED
   #define ERR_CANT_CREATE GODOT_ERR_CANT_CREATE

@@ -33,13 +33,19 @@ _global_script_classes=[ {
 "class": "Wasm",
 "language": "NativeScript",
 "path": "res://addons/godot-wasm/Wasm.gdns"
+}, {
+"base": "",
+"class": "WasmMemory",
+"language": "NativeScript",
+"path": "res://addons/godot-wasm/WasmMemory.gdns"
 } ]
 _global_script_class_icons={
 "GodotWasmTestSuite": "",
 "TestRunner": "",
 "TestSuite": "",
 "Utils": "",
-"Wasm": ""
+"Wasm": "",
+"WasmMemory": ""
 }
 
 [application]

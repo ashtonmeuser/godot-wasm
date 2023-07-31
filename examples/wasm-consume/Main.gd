@@ -63,14 +63,14 @@ func _update_memory_type(index: int):
 func _update_memory(_value = 0):
 	var input = $"%MemoryInput".get_child($"%MemoryType".selected)
 	var offset = int($"%MemoryOffset".value)
-	wasm.stream.seek(offset)
+	wasm.memory.seek(offset)
 	match(input.get_index()):
-		0: wasm.stream.put_64(int(input.value))
-		1: wasm.stream.put_double(input.value)
-		2: wasm.stream.put_data(input.text.to_utf8())
+		0: wasm.memory.put_64(int(input.value))
+		1: wasm.memory.put_double(input.value)
+		2: wasm.memory.put_data(input.text.to_utf8())
 	wasm.function("update_memory", [])
 	$"%GlobalValue".text = _hex(wasm.global("memory_value"))
-	$"%ReadValue".text = _hex(wasm.stream.seek(0).get_64()) # Seek allows chaining
+	$"%ReadValue".text = _hex(wasm.memory.seek(0).get_64()) # Seek allows chaining
 
 func _hex(i: int) -> String: # Format bytes without leading negative sign
 	if i >= 0: return "%016X" % i

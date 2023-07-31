@@ -145,22 +145,37 @@ func test_inspect():
 	var error = wasm.compile(buffer)
 	expect_eq(error, OK)
 	inspect = wasm.inspect()
-	expect_includes(inspect, "export_globals")
-	expect_includes(inspect.export_globals, "global_const")
-	expect_includes(inspect.export_globals, "global_mut")
-	expect_eq(inspect.export_globals.get("global_const"), [TYPE_REAL, false])
-	expect_eq(inspect.export_globals.get("global_mut"), [TYPE_INT, true])
+	var expected = {
+		"import_functions": {},
+		"export_globals": {
+			"global_const": [TYPE_FLOAT, false],
+			"global_mut": [TYPE_INT, true],
+		},
+		"export_functions": {
+			"_initialize": [[], []],
+			"add": [[TYPE_INT, TYPE_INT], [TYPE_INT]]
+		},
+		"memory": {}
+	}
+	expect_eq(inspect, expected)
 	# Import module post-instantiation
 	var imports = dummy_imports(["import.test_import"])
 	wasm = load_wasm("import", imports)
 	inspect = wasm.inspect()
-	expect_includes(inspect, "import_functions")
-	expect_includes(inspect, "export_functions")
-	expect_includes(inspect, "memory_min")
-	expect_includes(inspect, "memory_max")
-	expect_includes(inspect, "memory_current")
-	expect_includes(inspect.import_functions, "import.test_import")
-	expect_includes(inspect.export_functions, "callback")
-	expect_eq(inspect.import_functions.get("import.test_import"), [[TYPE_INT], []])
-	expect_eq(inspect.export_functions.get("callback"), [[], []])
+	expected = {
+		"import_functions": {
+			"import.test_import": [[TYPE_INT], []],
+		},
+		"export_globals": {},
+		"export_functions": {
+			"_initialize": [[], []],
+			"callback": [[], []],
+		},
+		"memory": {
+			"min": 0,
+			"max": PAGES_MAX,
+			"current": 0,
+		}
+	}
+	expect_eq(inspect, expected)
 	expect_empty()

@@ -97,7 +97,7 @@ func _abort(a: int, b: int, c: int, d: int) -> void: # Throw error from Wasm mod
 
 func _draw_image(p: int, s: int) -> void: # Draw the entire image from Wasm memory
 	image.lock()
-	image.data.data = wasm.stream.seek(p).get_data(s)[1]
+	image.data.data = wasm.memory.seek(p).get_data(s)[1]
 	image.unlock()
 	texture.create_from_image(image, 0)
 
