@@ -1,27 +1,50 @@
 extends GodotWasmTestSuite
 
+func test_inspect_compiled():
+	var wasm = Wasm.new()
+	var buffer = read_file("simple")
+	var error = wasm.compile(buffer)
+	expect_eq(error, OK)
+	var inspect = wasm.inspect()
+	var expected = {
+		"import_functions": {},
+		"export_globals": {
+			"global_const": [TYPE_FLOAT, false],
+			"global_mut": [TYPE_INT, true],
+		},
+		"export_functions": {
+			"_initialize": [[], []],
+			"add": [[TYPE_INT, TYPE_INT], [TYPE_INT]]
+		},
+		"memory": {}
+	}
+	expect_eq(inspect, expected)
+
 func test_inspect_memory():
 	# Unexported memory instantiated
 	var wasm = load_wasm("simple")
 	var inspect = wasm.inspect()
-	expect_excludes(inspect, "memory_min")
-	expect_excludes(inspect, "memory_max")
-	expect_excludes(inspect, "memory_current")
+	expect_eq(inspect.get("memory"), {})
 	# Exported memory pre-instantiation
 	var buffer = read_file("memory")
 	var error = wasm.compile(buffer)
 	expect_eq(error, OK)
 	inspect = wasm.inspect()
-	expect_includes(inspect, "memory_min")
-	expect_includes(inspect, "memory_max")
-	expect_excludes(inspect, "memory_current")
+	var expected = {
+		"min": PAGE_SIZE,
+		"max": PAGES_MAX,
+	}
+	expect_eq(inspect.get("memory"), expected)
 	# Exported memory post-instantiation
 	error = wasm.instantiate({})
 	expect_eq(error, OK)
-	inspect = wasm.inspect()	
-	expect_includes(inspect, "memory_min")
-	expect_includes(inspect, "memory_max")
-	expect_includes(inspect, "memory_current")
+	inspect = wasm.inspect()
+	expected = {
+		"min": PAGE_SIZE,
+		"max": PAGES_MAX,
+		"current": PAGE_SIZE,
+	}
+	expect_eq(inspect.get("memory"), expected)
 
 func test_module_memory():
 	var wasm = load_wasm("memory")
@@ -91,10 +114,9 @@ func test_stream_marshal():
 	expect_eq(result, data)
 
 func test_resize():
-	var page_size: int = 0b1 << 16
 	var wasm = load_wasm("memory")
-	var memory = wasm.inspect().get("memory_current")
-	expect_eq(memory, page_size * 1)
-	wasm.function("resize", [page_size])
-	memory = wasm.inspect().get("memory_current")
-	expect_eq(memory, page_size * 3)
+	var memory = wasm.inspect().get("memory").get("current")
+	expect_eq(memory, PAGE_SIZE * 1)
+	wasm.function("resize", [PAGE_SIZE])
+	memory = wasm.inspect().get("memory").get("current")
+	expect_eq(memory, PAGE_SIZE * 3)

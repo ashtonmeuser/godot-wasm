@@ -1,6 +1,9 @@
 extends TestSuite
 class_name GodotWasmTestSuite
 
+const PAGE_SIZE: int = 0b1 << 16
+const PAGES_MAX: int = PAGE_SIZE * (PAGE_SIZE - 1)
+
 # Test suite overrides
 
 func expect_error(s: String):
@@ -14,6 +17,12 @@ func load_wasm(f: String, imports: Dictionary = {}, e: Error = OK) -> Wasm:
 	var error = wasm.load(buffer, imports)
 	expect_eq(error, e)
 	return wasm
+
+func create_memory(size: int, e: Error = OK) -> StreamPeerWasm:
+	var memory = StreamPeerWasm.new()
+	var error = memory.grow(size)
+	expect_eq(error, e)
+	return memory
 
 func read_file(f: String) -> PackedByteArray:
 	return FileAccess.get_file_as_bytes("res://wasm/%s.wasm" % f)
