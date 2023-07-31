@@ -22,6 +22,10 @@ namespace godot {
       size_t return_count; // Number of return values
       context_func_export(uint16_t i, size_t return_count): context_extern(i), return_count(return_count) { }
     };
+
+    struct context_memory: public context_extern {
+      bool import; // Import; not export
+      context_memory(uint16_t i, bool import): context_extern(i), import(import) { }
     };
   }
 
@@ -29,6 +33,12 @@ namespace godot {
     template <typename T> void unset(T*& p, void (*f)(T*)) {
       if (p == NULL) return;
       f(p);
+      p = NULL;
+    }
+
+    template <typename T> void unset(T*& p) {
+      if (p == NULL) return;
+      delete p;
       p = NULL;
     }
 
@@ -69,6 +79,10 @@ namespace godot {
       return d.has(k) && d[k].get_type() == e.get_type() ? d[k] : e;
     }
 
+    template <typename T> inline T* dict_safe_get(const Dictionary &d, String k) {
+      return d.has(k) && d[k].get_type() == Variant::OBJECT ? Object::cast_to<T>(d[k]) : NULL;
+    }
+
     godot_error extract_results(Variant variant, wasm_val_vec_t* results) {
       if (results->size <= 0) return OK;
       if (variant.get_type() == Variant::ARRAY) {
@@ -93,21 +107,37 @@ namespace godot {
       }
     }
 
-    Array get_extern_signature(const wasm_module_t* module, uint16_t index, bool import) {
-      // Grab the extern from module imports or exports
-      const wasm_externtype_t* type;
-      DEFER(wasm_externtype_delete((wasm_externtype_t*)type));
+    wasm_externtype_t* get_extern_type(const wasm_module_t* module, uint16_t index, bool import) {
+      wasm_externtype_t* type;
       if (import) {
         wasm_importtype_vec_t imports;
         DEFER(wasm_importtype_vec_delete(&imports));
         wasm_module_imports(module, &imports);
-        type = wasm_externtype_copy((wasm_externtype_t*)wasm_importtype_type(imports.data[index]));
+        return wasm_externtype_copy((wasm_externtype_t*)wasm_importtype_type(imports.data[index]));
       } else {
         wasm_exporttype_vec_t exports;
         DEFER(wasm_exporttype_vec_delete(&exports));
         wasm_module_exports(module, &exports);
-        type = wasm_externtype_copy((wasm_externtype_t*)wasm_exporttype_type(exports.data[index]));
+        return wasm_externtype_copy((wasm_externtype_t*)wasm_exporttype_type(exports.data[index]));
       }
+    }
+
+    Dictionary get_memory_limits(const wasm_module_t* module, const godot_wasm::context_memory* context) {
+      Dictionary dict;
+      if (context == NULL) return dict;
+      wasm_externtype_t* type = get_extern_type(module, context->index, context->import);
+      DEFER(wasm_externtype_delete(type));
+      wasm_memorytype_t* memory_type = wasm_externtype_as_memorytype(type);
+      auto limits = wasm_memorytype_limits(memory_type);
+      dict["min"] = limits->min * PAGE_SIZE;
+      dict["max"] = limits->max * PAGE_SIZE;
+      return dict;
+    }
+
+    Array get_extern_signature(const wasm_module_t* module, uint16_t index, bool import) {
+      // Grab the extern from module imports or exports
+      wasm_externtype_t* type = get_extern_type(module, index, import);
+      DEFER(wasm_externtype_delete(type));
 
       // Generate a signature for extern
       switch (wasm_externtype_kind(type)) {
@@ -182,7 +212,6 @@ namespace godot {
   Wasm::Wasm() {
     module = NULL;
     instance = NULL;
-    INSTANTIATE_REF(stream);
     reset_instance(); // Set initial state
   }
 
@@ -201,8 +230,8 @@ namespace godot {
 
   void Wasm::reset_instance() {
     unset(instance, wasm_instance_delete);
-    stream->set_memory(NULL);
-    memory_index = -1;
+    unset(memory_context);
+    stream = Ref<StreamPeerWasm>(NULL);
     import_funcs.clear();
     export_globals.clear();
     export_funcs.clear();
@@ -257,16 +286,18 @@ namespace godot {
   }
 
   godot_error Wasm::instantiate(const Dictionary import_map) {
+    // Prepare module externs
+    std::map<uint16_t, wasm_extern_t*> extern_map;
+    DEFER(for (auto &it: extern_map) wasm_extern_delete(it.second));
+
     // Construct import functions
-    std::map<uint16_t, wasm_func_t*> extern_map;
-    DEFER(for (auto &it: extern_map) wasm_func_delete(it.second));
+    const Dictionary& functions = dict_safe_get(import_map, "functions", Dictionary());
     for (const auto &it: import_funcs) {
-      const Dictionary& functions = dict_safe_get(import_map, "functions", Dictionary());
       if (!functions.keys().has(it.first)) {
         // Attempt to use default WASI import
         auto callback = godot_wasm::get_wasi_callback(STORE, this, it.first);
         FAIL_IF(callback == NULL, "Missing import function " + it.first, ERR_CANT_CREATE);
-        extern_map[it.second.index] = callback;
+        extern_map[it.second.index] = wasm_func_as_extern(callback);
         continue;
       }
       const Array& import = dict_safe_get(functions, it.first, Array());
@@ -276,12 +307,22 @@ namespace godot {
       godot_wasm::context_func_import* context = (godot_wasm::context_func_import*)&it.second;
       context->target = import[0];
       context->method = import[1];
-      extern_map[it.second.index] = create_callback(context);
+      extern_map[it.second.index] = wasm_func_as_extern(create_callback(context));
+    }
+
+    // Configure import memory
+    StreamPeerWasm* import_memory = NULL;
+    if (memory_context && memory_context->import) {
+      import_memory = dict_safe_get<StreamPeerWasm>(import_map, "memory");
+      FAIL_IF(import_memory == NULL, "Missing import memory", ERR_CANT_CREATE);
+      FAIL_IF(import_memory->get_memory() == NULL, "Invalid import memory", ERR_CANT_CREATE);
+      // TODO: Validate memory limits
+      extern_map[memory_context->index] = wasm_extern_copy(wasm_memory_as_extern(import_memory->get_memory()));
     }
 
     // Sort imports by index
     std::vector<wasm_extern_t*> extern_list;
-    for (auto &it: extern_map) extern_list.push_back(wasm_func_as_extern(it.second));
+    for (auto &it: extern_map) extern_list.push_back(it.second); // Maps iterate over sorted keys
     wasm_extern_vec_t imports = { extern_list.size(), extern_list.data() };
 
     // Instantiate with imports
@@ -289,11 +330,14 @@ namespace godot {
     FAIL_IF(instance == NULL, "Instantiation failed", ERR_CANT_CREATE);
 
     // Set stream peer memory reference
-    if (memory_index >= 0) {
+    if (import_memory) {
+      stream = Ref<StreamPeerWasm>(import_memory);
+    } else if (memory_context && !memory_context->import) {
       wasm_extern_vec_t exports;
       DEFER(wasm_extern_vec_delete(&exports));
       wasm_instance_exports(instance, &exports);
-      wasm_extern_t* data = exports.data[memory_index];
+      wasm_extern_t* data = exports.data[memory_context->index];
+      stream = Ref<StreamPeerWasm>(memnew(StreamPeerWasm()));
       stream->set_memory(wasm_extern_as_memory(wasm_extern_copy(data)));
     }
 
@@ -314,17 +358,6 @@ namespace godot {
     // Validate module
     FAIL_IF(module == NULL, "Inspection failed", Dictionary());
 
-    // Get memory export limits
-    wasm_limits_t* limits = NULL; // Unknown if memory not exported
-    if (memory_index >= 0) {
-      wasm_exporttype_vec_t exports;
-      DEFER(wasm_exporttype_vec_delete(&exports));
-      wasm_module_exports(module, &exports);
-      const wasm_externtype_t* extern_type = wasm_exporttype_type(exports.data[memory_index]);
-      wasm_memorytype_t* memory_type = wasm_externtype_as_memorytype((wasm_externtype_t*)extern_type);
-      limits = (wasm_limits_t*)wasm_memorytype_limits(memory_type);
-    }
-
     // Module extern names and signatures
     Dictionary import_func_sigs, export_global_sigs, export_func_sigs;
     for (const auto &tuple: import_funcs) import_func_sigs[tuple.first] = get_extern_signature(module, tuple.second.index, true);
@@ -336,10 +369,7 @@ namespace godot {
     dict["import_functions"] = import_func_sigs;
     dict["export_globals"] = export_global_sigs;
     dict["export_functions"] = export_func_sigs;
-    if (limits != NULL) dict["memory_min"] = Variant((uint64_t)limits->min * PAGE_SIZE);
-    if (limits != NULL) dict["memory_max"] = Variant((uint64_t)limits->max * PAGE_SIZE);
-    if (stream->get_memory() != NULL) dict["memory_current"] = Variant((uint64_t)wasm_memory_data_size(stream->get_memory()));
-
+    dict["memory"] = stream != NULL && stream->get_memory() ? stream->inspect() : get_memory_limits(module, memory_context);
     return dict;
   }
 
@@ -414,6 +444,9 @@ namespace godot {
         case WASM_EXTERN_FUNC:
           import_funcs.emplace(key, godot_wasm::context_func_import(i));
           break;
+        case WASM_EXTERN_MEMORY:
+          memory_context = new godot_wasm::context_memory(i, true);
+          break;
         default: FAIL("Import type not implemented", ERR_INVALID_DATA);
       }
     }
@@ -436,7 +469,7 @@ namespace godot {
           export_globals.emplace(key, godot_wasm::context_extern(i));
           break;
         case WASM_EXTERN_MEMORY:
-          memory_index = i;
+          if (memory_context == NULL) memory_context = new godot_wasm::context_memory(i, false); // Favour import memory
           break;
         default: FAIL("Export type not implemented", ERR_INVALID_DATA);
       }

@@ -11,6 +11,7 @@ namespace godot {
     struct context_extern;
     struct context_func_import;
     struct context_func_export;
+    struct context_memory;
   }
 
   class Wasm : public RefCounted {
@@ -19,7 +20,7 @@ namespace godot {
     private:
       wasm_module_t* module;
       wasm_instance_t* instance;
-      int32_t memory_index;
+      godot_wasm::context_memory* memory_context;
       Dictionary permissions;
       Ref<StreamPeerWasm> stream;
       std::map<String, godot_wasm::context_func_import> import_funcs;
