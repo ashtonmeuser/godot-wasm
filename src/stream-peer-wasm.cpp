@@ -29,14 +29,25 @@ namespace godot {
 
   StreamPeerWasm::StreamPeerWasm() {
     INTERFACE_DEFINE;
-    pointer = 0;
     memory = NULL;
+    pointer = 0;
   }
 
-  StreamPeerWasm::~StreamPeerWasm() { }
+  StreamPeerWasm::~StreamPeerWasm() {
+    set_memory(NULL);
+  }
 
   void StreamPeerWasm::_init() {
     INTERFACE_INIT;
+  }
+
+  void StreamPeerWasm::set_memory(const wasm_memory_t* memory) {
+    if (memory) wasm_memory_delete(this->memory);
+    this->memory = (wasm_memory_t*)memory;
+  }
+
+  wasm_memory_t* StreamPeerWasm::get_memory() const {
+    return memory;
   }
 
   Ref<StreamPeerWasm> StreamPeerWasm::seek(int p_pos) {

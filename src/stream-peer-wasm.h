@@ -27,15 +27,16 @@ namespace godot {
 
     private:
       INTERFACE_DECLARE;
+      wasm_memory_t* memory;
       uint32_t pointer;
 
     public:
-      StreamPeerWasm* i;
       static void REGISTRATION_METHOD();
       StreamPeerWasm();
       ~StreamPeerWasm();
       void _init();
-      wasm_memory_t* memory;
+      void set_memory(const wasm_memory_t* memory);
+      wasm_memory_t* get_memory() const;
       Ref<StreamPeerWasm> seek(int p_pos);
       uint32_t get_position() const;
       godot_error INTERFACE_GET_DATA override;

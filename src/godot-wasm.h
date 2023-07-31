@@ -43,7 +43,6 @@ namespace godot {
       Dictionary inspect() const;
       Variant function(String name, Array args) const;
       Variant global(String name) const;
-      uint64_t mem_size() const;
       Ref<StreamPeerWasm> get_stream() const;
       void set_permissions(const Dictionary &update);
       Dictionary get_permissions() const;
