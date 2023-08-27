@@ -211,6 +211,7 @@ namespace godot {
   Wasm::Wasm() {
     module = NULL;
     instance = NULL;
+    memory_context = NULL;
     reset_instance(); // Set initial state
   }
 
