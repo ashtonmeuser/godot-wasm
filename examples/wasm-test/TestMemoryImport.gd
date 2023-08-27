@@ -36,7 +36,7 @@ func test_module_memory():
 	expect_eq(wasm.memory, null)
 	error = wasm.instantiate({})
 	expect_eq(error, OK)
-	expect(wasm.memory is WasmMemory)
+	expect(wasm.memory is StreamPeer)
 	expect_empty()
 
 func test_memory_import():

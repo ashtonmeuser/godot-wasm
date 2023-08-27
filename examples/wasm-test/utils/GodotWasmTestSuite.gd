@@ -18,12 +18,6 @@ func load_wasm(f: String, imports: Dictionary = {}, e: Error = OK) -> Wasm:
 	expect_eq(error, e)
 	return wasm
 
-func create_memory(size: int, e: Error = OK) -> WasmMemory:
-	var memory = WasmMemory.new()
-	var error = memory.grow(size)
-	expect_eq(error, e)
-	return memory
-
 func read_file(f: String) -> PackedByteArray:
 	return FileAccess.get_file_as_bytes("res://wasm/%s.wasm" % f)
 
