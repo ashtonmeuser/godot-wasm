@@ -4,26 +4,25 @@
 #include <map>
 #include "wasmer.h"
 #include "defs.h"
-#include "stream-peer-wasm.h"
+#include "wasm-memory.h"
 
 namespace godot {
   namespace godot_wasm {
     struct context_extern;
     struct context_func_import;
     struct context_func_export;
+    struct context_memory;
   }
 
   class Wasm : public RefCounted {
     GDCLASS(Wasm, RefCounted);
 
     private:
-      wasm_engine_t* engine;
-      wasm_store_t* store;
       wasm_module_t* module;
       wasm_instance_t* instance;
-      int32_t memory_index;
+      godot_wasm::context_memory* memory_context;
       Dictionary permissions;
-      Ref<StreamPeerWasm> stream;
+      Ref<WasmMemory> memory;
       std::map<String, godot_wasm::context_func_import> import_funcs;
       std::map<String, godot_wasm::context_extern> export_globals;
       std::map<String, godot_wasm::context_func_export> export_funcs;
@@ -43,8 +42,7 @@ namespace godot {
       Dictionary inspect() const;
       Variant function(String name, Array args) const;
       Variant global(String name) const;
-      uint64_t mem_size() const;
-      Ref<StreamPeerWasm> get_stream() const;
+      Ref<WasmMemory> get_memory() const;
       void set_permissions(const Dictionary &update);
       Dictionary get_permissions() const;
       bool has_permission(String permission) const;

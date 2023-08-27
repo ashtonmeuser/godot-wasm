@@ -1,5 +1,5 @@
-#ifndef STREAM_PEER_WASM_H
-#define STREAM_PEER_WASM_H
+#ifndef WASM_MEMORY_H
+#define WASM_MEMORY_H
 
 #include "defs.h"
 
@@ -22,21 +22,24 @@
 #endif
 
 namespace godot {
-  class StreamPeerWasm : public SUPER_CLASS {
-    GDCLASS(StreamPeerWasm, SUPER_CLASS);
+  class WasmMemory : public SUPER_CLASS {
+    GDCLASS(WasmMemory, SUPER_CLASS);
 
     private:
       INTERFACE_DECLARE;
+      wasm_memory_t* memory;
       uint32_t pointer;
 
     public:
-      StreamPeerWasm* i;
       static void REGISTRATION_METHOD();
-      StreamPeerWasm();
-      ~StreamPeerWasm();
+      WasmMemory();
+      ~WasmMemory();
       void _init();
-      wasm_memory_t* memory;
-      Ref<StreamPeerWasm> seek(int p_pos);
+      void set_memory(const wasm_memory_t* memory);
+      wasm_memory_t* get_memory() const;
+      Dictionary inspect() const;
+      godot_error grow(uint32_t pages);
+      Ref<WasmMemory> seek(int p_pos);
       uint32_t get_position() const;
       godot_error INTERFACE_GET_DATA override;
       godot_error INTERFACE_GET_PARTIAL_DATA override;

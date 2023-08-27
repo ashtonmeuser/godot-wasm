@@ -1,6 +1,9 @@
 extends TestSuite
 class_name GodotWasmTestSuite
 
+const PAGE_SIZE: int = 0b1 << 16
+const PAGES_MAX: int = PAGE_SIZE * (PAGE_SIZE - 1)
+
 # Test suite overrides
 
 func expect_error(s: String):

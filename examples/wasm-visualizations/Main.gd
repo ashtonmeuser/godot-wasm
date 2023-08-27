@@ -98,7 +98,7 @@ func _abort(a: int, b: int, c: int, d: int) -> void: # Throw error from Wasm mod
 	push_error("Abort from Wasm module: %d %d %d %d" % [a, b, c, d])
 
 func _draw_image(p: int, s: int) -> void: # Draw the entire image from Wasm memory
-	image.set_data(int(size.x), int(size.y), false, Image.FORMAT_RGBA8, wasm.stream.seek(p).get_data(s)[1])
+	image.set_data(int(size.x), int(size.y), false, Image.FORMAT_RGBA8, wasm.memory.seek(p).get_data(s)[1])
 	texture.update(image)
 
 func _draw_pixel(x: int, y: int, r: int, g: int, b: int, a: int) -> void: # Draw a single pixel with color component values
