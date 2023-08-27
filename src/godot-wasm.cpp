@@ -108,7 +108,6 @@ namespace godot {
     }
 
     wasm_externtype_t* get_extern_type(const wasm_module_t* module, uint16_t index, bool import) {
-      wasm_externtype_t* type;
       if (import) {
         wasm_importtype_vec_t imports;
         DEFER(wasm_importtype_vec_delete(&imports));
@@ -337,7 +336,7 @@ namespace godot {
       DEFER(wasm_extern_vec_delete(&exports));
       wasm_instance_exports(instance, &exports);
       wasm_extern_t* data = exports.data[memory_context->index];
-      memory = Ref<WasmMemory>(memnew(WasmMemory()));
+      INSTANTIATE_REF(memory);
       memory->set_memory(wasm_extern_as_memory(wasm_extern_copy(data)));
     }
 
