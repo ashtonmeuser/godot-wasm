@@ -462,7 +462,7 @@ namespace godot {
       switch (kind) {
         case WASM_EXTERN_FUNC: {
           const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
-          const wasm_valtype_vec_t* func_results = wasm_functype_results(func_type); // BAD
+          const wasm_valtype_vec_t* func_results = wasm_functype_results(func_type);
           export_funcs.emplace(key, godot_wasm::context_func_export(i, func_results->size));
           break;
         } case WASM_EXTERN_GLOBAL:
