@@ -44,7 +44,7 @@ runtime_lib = env.File(
 # Linked libraries (global env) and includes (cloned env)
 env.Append(LIBPATH=[env.Dir("{}/lib".format(module_env["wasm_runtime"])).abspath])
 env.Append(LIBS=[runtime_lib])
-module_env.Append(CPPPATH=[".", "{}/include".format(module_env["wasm_runtime"])])
+module_env.Append(CPPPATH=[env.Dir("{}/include".format(module_env["wasm_runtime"])).abspath])
 
 # Defines for module agnosticism
 module_env.Append(CPPDEFINES=["GODOT_MODULE"])
