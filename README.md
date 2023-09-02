@@ -1,9 +1,7 @@
 # Godot Wasm
 
 <p align="center">
-  <a href="https://wasmer.io" target="_blank" rel="noopener noreferrer">
-    <img width="200" src="https://raw.githubusercontent.com/ashtonmeuser/godot-wasm/master/media/Icon.png" alt="Wasmer logo">
-  </a>
+  <img width="200" src="https://raw.githubusercontent.com/ashtonmeuser/godot-wasm/master/media/Icon.png" alt="Godot Wasm Logo">
 </p>
 <p align="center">
   <a href="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/addon.yml">
@@ -20,7 +18,7 @@
 > **Warning**
 > This project is still in its infancy. Interfaces are liable to change with each release until v1.0.
 
-A Godot extension allowing for loading and interacting with [WebAssembly (Wasm)](https://webassembly.org) modules from GDScript via the [Wasmer](https://wasmer.io) WebAssembly runtime.
+A Godot extension allowing for loading and interacting with [WebAssembly (Wasm)](https://webassembly.org) modules from GDScript via the [Wasmer](https://wasmer.io) and [Wasmtime](https://wasmtime.dev) WebAssembly runtimes.
 
 ## Documentation
 
