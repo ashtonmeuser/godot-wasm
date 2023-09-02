@@ -21,12 +21,10 @@ func test_grow_memory():
 	expect_eq(inspect, expected)
 	memory.grow(1)
 	inspect = memory.inspect()
-	expected = {
-		"min": PAGE_SIZE * 2,
-		"max": PAGES_MAX,
-		"current": PAGE_SIZE * 2,
-	}
-	expect_eq(inspect, expected)
+	# Cannot test minimum as Wasmer & Wasmtime behave differently
+	# Wasmer updates minimum to new size while Wasmtime does not
+	expect_eq(inspect.get("max"), PAGES_MAX)
+	expect_eq(inspect.get("current"), PAGE_SIZE * 2)
 
 func test_module_memory():
 	var wasm = Wasm.new()
