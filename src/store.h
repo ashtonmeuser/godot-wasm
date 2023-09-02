@@ -1,7 +1,7 @@
 #ifndef GODOT_WASM_STORE_H
 #define GODOT_WASM_STORE_H
 
-#include "wasmer.h"
+#include "wasm.h"
 
 #define STORE ::godot_wasm::Store::instance().store
 

@@ -458,14 +458,14 @@ namespace godot {
     for (uint16_t i = 0; i < exports.size; i++) {
       const wasm_externtype_t* type = wasm_exporttype_type(exports.data[i]);
       const wasm_externkind_t kind = wasm_externtype_kind(type);
-      const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
-      const wasm_valtype_vec_t* func_results = wasm_functype_results(func_type);
       const String key = decode_name(wasm_exporttype_name(exports.data[i]));
       switch (kind) {
-        case WASM_EXTERN_FUNC:
+        case WASM_EXTERN_FUNC: {
+          const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
+          const wasm_valtype_vec_t* func_results = wasm_functype_results(func_type);
           export_funcs.emplace(key, godot_wasm::context_func_export(i, func_results->size));
           break;
-        case WASM_EXTERN_GLOBAL:
+        } case WASM_EXTERN_GLOBAL:
           export_globals.emplace(key, godot_wasm::context_extern(i));
           break;
         case WASM_EXTERN_MEMORY:

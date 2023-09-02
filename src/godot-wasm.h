@@ -2,7 +2,7 @@
 #define GODOT_WASM_H
 
 #include <map>
-#include "wasmer.h"
+#include "wasm.h"
 #include "defs.h"
 #include "wasm-memory.h"
 

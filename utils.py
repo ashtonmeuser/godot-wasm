@@ -4,61 +4,100 @@ import shutil
 from urllib import request
 import tarfile
 
-BASE_URL = "https://github.com/wasmerio/wasmer/releases/download/{}/wasmer-{}.tar.gz"
-VERSION_DEFAULT = "v3.1.1"
+WASMER_BASE_URL = "https://github.com/wasmerio/wasmer/releases/download/{0}/wasmer-{1}.tar.gz"
+WASMER_VER_DEFAULT = "v3.1.1"
+WASMTIME_BASE_URL = "https://github.com/bytecodealliance/wasmtime/releases/download/{0}/wasmtime-{0}-{1}-c-api.tar.xz"
+WASMTIME_VER_DEFAULT = "v12.0.1"
 
 
-def validate_version(v):
+def _validate_version(v):
+    """Validate semver string"""
     if not re.fullmatch(r"v\d+\.\d+\.\d+(-.+)?", v):
-        raise (ValueError("Invalid Wasmer version"))
+        raise (ValueError("Invalid runtime version"))
 
 
-def download_tarfile(url, dest, rename={}):
-    filename = "tmp.tar.gz"
+def _strip_tar_members(f, s=""):
+    """Optionally strip tarfile top level directory"""
+    for member in f.getmembers():
+        if re.fullmatch(s, member.path): continue # Top level dir
+        elif re.match(s + r"\/", member.path): # Nested file
+            member.path = member.path.split('/', 1)[1]
+        yield member
+
+
+def _download_tarfile(url, dest, rename={}):
+    """Download and extract tarfile removing redundant top level dir"""
+    strip = r"^{}[\w\-.]*".format(dest) # Dir of same name as destination
+    filename = "tmp.tar.gz" # Temporary tarfile name
     os.makedirs(dest, exist_ok=True)
     request.urlretrieve(url, filename)
-    file = tarfile.open(filename)
-    file.extractall(dest)
-    file.close()
+    with tarfile.open(filename) as file:
+        file.extractall(dest, members=_strip_tar_members(file, strip))
     for k, v in rename.items():
         os.rename(k, v)
     os.remove(filename)
 
 
-def safe_apply_patch(patch):
+def _safe_apply_patch(patch):
+    """Apply diff patch with shell tool or git"""
     if shutil.which("patch") is not None:
         os.system("patch -p1 < {}".format(patch))
     else:
         os.system("git apply {}".format(patch))
 
 
-def download_wasmer(env, force=False, version=VERSION_DEFAULT):
-    validate_version(version)
+def download_wasmer(env, force=False, version=WASMER_VER_DEFAULT):
+    _validate_version(version)
     if not force and os.path.isdir("wasmer"):
         return  # Skip download
     print("Downloading Wasmer library {}".format(version))
     shutil.rmtree("wasmer", True)  # Remove old library
     if env["platform"] in ["osx", "macos"]:
         # For macOS, we need to universalize the AMD and ARM libraries
-        download_tarfile(
-            BASE_URL.format(version, "darwin-amd64"),
+        _download_tarfile(
+            WASMER_BASE_URL.format(version, "darwin-amd64"),
             "wasmer",
             {"wasmer/lib/libwasmer.a": "wasmer/lib/libwasmer.amd64.a"},
         )
-        download_tarfile(
-            BASE_URL.format(version, "darwin-arm64"),
+        _download_tarfile(
+            WASMER_BASE_URL.format(version, "darwin-arm64"),
             "wasmer",
             {"wasmer/lib/libwasmer.a": "wasmer/lib/libwasmer.arm64.a"},
         )
         os.system("lipo wasmer/lib/libwasmer.*64.a -output wasmer/lib/libwasmer.a -create")
     elif env["platform"] in ["linux", "linuxbsd", "x11"]:
-        download_tarfile(BASE_URL.format(version, "linux-amd64"), "wasmer")
+        _download_tarfile(WASMER_BASE_URL.format(version, "linux-amd64"), "wasmer")
     elif env["platform"] == "windows":
         if env.get("use_mingw"):
-            download_tarfile(BASE_URL.format(version, "windows-gnu64"), "wasmer")
+            _download_tarfile(WASMER_BASE_URL.format(version, "windows-gnu64"), "wasmer")
         else:
-            download_tarfile(BASE_URL.format(version, "windows-amd64"), "wasmer")
+            _download_tarfile(WASMER_BASE_URL.format(version, "windows-amd64"), "wasmer")
         # Temporary workaround for Wasm C API and Wasmer issue
         # See https://github.com/ashtonmeuser/godot-wasm/issues/26
         # See https://github.com/ashtonmeuser/godot-wasm/issues/29
-        safe_apply_patch("wasm-windows.patch")
+        _safe_apply_patch("wasm-windows.patch")
+
+
+def download_wasmtime(env, force=False, version=WASMTIME_VER_DEFAULT):
+    _validate_version(version)
+    if not force and os.path.isdir("wasmtime"):
+        return  # Skip download
+    print("Downloading Wasmtime library {}".format(version))
+    shutil.rmtree("wasmtime", True)  # Remove old library
+    if env["platform"] in ["osx", "macos"]:
+        # For macOS, we need to universalize the AMD and ARM libraries
+        _download_tarfile(
+            WASMTIME_BASE_URL.format(version, "x86_64-macos"),
+            "wasmtime",
+            {"wasmtime/lib/libwasmtime.a": "wasmtime/lib/libwasmtime.amd64.a"},
+        )
+        _download_tarfile(
+            WASMTIME_BASE_URL.format(version, "aarch64-macos"),
+            "wasmtime",
+            {"wasmtime/lib/libwasmtime.a": "wasmtime/lib/libwasmtime.arm64.a"},
+        )
+        os.system("lipo wasmtime/lib/libwasmtime.*64.a -output wasmtime/lib/libwasmtime.a -create")
+    elif env["platform"] in ["linux", "linuxbsd", "x11"]:
+        _download_tarfile(WASMTIME_BASE_URL.format(version, "x86_64-linux"), "wasmtime")
+    elif env["platform"] == "windows":
+        _download_tarfile(WASMTIME_BASE_URL.format(version, "x86_64-windows"), "wasmtime")
