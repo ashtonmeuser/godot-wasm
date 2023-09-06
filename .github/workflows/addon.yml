@@ -7,9 +7,8 @@ on:
 env:
   GODOT_MAJOR: 4
   TARGET: template_release
-  GODOT_REF: 4.0.2-stable
+  GODOT_REF: 4.0.4-stable
   LIBRARY_PATH: addons/godot-wasm/bin
-  WASMER_VERSION: v3.1.1
 
 jobs:
   build-addon:
