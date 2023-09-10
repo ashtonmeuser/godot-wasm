@@ -27,10 +27,10 @@ if env["platform"] == "windows":
     else:  # MSVC
         env["LIBRUNTIMESUFFIX"] = ".lib"
         # Force Windows SDK library suffix (see https://github.com/godotengine/godot/issues/23687)
-        env.Append(LINKFLAGS=["bcrypt.lib", "userenv.lib", "ws2_32.lib", "advapi32.lib"])
+        env.Append(LINKFLAGS=["bcrypt.lib", "userenv.lib", "ws2_32.lib", "advapi32.lib", "ntdll.lib"])
 
 # Defines for GDExtension specific API
-env.Append(CPPDEFINES=["GDEXTENSION"])
+env.Append(CPPDEFINES=["GDEXTENSION", "LIBWASM_STATIC"])
 
 # Explicit static libraries
 runtime_lib = env.File(

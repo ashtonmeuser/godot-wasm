@@ -19,16 +19,17 @@ def _validate_version(v):
 def _strip_tar_members(f, s=""):
     """Optionally strip tarfile top level directory"""
     for member in f.getmembers():
-        if re.fullmatch(s, member.path): continue # Top level dir
-        elif re.match(s + r"\/", member.path): # Nested file
-            member.path = member.path.split('/', 1)[1]
+        if re.fullmatch(s, member.path):
+            continue  # Top level dir
+        elif re.match(s + r"\/", member.path):  # Nested file
+            member.path = member.path.split("/", 1)[1]
         yield member
 
 
 def _download_tarfile(url, dest, rename={}):
     """Download and extract tarfile removing redundant top level dir"""
-    strip = r"^{}[\w\-.]*".format(dest) # Dir of same name as destination
-    filename = "tmp.tar.gz" # Temporary tarfile name
+    strip = r"^{}[\w\-.]*".format(dest)  # Dir of same name as destination
+    filename = "tmp.tar.gz"  # Temporary tarfile name
     os.makedirs(dest, exist_ok=True)
     request.urlretrieve(url, filename)
     with tarfile.open(filename) as file:
@@ -38,12 +39,16 @@ def _download_tarfile(url, dest, rename={}):
     os.remove(filename)
 
 
-def _safe_apply_patch(patch):
-    """Apply diff patch with shell tool or git"""
-    if shutil.which("patch") is not None:
-        os.system("patch -p1 < {}".format(patch))
-    else:
-        os.system("git apply {}".format(patch))
+def _patch_dll_import():
+    """Patch old Wasm C API header (see https://github.com/WebAssembly/wasm-c-api/pull/183)"""
+    for path in ["wasmer/include/wasm.h", "wasmtime/include/wasm.h"]:
+        if not os.path.isfile(path):
+            continue
+        with open(path, "r") as file:
+            content = file.read()
+        content = content.replace("__declspec(dllimport)", "")
+        with open(path, "w") as file:
+            file.write(content)
 
 
 def download_wasmer(env, force=False, version=WASMER_VER_DEFAULT):
@@ -75,7 +80,7 @@ def download_wasmer(env, force=False, version=WASMER_VER_DEFAULT):
         # Temporary workaround for Wasm C API and Wasmer issue
         # See https://github.com/ashtonmeuser/godot-wasm/issues/26
         # See https://github.com/ashtonmeuser/godot-wasm/issues/29
-        _safe_apply_patch("wasm-windows.patch")
+        _patch_dll_import()
 
 
 def download_wasmtime(env, force=False, version=WASMTIME_VER_DEFAULT):
