@@ -5,7 +5,7 @@ from urllib import request
 import tarfile
 
 WASMER_BASE_URL = "https://github.com/wasmerio/wasmer/releases/download/{0}/wasmer-{1}.tar.gz"
-WASMER_VER_DEFAULT = "v3.1.1"
+WASMER_VER_DEFAULT = "v4.2.0"
 WASMTIME_BASE_URL = "https://github.com/bytecodealliance/wasmtime/releases/download/{0}/wasmtime-{0}-{1}-c-api.tar.xz"
 WASMTIME_VER_DEFAULT = "v12.0.1"
 
