@@ -113,6 +113,19 @@ func test_memory_marshal():
 	var result = wasm.memory.seek(offset).get_var()
 	expect_eq(result, data)
 
+func test_string_sum():
+	var wasm = load_wasm("memory")
+	var offset = wasm.global("offset")
+	var string = "test_string" # String to store in Wasm memory
+	var sum = 0 # Sum of character UTF8 values
+	for c in Utils.to_utf8(string): sum += c
+	# Write string to memory using StreamPeer interface
+	# Note that Godot string marshalling prepends 32-bit string length
+	# See https://docs.godotengine.org/en/stable/classes/class_streampeer.html#class-streampeer-method-put-string
+	wasm.memory.seek(offset).put_string(string)
+	var result = wasm.function("ascii_sum", [])
+	expect_eq(result, sum)
+
 func test_resize():
 	var wasm = load_wasm("memory")
 	var memory = wasm.inspect().get("memory").get("current")
