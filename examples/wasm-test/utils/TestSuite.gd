@@ -35,7 +35,7 @@ func expect_empty():
 	expect_log("")
 
 func expect_error(s: String):
-	expect_log("(USER )?ERROR: " + s)
+	expect_log("((USER )?ERROR: )?" + s)
 	# Account for error stack trace
 	var regex = Utils.make_regex("^\\s+at:\\s")
 	var position = _log_file.get_position()
