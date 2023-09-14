@@ -39,7 +39,7 @@ func expect_error(s: String):
 	# Account for error stack trace
 	var regex = Utils.make_regex("^\\s+at:\\s")
 	var position = _log_file.get_position()
-	while _log_file.get_position() < _log_file.get_length():
+	while _log_file.get_position() < Utils.file_length(_log_file):
 		if !regex.search(_log_file.get_line()): break
 		position = _log_file.get_position()
 	_log_file.seek(position)

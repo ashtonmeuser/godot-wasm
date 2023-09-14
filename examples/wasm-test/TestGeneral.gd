@@ -43,7 +43,7 @@ func test_load():
 
 func test_invalid_binary():
 	var wasm = Wasm.new()
-	var buffer = "asdf".to_utf8_buffer()
+	var buffer = Utils.to_utf8("asdf")
 	var error = wasm.compile(buffer)
 	expect_eq(error, ERR_INVALID_DATA)
 	expect_error("Invalid binary")
