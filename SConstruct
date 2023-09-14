@@ -41,7 +41,7 @@ elif env["platform"] == "linux":
     env.Prepend(CXXFLAGS=["-std=gnu++14"])
     env.Append(CCFLAGS=["-fPIC", "-g", "-O3"])
 elif env["platform"] == "windows":
-    env.Prepend(CCFLAGS=["/std:c++14", "-W3", "-GR", "-O2", "-EHsc", "-MD"])
+    env.Prepend(CCFLAGS=["/std:c++14", "-W3", "-GR", "-O2", "-EHsc"])
     env.Append(ENV=os.environ)  # Keep session env variables to support VS 2017 prompt
     env.Append(CPPDEFINES=["WIN32", "_WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS", "NDEBUG"])
     if env.get("use_mingw"):  # MinGW
@@ -49,11 +49,12 @@ elif env["platform"] == "windows":
         env.Append(LIBS=["userenv"])
     else:  # MSVC
         env["LIBRUNTIMESUFFIX"] = ".lib"
+        env.Append(CCFLAGS=["-MD"]) # Dynamic CRT used by Wasmer >= v3.2.0
         # Force Windows SDK library suffix (see https://github.com/godotengine/godot/issues/23687)
-        env.Append(LINKFLAGS=["bcrypt.lib", "userenv.lib", "ws2_32.lib", "advapi32.lib"])
+        env.Append(LINKFLAGS=["bcrypt.lib", "userenv.lib", "ws2_32.lib", "advapi32.lib", "ntdll.lib"])
 
 # Defines for GDNative specific API
-env.Append(CPPDEFINES=["GDNATIVE"])
+env.Append(CPPDEFINES=["GDNATIVE", "LIBWASM_STATIC"])
 
 # Explicit static libraries
 cpp_lib = env.File("godot-cpp/bin/libgodot-cpp.{}.{}.64{}".format(env["platform"], env["target"], env["LIBSUFFIX"]))

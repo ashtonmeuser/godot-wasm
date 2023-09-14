@@ -47,7 +47,7 @@ env.Append(LIBS=[runtime_lib])
 module_env.Append(CPPPATH=[env.Dir("{}/include".format(module_env["wasm_runtime"])).abspath])
 
 # Defines for module agnosticism
-module_env.Append(CPPDEFINES=["GODOT_MODULE"])
+module_env.Append(CPPDEFINES=["GODOT_MODULE", "LIBWASM_STATIC"])
 
 # Module sources
 module_env.add_source_files(

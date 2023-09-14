@@ -9,7 +9,6 @@ env:
   TARGET: release
   GODOT_REF: 3.5.2-stable
   LIBRARY_PATH: addons/godot-wasm/bin
-  WASMER_VERSION: v3.1.1
 
 jobs:
   build-addon:
@@ -40,6 +39,7 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
           target: ${{ env.TARGET }}
+          scons-flags: generate_bindings=yes
 
       - name: Build Addon
         uses: ./.github/actions/scons-build
