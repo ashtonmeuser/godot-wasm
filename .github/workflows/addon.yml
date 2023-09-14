@@ -7,7 +7,7 @@ on:
 env:
   GODOT_MAJOR: 4
   TARGET: template_release
-  GODOT_REF: 4.0.4-stable
+  GODOT_REF: 4.1.1-stable
   LIBRARY_PATH: addons/godot-wasm/bin
 
 jobs:
