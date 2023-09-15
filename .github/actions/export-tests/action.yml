@@ -1,0 +1,40 @@
+name: Export Tests
+description: Export and run test project
+inputs:
+  executable:
+    description: The Godot executable in CWD
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Linux Export Details
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        echo "PRESET=Linux/X11">> $GITHUB_ENV
+        echo "EXTENSION=x86_64" >> $GITHUB_ENV
+
+    - name: MacOS Export Details
+      if: runner.os == 'macOS'
+      shell: bash
+      run: echo "EXPORT_ARGS='macOS' 'Wasm Test.app'" >> $GITHUB_ENV
+
+    - name: Windows Export Details
+      if: runner.os == 'Windows'
+      shell: bash
+      run: echo "EXPORT_ARGS='Windows Desktop' 'Wasm Test.exe'" >> $GITHUB_ENV
+
+    - name: Export
+      shell: bash
+      run: |
+        ./${{ inputs.executable }} --headless --no-window --export-release --path examples/wasm-test "${{ env.PRESET }}" WasmTest.${{ env.EXTENSION }}
+        echo "EXECUTABLE=examples/wasm-test/WastTest.${{ env.EXTENSION }}" >> $GITHUB_ENV
+
+    - name: MacOS Executable
+      if: runner.os == 'macOS'
+      shell: bash
+      run: echo "EXECUTABLE=examples/wasm-test/WastTest.app/Contents/MacOS/WasmTest" >> $GITHUB_ENV
+
+    - name: Run Tests
+      shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
+      run: ./${{ env.EXECUTABLE }} --headless --no-window -- --key=val

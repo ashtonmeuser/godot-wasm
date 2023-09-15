@@ -31,11 +31,11 @@ runs:
       uses: actions/cache@v3
       with:
         path: ${{ inputs.scons-cache }}
-        key: ${{ steps.cache-name.outputs.name }}-${{ github.ref }}-${{ github.sha }}
+        key: scons-${{ steps.cache-name.outputs.name }}-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
-          ${{ steps.cache-name.outputs.name }}-${{ github.ref }}-${{ github.sha }}
-          ${{ steps.cache-name.outputs.name }}-${{ github.ref }}
-          ${{ steps.cache-name.outputs.name }}
+          scons-${{ steps.cache-name.outputs.name }}-${{ github.ref }}-${{ github.sha }}
+          scons-${{ steps.cache-name.outputs.name }}-${{ github.ref }}
+          scons-${{ steps.cache-name.outputs.name }}
 
     - name: MSVC Developer Command Prompt
       if: runner.os == 'Windows'

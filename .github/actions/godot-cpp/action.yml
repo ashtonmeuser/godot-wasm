@@ -29,7 +29,7 @@ runs:
           ${{ github.workspace }}/godot-cpp/bin
           ${{ github.workspace }}/godot-cpp/include
           ${{ github.workspace }}/godot-cpp/gen
-        key: ${{ inputs.platform }}-${{ steps.submodule-hash.outputs.hash }}
+        key: godotcpp-${{ inputs.platform }}-${{ steps.submodule-hash.outputs.hash }}
 
     - name: Compile Godot Library
       if: steps.cache-godot-cpp.outputs.cache-hit != 'true'
