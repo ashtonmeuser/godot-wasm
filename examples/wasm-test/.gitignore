@@ -1,6 +1,7 @@
 .DS_Store
 .import/
 .godot/**
+Wasm Test.app
 *.import
 !.godot/extension_list.cfg
 !.godot/global_script_class_cache.cfg
