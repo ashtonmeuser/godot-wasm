@@ -44,12 +44,13 @@ runs:
         version: tags/${{ inputs.version }}
         regex: true
         target: './' # Defaults to regex prepended to filename
-        file: ${{ env.FILE }}|export_templates.tpz
+        file: ${{ env.FILE }}|${{ inputs.version }}_export_templates.tpz
 
     - name: Extract Godot
       if: steps.cache-godot.outputs.cache-hit != 'true'
       shell: bash
       run: |
+        ls
         zip_file=$( ls | grep -E '${{ env.FILE }}' | grep -v '_mono_' )
         unzip "$zip_file"
         ls | grep -E '${{ env.FILE }}.*\.zip' | xargs rm
