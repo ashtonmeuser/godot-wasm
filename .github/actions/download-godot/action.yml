@@ -44,7 +44,7 @@ runs:
         version: tags/${{ inputs.version }}
         regex: true
         target: './' # Defaults to regex prepended to filename
-        file: ${{ env.FILE }}|${{ inputs.version }}_export_templates.tpz
+        file: ${{ inputs.version }}_(${{ env.FILE }}|export_templates.tpz)
 
     - name: Extract Godot
       if: steps.cache-godot.outputs.cache-hit != 'true'
@@ -55,6 +55,7 @@ runs:
         unzip "$zip_file"
         ls | grep -E '${{ env.FILE }}.*\.zip' | xargs rm
         tar_file=$( ls | grep export_templates.tpz )
+        echo "$tar_file"
         tar -xf "$tar_file"
         ls
         rm "$tar_file"
