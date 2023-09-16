@@ -69,6 +69,7 @@ jobs:
           - platform: windows
             os: windows-latest
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -105,6 +106,7 @@ jobs:
           - platform: windows
             os: windows-latest
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -114,6 +116,12 @@ jobs:
         uses: ./.github/actions/download-godot
         with:
           version: ${{ env.GODOT_REF }}
+
+      - name: Download Addon
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.platform }}
+          path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ matrix.platform }}
 
       - name: Export Tests
         uses: ./.github/actions/export-tests
