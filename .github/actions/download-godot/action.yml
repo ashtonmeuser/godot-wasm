@@ -30,9 +30,8 @@ runs:
       id: cache-godot
       uses: actions/cache@v3
       with:
-        path: |
-          ${{ github.workspace }}/*${{ env.FILE }}
-        key: godot-${{ inputs.platform }}-${{ inputs.version }}
+        path: ${{ github.workspace }}/*${{ env.FILE }}
+        key: godot-${{ runner.os }}-${{ inputs.version }}
 
     - name: Download Godot
       if: steps.cache-godot.outputs.cache-hit != 'true'
@@ -51,6 +50,7 @@ runs:
         zip_file=$( ls | grep -E '${{ env.FILE }}' | grep -v '_mono_' )
         unzip "$zip_file"
         ls | grep -E '${{ env.FILE }}.*\.zip' | xargs rm
+        ls
 
     - name: Generic Executable
       shell: bash
