@@ -51,16 +51,12 @@ runs:
       shell: bash
       run: |
         ls
-        zip_file=$( ls | grep -E '${{ env.FILE }}' | grep -v '_mono_' )
-        unzip "$zip_file"
-        ls | grep -E '${{ env.FILE }}.*\.zip' | xargs rm
-        tar_file=$( ls | grep export_templates.tpz )
-        mv "$tar_file" templates.tar.gz
+        zip_editor=$( ls | grep -E '${{ env.FILE }}' )
+        unzip "$zip_editor"
+        zip_templates=$( ls | grep export_templates.tpz )
+        unzip "$zip_templates"
         ls
-        echo "$tar_file"
-        tar -xf templates.tar.gz
-        ls
-        rm templates.tar.gz
+        unzip "$zip_editor" "$zip_templates"
         ls
 
     - name: Generic Executable
