@@ -30,7 +30,10 @@ runs:
       id: cache-godot
       uses: actions/cache@v3
       with:
-        path: ${{ github.workspace }}/*${{ env.FILE }}
+        path: |
+          ${{ github.workspace }}/Godot*.x86_64
+          ${{ github.workspace }}/Godot.app
+          ${{ github.workspace }}/Godot*.win64.exe
         key: godot-${{ runner.os }}-${{ inputs.version }}
 
     - name: Download Godot
@@ -41,15 +44,19 @@ runs:
         version: tags/${{ inputs.version }}
         regex: true
         target: './' # Defaults to regex prepended to filename
-        file: ${{ env.FILE }}
+        file: ${{ env.FILE }}|export_templates.tpz
 
-    - name: Unzip Godot
+    - name: Extract Godot
       if: steps.cache-godot.outputs.cache-hit != 'true'
       shell: bash
       run: |
         zip_file=$( ls | grep -E '${{ env.FILE }}' | grep -v '_mono_' )
         unzip "$zip_file"
         ls | grep -E '${{ env.FILE }}.*\.zip' | xargs rm
+        tar_file=$( ls | grep export_templates.tpz )
+        tar -xf "$tar_file"
+        ls
+        rm "$tar_file"
         ls
 
     - name: Generic Executable

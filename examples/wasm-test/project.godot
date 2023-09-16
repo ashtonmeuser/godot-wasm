@@ -29,6 +29,10 @@ window/size/viewport_height=512
 
 run/main_run_args="--keepalive=yes -- --key=val"
 
+[filesystem]
+
+import/blender/enabled=false
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
