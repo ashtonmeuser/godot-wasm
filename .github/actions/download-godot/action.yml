@@ -55,10 +55,12 @@ runs:
         unzip "$zip_file"
         ls | grep -E '${{ env.FILE }}.*\.zip' | xargs rm
         tar_file=$( ls | grep export_templates.tpz )
-        echo "$tar_file"
-        tar -xf "$tar_file"
+        mv "$tar_file" templates.tar.gz
         ls
-        rm "$tar_file"
+        echo "$tar_file"
+        tar -xf templates.tar.gz
+        ls
+        rm templates.tar.gz
         ls
 
     - name: Generic Executable
