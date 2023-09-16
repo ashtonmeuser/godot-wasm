@@ -34,6 +34,7 @@ runs:
           ${{ github.workspace }}/Godot*.x86_64
           ${{ github.workspace }}/Godot.app
           ${{ github.workspace }}/Godot*.win64.exe
+          templates/*
         key: godot-${{ runner.os }}-${{ inputs.version }}
 
     - name: Download Godot
@@ -56,7 +57,7 @@ runs:
         zip_templates=$( ls | grep export_templates.tpz )
         unzip "$zip_templates"
         ls
-        unzip "$zip_editor" "$zip_templates"
+        rm "$zip_editor" "$zip_templates"
         ls
 
     - name: Generic Executable
