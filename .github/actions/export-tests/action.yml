@@ -25,7 +25,7 @@ runs:
     - name: Export
       shell: bash
       run: |
-        ./${{ inputs.executable }} --headless --no-window --export-release --path examples/wasm-test "${{ runner.os }}" WasmTest.${{ env.EXTENSION }}
+        ./${{ inputs.executable }} --headless --no-window --export-release --path examples/wasm-test "${{ runner.os }}" ../../WasmTest.${{ env.EXTENSION }}
         echo "EXECUTABLE=WastTest.${{ env.EXTENSION }}" >> $GITHUB_ENV
 
     - name: MacOS Executable
