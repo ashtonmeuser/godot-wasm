@@ -31,7 +31,11 @@ runs:
     - name: MacOS Executable
       if: runner.os == 'macOS'
       shell: bash
-      run: echo "EXECUTABLE=WastTest.app/Contents/MacOS/WasmTest" >> $GITHUB_ENV
+      run: |
+        ls
+        echo "asdf"
+        ls examples/wasm-test
+        echo "EXECUTABLE=WastTest.app/Contents/MacOS/WasmTest" >> $GITHUB_ENV
 
     - name: Run Tests
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
