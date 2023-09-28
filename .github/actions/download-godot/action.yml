@@ -14,17 +14,23 @@ runs:
     - name: Linux File Pattern
       if: runner.os == 'Linux'
       shell: bash
-      run: echo "FILE=linux(\.x86_64|_headless\.64)" >> $GITHUB_ENV
+      run: |
+        echo "ASSET=linux(\.x86_64|_headless\.64)" >> $GITHUB_ENV
+        echo "FILE=linux(\.x86_64|_headless\.64)" >> $GITHUB_ENV
 
     - name: MacOS File Pattern
       if: runner.os == 'macOS'
       shell: bash
-      run: echo "FILE=(macos|osx)\.universal" >> $GITHUB_ENV
+      run: |
+        echo "ASSET=(macos|osx)\.universal" >> $GITHUB_ENV
+        echo "FILE=(macos|osx)\.universal" >> $GITHUB_ENV
 
     - name: Windows File Pattern
       if: runner.os == 'Windows'
       shell: bash
-      run: echo "FILE=win64_console.exe" >> $GITHUB_ENV
+      run: |
+        echo "ASSET=win64.exe" >> $GITHUB_ENV
+        echo "FILE=win64_console.exe" >> $GITHUB_ENV
 
     - name: Cache Godot
       id: cache-godot
@@ -45,14 +51,14 @@ runs:
         version: tags/${{ inputs.version }}
         regex: true
         target: './' # Defaults to regex prepended to filename
-        file: ${{ inputs.version }}_(${{ env.FILE }}|export_templates.tpz)
+        file: ${{ inputs.version }}_(${{ env.ASSET }}|export_templates.tpz)
 
     - name: Extract Godot
       if: steps.cache-godot.outputs.cache-hit != 'true'
       shell: bash
       run: |
         ls
-        zip_editor=$( ls | grep -E '${{ env.FILE }}' )
+        zip_editor=$( ls | grep -E '${{ env.ASSET }}' )
         unzip "$zip_editor"
         zip_templates=$( ls | grep export_templates.tpz )
         unzip "$zip_templates"
@@ -73,4 +79,3 @@ runs:
       id: set-output
       shell: bash
       run: echo "executable=${{ env.EXECUTABLE }}" >> $GITHUB_OUTPUT
-
