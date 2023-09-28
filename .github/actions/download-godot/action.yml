@@ -24,7 +24,7 @@ runs:
     - name: Windows File Pattern
       if: runner.os == 'Windows'
       shell: bash
-      run: echo "FILE=win64.exe" >> $GITHUB_ENV
+      run: echo "FILE=win64_console.exe" >> $GITHUB_ENV
 
     - name: Cache Godot
       id: cache-godot
