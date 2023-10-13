@@ -127,3 +127,4 @@ jobs:
         uses: ./.github/actions/export-tests
         with:
           executable: ${{ steps.download-godot.outputs.executable }}
+          godot-major: ${{ env.GODOT_MAJOR }}
