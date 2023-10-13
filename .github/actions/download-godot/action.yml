@@ -39,7 +39,7 @@ runs:
         path: |
           ${{ github.workspace }}/Godot*.x86_64
           ${{ github.workspace }}/Godot.app
-          ${{ github.workspace }}/Godot*_win64.exe
+          ${{ github.workspace }}/Godot*_win64*.exe
           templates/*
         key: godot-${{ runner.os }}-${{ inputs.version }}
 
