@@ -57,14 +57,11 @@ runs:
       if: steps.cache-godot.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        ls
         zip_editor=$( ls | grep -E '${{ env.ASSET }}' )
         unzip "$zip_editor"
         zip_templates=$( ls | grep export_templates.tpz )
         unzip "$zip_templates"
-        ls
         rm "$zip_editor" "$zip_templates"
-        ls
 
     - name: Generic Executable
       shell: bash

@@ -27,7 +27,7 @@ runs:
       shell: bash
       run: echo "name=${{ inputs.cache-prefix }}${{ inputs.platform }}-${{ inputs.godot-major }}-${{ github.workflow }}" >> $GITHUB_OUTPUT
 
-    - name: Load Cache
+    - name: Cache Scons
       uses: actions/cache@v3
       with:
         path: ${{ inputs.scons-cache }}
