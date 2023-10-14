@@ -28,7 +28,7 @@ runs:
     - name: Godot 4 Export Command
       if: startsWith(inputs.version, 4)
       shell: bash
-      run: echo "EXPORT_CMD=--export-release ${{ runner.os }} ../../WasmTest.${{ env.EXTENSION }}" >> $GITHUB_ENV
+      run: echo "EXPORT_CMD=--export-release ${{ runner.os }} ./WasmTest.${{ env.EXTENSION }}" >> $GITHUB_ENV
 
     - name: Godot 3 Export Command
       if: startsWith(inputs.version, 3)
@@ -49,4 +49,4 @@ runs:
 
     - name: Run Tests
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
-      run: ./${{ env.EXECUTABLE }} --headless --no-window -- --key=val
+      run: ./examples/wasm-test/${{ env.EXECUTABLE }} --headless --no-window -- --key=val
