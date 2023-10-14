@@ -30,7 +30,7 @@ runs:
       shell: bash
       run: |
         echo "ASSET=win64.exe" >> $GITHUB_ENV
-        echo "FILE=win64_console.exe" >> $GITHUB_ENV
+        echo "FILE=win64.exe" >> $GITHUB_ENV
 
     - name: Cache Godot
       id: cache-godot

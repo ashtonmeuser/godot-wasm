@@ -4,8 +4,8 @@ inputs:
   executable:
     description: The Godot executable in CWD
     required: true
-  godot-major:
-    description: The major version of Godot being targeted used to configure export command
+  version:
+    description: The Godot version with which to export project
     required: true
 runs:
   using: composite
@@ -25,12 +25,13 @@ runs:
       shell: bash
       run: echo "EXTENSION=exe" >> $GITHUB_ENV
 
-    - name: Generic Export Command
+    - name: Godot 4 Export Command
+      if: startsWith(inputs.version, 4)
       shell: bash
       run: echo "EXPORT_CMD=--export-release ${{ runner.os }} ../../WasmTest.${{ env.EXTENSION }}" >> $GITHUB_ENV
 
-    - name: Godot 3.x Export Command
-      if: inputs.godot-major == 3
+    - name: Godot 3 Export Command
+      if: startsWith(inputs.version, 3)
       shell: bash
       run: echo "EXPORT_CMD=--export ${{ runner.os }}" >> $GITHUB_ENV
 
@@ -38,6 +39,7 @@ runs:
       shell: bash
       run: |
         ./${{ inputs.executable }} --headless --no-window --path examples/wasm-test ${{ env.EXPORT_CMD }}
+        ls -R
         echo "EXECUTABLE=WasmTest.${{ env.EXTENSION }}" >> $GITHUB_ENV
 
     - name: MacOS Executable
