@@ -97,11 +97,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [linux, macos, windows]
+        platform: [linux, osx, windows]
         include:
           - platform: linux
             os: ubuntu-latest
-          - platform: macos
+          - platform: osx
             os: macos-11
           - platform: windows
             os: windows-latest
