@@ -50,7 +50,7 @@ _global_script_class_icons={
 
 [application]
 
-config/name="Wasm Test"
+config/name="WasmTest"
 run/main_scene="res://Main.tscn"
 
 [debug]

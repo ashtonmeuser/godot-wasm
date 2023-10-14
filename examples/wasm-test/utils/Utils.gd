@@ -6,7 +6,8 @@ static func comparable(o):
 
 static func make_regex(pattern: String) -> RegEx:
 	var regex = RegEx.new()
-	assert(regex.compile(pattern) == OK, "Invalid regex pattern: %s" % pattern)
+	var error = regex.compile(pattern)
+	assert(error == OK, "Invalid regex pattern: %s" % pattern)
 	return regex
 
 static func file_length(f: File) -> int:

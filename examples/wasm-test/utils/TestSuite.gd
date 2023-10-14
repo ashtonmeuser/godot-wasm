@@ -25,6 +25,9 @@ func run(f):
 # Test condition utils
 
 func expect_log(s: String):
+	if !OS.has_feature("editor"): # Log file is not live when exported
+		print("Export build skipping expect log: %s" % s)
+		return
 	_log_file.seek(_log_file.get_position()) # HACK: Not sure why this works
 	var line = _log_file.get_line()
 	var regex: RegEx = RegEx.new()
