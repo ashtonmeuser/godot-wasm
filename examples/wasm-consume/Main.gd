@@ -42,10 +42,11 @@ func _update_info():
 	if info.is_empty():
 		$"%InfoText".set("text", "Error")
 		return
+	if !info.has("memory"): info["memory"] = {}
 	var memory_info = ""
-	if info.has("memory_min"): memory_info += "\nMin %s" % _pretty_bytes(info.memory_min)
-	if info.has("memory_max"): memory_info += "\nMax %s" % _pretty_bytes(info.memory_max)
-	if info.has("memory_current"): memory_info += "\nCurrent %s" % _pretty_bytes(info.memory_current)
+	if info.memory.has("min"): memory_info += "\nMin %s" % _pretty_bytes(info.memory.min)
+	if info.memory.has("max"): memory_info += "\nMax %s" % _pretty_bytes(info.memory.max)
+	if info.memory.has("current"): memory_info += "\nCurrent %s" % _pretty_bytes(info.memory.current)
 	$"%InfoText".text = info_template % [
 		_pretty_signatures({}),
 		_pretty_signatures(info.import_functions),
