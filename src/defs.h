@@ -26,7 +26,7 @@
   #define PRINT_ERROR(message) _err_print_error(__FUNCTION__, __FILE__, __LINE__, "Godot Wasm: " + String(message))
   #define godot_error Error
   #define REGISTRATION_METHOD _bind_methods
-  #define RANDOM_BYTES(n) Crypto().generate_random_bytes(n)
+  #define RANDOM_BYTES(n) [n]()->PackedByteArray{Ref<Crypto> c;c.instantiate();return c->generate_random_bytes(n);}()
 #endif
 #define FAIL(message, ret) do { PRINT_ERROR(message); return ret; } while (0)
 #define FAIL_IF(cond, message, ret) if (unlikely(cond)) FAIL(message, ret)
