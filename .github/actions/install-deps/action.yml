@@ -25,4 +25,3 @@ runs:
       if: runner.os == 'Windows'
       shell: bash
       run: python -m pip install pywin32
-

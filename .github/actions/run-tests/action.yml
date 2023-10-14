@@ -8,5 +8,5 @@ runs:
   using: composite
   steps:
     - name: Run Tests
-      shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
+      shell: bash
       run: ./${{ inputs.executable }} --headless --no-window --debug --path examples/wasm-test -- --key=val

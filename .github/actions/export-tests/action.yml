@@ -1,0 +1,50 @@
+name: Export Tests
+description: Export and run test project
+inputs:
+  executable:
+    description: The Godot executable in CWD
+    required: true
+  godot-major:
+    description: The major version of Godot being targeted used to configure export command
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Linux Export Details
+      if: runner.os == 'Linux'
+      shell: bash
+      run: echo "EXTENSION=x86_64" >> $GITHUB_ENV
+
+    - name: MacOS Export Details
+      if: runner.os == 'macOS'
+      shell: bash
+      run: echo "EXTENSION=app" >> $GITHUB_ENV
+
+    - name: Windows Export Details
+      if: runner.os == 'Windows'
+      shell: bash
+      run: echo "EXTENSION=exe" >> $GITHUB_ENV
+
+    - name: Generic Export Command
+      shell: bash
+      run: echo "EXPORT_CMD=--export-release ${{ runner.os }} ../../WasmTest.${{ env.EXTENSION }}" >> $GITHUB_ENV
+
+    - name: Godot 3.x Export Command
+      if: inputs.godot-major == 3
+      shell: bash
+      run: echo "EXPORT_CMD=--export ${{ runner.os }}" >> $GITHUB_ENV
+
+    - name: Export
+      shell: bash
+      run: |
+        ./${{ inputs.executable }} --headless --no-window --path examples/wasm-test ${{ env.EXPORT_CMD }}
+        echo "EXECUTABLE=WasmTest.${{ env.EXTENSION }}" >> $GITHUB_ENV
+
+    - name: MacOS Executable
+      if: runner.os == 'macOS'
+      shell: bash
+      run: echo "EXECUTABLE=WasmTest.app/Contents/MacOS/WasmTest" >> $GITHUB_ENV
+
+    - name: Run Tests
+      shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
+      run: ./${{ env.EXECUTABLE }} --headless --no-window -- --key=val

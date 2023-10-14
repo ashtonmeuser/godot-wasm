@@ -4,6 +4,7 @@
 wasmer/
 wasmtime/
 addons.zip
+templates/
 *.os
 *.obj
 *.pdb
