@@ -1,7 +1,7 @@
 # Godot Wasm
 
 <p align="center">
-  <img width="200" src="https://raw.githubusercontent.com/ashtonmeuser/godot-wasm/master/media/Icon.png" alt="Godot Wasm Logo">
+  <img width="200" src="https://github.com/ashtonmeuser/godot-wasm/assets/7253863/201300b3-41bc-4c54-b649-01d325ff8b69" alt="Godot Wasm Logo">
 </p>
 <p align="center">
   <a href="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/addon.yml">
