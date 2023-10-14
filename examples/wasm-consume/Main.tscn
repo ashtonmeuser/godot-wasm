@@ -6,9 +6,6 @@
 
 [sub_resource type="FontFile" id="4"]
 fallbacks = Array[Font]([ExtResource("2")])
-face_index = null
-embolden = null
-transform = null
 cache/0/16/0/ascent = 0.0
 cache/0/16/0/descent = 0.0
 cache/0/16/0/underline_position = 0.0
@@ -27,9 +24,6 @@ expand_margin_right = 10.0
 
 [sub_resource type="FontFile" id="6"]
 fallbacks = Array[Font]([ExtResource("3")])
-face_index = null
-embolden = null
-transform = null
 cache/0/16/0/ascent = 0.0
 cache/0/16/0/descent = 0.0
 cache/0/16/0/underline_position = 0.0
@@ -55,9 +49,6 @@ expand_margin_right = 2.0
 
 [sub_resource type="FontFile" id="7"]
 fallbacks = Array[Font]([ExtResource("3")])
-face_index = null
-embolden = null
-transform = null
 cache/0/16/0/ascent = 0.0
 cache/0/16/0/descent = 0.0
 cache/0/16/0/underline_position = 0.0
