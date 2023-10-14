@@ -54,9 +54,9 @@ jobs:
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ matrix.platform }}
           if-no-files-found: error
 
-  test-addon:
+  test-editor:
     needs: build-addon
-    name: Test Addon
+    name: Test Addon Editor
     strategy:
       fail-fast: false
       matrix:
@@ -93,7 +93,7 @@ jobs:
 
   test-export:
     needs: build-addon
-    name: Test Export
+    name: Test Addon Export
     strategy:
       fail-fast: false
       matrix:
