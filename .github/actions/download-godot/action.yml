@@ -65,7 +65,9 @@ runs:
 
     - name: Generic Executable
       shell: bash
-      run: echo "EXECUTABLE=$( ls | grep -E '${{ env.FILE }}' )" >> $GITHUB_ENV
+      run: |
+        ls
+        echo "EXECUTABLE=$( ls | grep -E '${{ env.FILE }}' )" >> $GITHUB_ENV
 
     - name: MacOS Executable
       if: runner.os == 'macOS'
