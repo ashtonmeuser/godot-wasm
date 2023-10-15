@@ -22,7 +22,7 @@ runs:
     - name: Cache Base Name
       id: cache-name
       shell: bash
-      run: echo "name=${{ inputs.platform }}-${{ github.workflow }}-${{ inputs.cache-prefix }}" >> $GITHUB_OUTPUT
+      run: echo "name=${{ inputs.platform }}-${{ github.workflow }}-${{ inputs.cache-suffix }}" >> $GITHUB_OUTPUT
 
     - name: Cache Scons
       uses: actions/cache@v3
