@@ -55,7 +55,7 @@ runs:
     - name: Godot 3 Linux Executable
       if: startsWith(inputs.version, 3) && runner.os == 'Linux'
       shell: bash
-      run: echo "EXECUTABLE=./${{ inputs.executable }} --main-pack WasmTest.pck" >> $GITHUB_ENV
+      run: echo "EXECUTABLE=./${{ inputs.executable }} --main-pack ./examples/wasm-test/WasmTest.pck" >> $GITHUB_ENV
 
     - name: Run Tests
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
