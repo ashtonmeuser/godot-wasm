@@ -44,7 +44,7 @@ runs:
       shell: bash
       run: |
         ./${{ inputs.executable }} --headless --no-window --path examples/wasm-test ${{ env.EXPORT_CMD }}
-        echo "EXPORT=./examples/wasm-test/WasmTest.${{ env.EXTENSION }}" >> $GITHUB_ENV
+        echo "EXECUTABLE=./examples/wasm-test/WasmTest.${{ env.EXTENSION }}" >> $GITHUB_ENV
 
     - name: MacOS Executable
       if: runner.os == 'macOS'
