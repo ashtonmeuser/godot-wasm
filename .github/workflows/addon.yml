@@ -5,7 +5,6 @@ on:
   workflow_dispatch:
 
 env:
-  GODOT_MAJOR: 4
   TARGET: template_release
   GODOT_REF: 4.1.2-stable
   LIBRARY_PATH: addons/godot-wasm/bin
@@ -45,7 +44,7 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
           target: ${{ env.TARGET }}
-          godot-major: ${{ env.GODOT_MAJOR }}
+          cache-suffix: ${{ env.GODOT_REF }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
@@ -127,4 +126,4 @@ jobs:
         uses: ./.github/actions/export-tests
         with:
           executable: ${{ steps.download-godot.outputs.executable }}
-          godot-major: ${{ env.GODOT_MAJOR }}
+          version: ${{ env.GODOT_REF }}

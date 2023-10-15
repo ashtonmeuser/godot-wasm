@@ -7,14 +7,11 @@ inputs:
   target:
     description: The Godot target to build
     required: true
-  godot-major:
-    description: The major version of Godot being targeted used in cache name
-    required: true
   scons-flags:
     description: Additional Sconstruct flags
     default: ''
-  cache-prefix:
-    description: Prefix prepended to cache name
+  cache-suffix:
+    description: Suffix appended to cache name
     default: ''
   scons-cache:
     description: The Sconstruct cache path
@@ -25,7 +22,7 @@ runs:
     - name: Cache Base Name
       id: cache-name
       shell: bash
-      run: echo "name=${{ inputs.cache-prefix }}${{ inputs.platform }}-${{ inputs.godot-major }}-${{ github.workflow }}" >> $GITHUB_OUTPUT
+      run: echo "name=${{ inputs.platform }}-${{ github.workflow }}-${{ inputs.cache-suffix }}" >> $GITHUB_OUTPUT
 
     - name: Cache Scons
       uses: actions/cache@v3
