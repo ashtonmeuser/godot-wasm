@@ -5,7 +5,6 @@ on:
   workflow_dispatch:
 
 env:
-  GODOT_MAJOR: 3
   TARGET: release
   GODOT_REF: 3.5.2-stable
   LIBRARY_PATH: addons/godot-wasm/bin
@@ -46,7 +45,7 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
           target: ${{ env.TARGET }}
-          godot-major: ${{ env.GODOT_MAJOR }}
+          cache-suffix: ${{ env.GODOT_REF }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
@@ -61,14 +60,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [linux, osx, windows]
+        platform: [linux, osx]
         include:
           - platform: linux
             os: ubuntu-latest
           - platform: osx
             os: macos-11
-          - platform: windows
-            os: windows-latest
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
@@ -98,14 +95,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [linux, macos, windows]
+        platform: [linux, osx]
         include:
           - platform: linux
             os: ubuntu-latest
-          - platform: macos
+          - platform: osx
             os: macos-11
-          - platform: windows
-            os: windows-latest
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
@@ -128,4 +123,4 @@ jobs:
         uses: ./.github/actions/export-tests
         with:
           executable: ${{ steps.download-godot.outputs.executable }}
-          godot-major: ${{ env.GODOT_MAJOR }}
+          version: ${{ env.GODOT_REF }}
