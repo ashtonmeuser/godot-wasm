@@ -58,6 +58,5 @@ runs:
       run: echo "EXECUTABLE=./${{ inputs.executable }} --main-pack WasmTest.pck" >> $GITHUB_ENV
 
     - name: Run Tests
-      if: ${{ !(startsWith(inputs.version, 3) && runner.os == 'Linux') }}
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
       run: ${{ env.EXECUTABLE }} --headless --no-window -- --key=val
