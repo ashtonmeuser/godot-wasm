@@ -30,23 +30,34 @@ runs:
       shell: bash
       run: echo "EXPORT_CMD=--export-release ${{ runner.os }} ./WasmTest.${{ env.EXTENSION }}" >> $GITHUB_ENV
 
-    - name: Godot 3 Export Command
+    - name: Godot 3 Export Command Generic
       if: startsWith(inputs.version, 3)
       shell: bash
       run: echo "EXPORT_CMD=--export ${{ runner.os }}" >> $GITHUB_ENV
+
+    - name: Godot 3 Export Command Linux
+      if: startsWith(inputs.version, 3) && runner.os == 'Linux'
+      shell: bash
+      run: echo "EXPORT_CMD=--export-pack ${{ runner.os }} ./WasmTest.pck" >> $GITHUB_ENV
 
     - name: Export
       shell: bash
       run: |
         ./${{ inputs.executable }} --headless --no-window --path examples/wasm-test ${{ env.EXPORT_CMD }}
         ls -R
-        echo "EXECUTABLE=WasmTest.${{ env.EXTENSION }}" >> $GITHUB_ENV
+        echo "EXPORT=./examples/wasm-test/WasmTest.${{ env.EXTENSION }}" >> $GITHUB_ENV
 
     - name: MacOS Executable
       if: runner.os == 'macOS'
       shell: bash
-      run: echo "EXECUTABLE=WasmTest.app/Contents/MacOS/WasmTest" >> $GITHUB_ENV
+      run: echo "EXECUTABLE=./examples/wasm-test/WasmTest.app/Contents/MacOS/WasmTest" >> $GITHUB_ENV
+
+    - name: Godot 3 Linux Executable
+      if: startsWith(inputs.version, 3) && runner.os == 'Linux'
+      shell: bash
+      run: echo "EXECUTABLE=./${{ inputs.executable }} --main-pack WasmTest.pck" >> $GITHUB_ENV
 
     - name: Run Tests
+      if: ${{ !(startsWith(inputs.version, 3) && runner.os == 'Linux') }}
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
-      run: ./examples/wasm-test/${{ env.EXECUTABLE }} --headless --no-window -- --key=val
+      run: ${{ env.EXECUTABLE }} --headless --no-window -- --key=val

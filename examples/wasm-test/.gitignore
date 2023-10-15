@@ -1,7 +1,9 @@
 .DS_Store
 .import/
 .godot/**
+WasmTest.x86_64
 WasmTest.app
+WasmTest.exe
 *.import
 !.godot/extension_list.cfg
 !.godot/global_script_class_cache.cfg

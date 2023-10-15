@@ -15,8 +15,8 @@ runs:
       if: runner.os == 'Linux'
       shell: bash
       run: |
-        echo "ASSET=linux(\.x86_64|_server\.64)" >> $GITHUB_ENV
-        echo "FILE=linux(\.x86_64|_server\.64)" >> $GITHUB_ENV
+        echo "ASSET=linux(\.x86_64|_headless\.64)" >> $GITHUB_ENV
+        echo "FILE=linux(\.x86_64|_headless\.64)" >> $GITHUB_ENV
 
     - name: MacOS File Pattern
       if: runner.os == 'macOS'
@@ -41,7 +41,6 @@ runs:
           ${{ github.workspace }}/Godot*.64
           ${{ github.workspace }}/Godot.app
           ${{ github.workspace }}/Godot*_win64*.exe
-          ${{ github.workspace }}/Godot*_win64*.cmd
           templates/*
         key: godot-${{ runner.os }}-${{ inputs.version }}
 
