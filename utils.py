@@ -3,10 +3,11 @@ import re
 import shutil
 from urllib import request
 import tarfile
+from zipfile import ZipFile
 
 WASMER_BASE_URL = "https://github.com/wasmerio/wasmer/releases/download/{0}/wasmer-{1}.tar.gz"
 WASMER_VER_DEFAULT = "v4.2.0"
-WASMTIME_BASE_URL = "https://github.com/bytecodealliance/wasmtime/releases/download/{0}/wasmtime-{0}-{1}-c-api.tar.xz"
+WASMTIME_BASE_URL = "https://github.com/bytecodealliance/wasmtime/releases/download/{0}/wasmtime-{0}-{1}-c-api.{2}"
 WASMTIME_VER_DEFAULT = "v12.0.1"
 
 
@@ -34,6 +35,32 @@ def _download_tarfile(url, dest, rename={}):
     request.urlretrieve(url, filename)
     with tarfile.open(filename) as file:
         file.extractall(dest, members=_strip_tar_members(file, strip))
+    for k, v in rename.items():
+        os.rename(k, v)
+    os.remove(filename)
+
+
+def _strip_zip_members(f, s=""):
+    """Optionally strip zipfile top level directory"""
+    for member in f.infolist():
+        # Skip directories
+        if member.is_dir():
+            continue
+        if re.fullmatch(s, member.filename):
+            continue  # Top level dir
+        elif re.match(s + r"\/", member.filename):  # Nested file
+            member.filename = member.filename.split("/", 1)[1]
+        yield member
+
+
+def _download_zipfile(url, dest, rename={}):
+    """Download and extract zipfile removing redundant top level dir"""
+    strip = r"^{}[\w\-.]*".format(dest)  # Dir of same name as destination
+    filename = "tmp.zip"  # Temporary zipfile name
+    os.makedirs(dest, exist_ok=True)
+    request.urlretrieve(url, filename)
+    with ZipFile(filename, 'r') as file:
+        file.extractall(dest, members=_strip_zip_members(file, strip))
     for k, v in rename.items():
         os.rename(k, v)
     os.remove(filename)
@@ -92,17 +119,17 @@ def download_wasmtime(env, force=False, version=WASMTIME_VER_DEFAULT):
     if env["platform"] in ["osx", "macos"]:
         # For macOS, we need to universalize the AMD and ARM libraries
         _download_tarfile(
-            WASMTIME_BASE_URL.format(version, "x86_64-macos"),
+            WASMTIME_BASE_URL.format(version, "x86_64-macos", "tar.xz"),
             "wasmtime",
             {"wasmtime/lib/libwasmtime.a": "wasmtime/lib/libwasmtime.amd64.a"},
         )
         _download_tarfile(
-            WASMTIME_BASE_URL.format(version, "aarch64-macos"),
+            WASMTIME_BASE_URL.format(version, "aarch64-macos", "tar.xz"),
             "wasmtime",
             {"wasmtime/lib/libwasmtime.a": "wasmtime/lib/libwasmtime.arm64.a"},
         )
         os.system("lipo wasmtime/lib/libwasmtime.*64.a -output wasmtime/lib/libwasmtime.a -create")
     elif env["platform"] in ["linux", "linuxbsd", "x11"]:
-        _download_tarfile(WASMTIME_BASE_URL.format(version, "x86_64-linux"), "wasmtime")
+        _download_tarfile(WASMTIME_BASE_URL.format(version, "x86_64-linux", "tar.xz"), "wasmtime")
     elif env["platform"] == "windows":
-        _download_tarfile(WASMTIME_BASE_URL.format(version, "x86_64-windows"), "wasmtime")
+        _download_zipfile(WASMTIME_BASE_URL.format(version, "x86_64-windows", "zip"), "wasmtime")
