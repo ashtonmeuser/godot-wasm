@@ -4,15 +4,9 @@
   <img width="200" src="https://github.com/ashtonmeuser/godot-wasm/assets/7253863/201300b3-41bc-4c54-b649-01d325ff8b69" alt="Godot Wasm Logo">
 </p>
 <p align="center">
-  <a href="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/addon.yml">
-    <img src="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/addon.yml/badge.svg" alt="Addon Status">
-  </a>
-  <a href="https://github.com/ashtonmeuser/godot-wasm/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/ashtonmeuser/godot-wasm" alt="License">
-  </a>
-  <a href="https://github.com/ashtonmeuser/godot-wasm/releases/latest">
-    <img src="https://img.shields.io/github/v/release/ashtonmeuser/godot-wasm" alt="Version">
-  </a>
+  <a href="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/addon.yml"><img src="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/addon.yml/badge.svg" alt="Addon Status"></a>
+  <a href="https://github.com/ashtonmeuser/godot-wasm/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ashtonmeuser/godot-wasm" alt="License"></a>
+  <a href="https://github.com/ashtonmeuser/godot-wasm/releases/latest"><img src="https://img.shields.io/github/v/release/ashtonmeuser/godot-wasm" alt="Version"></a>
 </p>
 
 > **Warning**
