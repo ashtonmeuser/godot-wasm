@@ -43,9 +43,8 @@ def _download_tarfile(url, dest, rename={}):
 def _strip_zip_members(f, s=""):
     """Optionally strip zipfile top level directory"""
     for member in f.infolist():
-        # Skip directories
         if member.is_dir():
-            continue
+            continue # Skip directories
         if re.fullmatch(s, member.filename):
             continue  # Top level dir
         elif re.match(s + r"\/", member.filename):  # Nested file
@@ -59,7 +58,7 @@ def _download_zipfile(url, dest, rename={}):
     filename = "tmp.zip"  # Temporary zipfile name
     os.makedirs(dest, exist_ok=True)
     request.urlretrieve(url, filename)
-    with ZipFile(filename, 'r') as file:
+    with ZipFile(filename, "r") as file:
         file.extractall(dest, members=_strip_zip_members(file, strip))
     for k, v in rename.items():
         os.rename(k, v)

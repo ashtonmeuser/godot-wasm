@@ -26,13 +26,13 @@ if env["platform"] == "windows":
         env.Append(LIBS=["userenv"])
     else:  # MSVC
         env["LIBRUNTIMESUFFIX"] = ".lib"
-        env.Append(CCFLAGS=["-MD"]) # Dynamic CRT used by Wasmer >= v3.2.0
+        env.Append(CCFLAGS=["-MD"])  # Dynamic CRT used by Wasmer >= v3.2.0
         # Force Windows SDK library suffix (see https://github.com/godotengine/godot/issues/23687)
         env.Append(LINKFLAGS=["bcrypt.lib", "userenv.lib", "ws2_32.lib", "advapi32.lib", "ntdll.lib"])
-        # Additional libraries to build wasmtime for Windows.  For now, turn off treat warnings as errors to fix LIBCMT conflict warning.
+        # Additional libraries to build wasmtime for Windows
         if env["wasm_runtime"] == "wasmtime":
             env.Append(LINKFLAGS=["shell32.lib", "ole32.lib", "wasmtime\\lib\\wasmtime.dll.lib"])
-            env.Append(LINKFLAGS=["/WX:NO"])
+            env.Append(LINKFLAGS=["/WX:NO"])  # Temporarily disable warnings as errors to fix LIBCMT conflict warning
 
 # Defines for GDExtension specific API
 env.Append(CPPDEFINES=["GDEXTENSION", "LIBWASM_STATIC"])
