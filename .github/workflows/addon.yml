@@ -6,7 +6,7 @@ on:
 
 env:
   TARGET: release
-  GODOT_REF: 3.5.2-stable
+  GODOT_REF: 3.5.3-stable
   LIBRARY_PATH: addons/godot-wasm/bin
 
 jobs:
