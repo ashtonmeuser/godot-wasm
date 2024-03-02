@@ -432,6 +432,9 @@ namespace godot {
     const wasm_func_t* func = wasm_extern_as_func(data);
     FAIL_IF(func == NULL, "Failed to retrieve function export " + name, NULL_VARIANT);
 
+    // Validate argument count
+    FAIL_IF(context.params.size() != args.size(), "Incorrect number of arguments supplied", NULL_VARIANT);
+
     // Construct args
     std::vector<wasm_val_t> args_vec;
     for (uint16_t i = 0; i < args.size(); i++) {
