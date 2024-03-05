@@ -3,6 +3,12 @@ on:
   push:
     branches: [master, godot-3]
   workflow_dispatch:
+    inputs:
+      runtime:
+        type: choice
+        options:
+          - wasm_runtime=wasmer
+          - wasm_runtime=wasmtime
 
 env:
   TARGET: template_release
@@ -45,6 +51,7 @@ jobs:
           platform: ${{ matrix.platform }}
           target: ${{ env.TARGET }}
           cache-suffix: ${{ env.GODOT_REF }}
+          scons-flags: ${{ github.event.inputs.runtime }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
