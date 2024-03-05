@@ -68,12 +68,18 @@ func test_uninstantiated_function():
 	expect_eq(result, null)
 	expect_error("Not instantiated")
 
-func test_invalid_function_args():
+func test_invalid_function_arg_type():
 	var wasm = load_wasm("simple")
 	var result = wasm.function("add", [{}, 2])
 	expect_eq(result, null)
 	expect_error("Unsupported Godot variant type")
 	expect_error("Invalid argument type")
+
+func test_invalid_function_arg_count():
+	var wasm = load_wasm("simple")
+	var result = wasm.function("add", [1])
+	expect_eq(result, null)
+	expect_error("Incorrect number of arguments supplied")
 
 func test_global():
 	var wasm = load_wasm("simple")
