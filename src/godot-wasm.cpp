@@ -7,25 +7,25 @@
 
 namespace godot {
   namespace godot_wasm {
-    struct context_extern {
+    struct ContextExtern {
       uint16_t index; // Index within module imports/exports
-      context_extern(uint16_t i) { index = i; }
+      ContextExtern(uint16_t i) { index = i; }
     };
 
-    struct context_func_import: public context_extern {
+    struct ContextFuncImport: public ContextExtern {
       Object* target; // The object from which to invoke callback method
       String method; // External name; doesn't necessarily match import name
-      context_func_import(uint16_t i): context_extern(i) { }
+      ContextFuncImport(uint16_t i): ContextExtern(i) { }
     };
 
-    struct context_func_export: public context_extern {
+    struct ContextFuncExport: public ContextExtern {
       size_t return_count; // Number of return values
-      context_func_export(uint16_t i, size_t return_count): context_extern(i), return_count(return_count) { }
+      ContextFuncExport(uint16_t i, size_t return_count): ContextExtern(i), return_count(return_count) { }
     };
 
-    struct context_memory: public context_extern {
+    struct ContextMemory: public ContextExtern {
       bool import; // Import; not export
-      context_memory(uint16_t i, bool import): context_extern(i), import(import) { }
+      ContextMemory(uint16_t i, bool import): ContextExtern(i), import(import) { }
     };
   }
 
@@ -121,7 +121,7 @@ namespace godot {
       }
     }
 
-    Dictionary get_memory_limits(const wasm_module_t* module, const godot_wasm::context_memory* context) {
+    Dictionary get_memory_limits(const wasm_module_t* module, const godot_wasm::ContextMemory* context) {
       Dictionary dict;
       if (context == NULL) return dict;
       wasm_externtype_t* type = get_extern_type(module, context->index, context->import);
@@ -169,7 +169,7 @@ namespace godot {
     wasm_trap_t* callback_wrapper(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       // This is invoked by Wasm module calls to imported functions
       // Must be free function so context is passed via the env void pointer
-      godot_wasm::context_func_import* context = (godot_wasm::context_func_import*)env;
+      godot_wasm::ContextFuncImport* context = (godot_wasm::ContextFuncImport*)env;
       Array params = Array();
       // TODO: Check if args and results match expected sizes
       for (uint16_t i = 0; i < args->size; i++) params.push_back(decode_variant(args->data[i]));
@@ -304,7 +304,7 @@ namespace godot {
       FAIL_IF(import.size() != 2, "Invalid import function " + it.first, ERR_CANT_CREATE);
       FAIL_IF(import[0].get_type() != Variant::OBJECT, "Invalid import target", ERR_CANT_CREATE);
       FAIL_IF(import[1].get_type() != Variant::STRING, "Invalid import method", ERR_CANT_CREATE);
-      godot_wasm::context_func_import* context = (godot_wasm::context_func_import*)&it.second;
+      godot_wasm::ContextFuncImport* context = (godot_wasm::ContextFuncImport*)&it.second;
       context->target = import[0];
       context->method = import[1];
       extern_map[it.second.index] = wasm_func_as_extern(create_callback(context));
@@ -401,7 +401,7 @@ namespace godot {
     wasm_extern_vec_t exports;
     DEFER(wasm_extern_vec_delete(&exports));
     wasm_instance_exports(instance, &exports);
-    godot_wasm::context_func_export context = export_funcs.at(name);
+    godot_wasm::ContextFuncExport context = export_funcs.at(name);
     wasm_extern_t* data = exports.data[context.index];
     const wasm_func_t* func = wasm_extern_as_func(data);
     FAIL_IF(func == NULL, "Failed to retrieve function export " + name, NULL_VARIANT);
@@ -442,10 +442,10 @@ namespace godot {
       const String key = decode_name(wasm_importtype_module(imports.data[i])) + "." + decode_name(wasm_importtype_name(imports.data[i]));
       switch (kind) {
         case WASM_EXTERN_FUNC:
-          import_funcs.emplace(key, godot_wasm::context_func_import(i));
+          import_funcs.emplace(key, godot_wasm::ContextFuncImport(i));
           break;
         case WASM_EXTERN_MEMORY:
-          memory_context = new godot_wasm::context_memory(i, true);
+          memory_context = new godot_wasm::ContextMemory(i, true);
           break;
         default: FAIL("Import type not implemented", ERR_INVALID_DATA);
       }
@@ -463,13 +463,13 @@ namespace godot {
         case WASM_EXTERN_FUNC: {
           const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
           const wasm_valtype_vec_t* func_results = wasm_functype_results(func_type);
-          export_funcs.emplace(key, godot_wasm::context_func_export(i, func_results->size));
+          export_funcs.emplace(key, godot_wasm::ContextFuncExport(i, func_results->size));
           break;
         } case WASM_EXTERN_GLOBAL:
-          export_globals.emplace(key, godot_wasm::context_extern(i));
+          export_globals.emplace(key, godot_wasm::ContextExtern(i));
           break;
         case WASM_EXTERN_MEMORY:
-          if (memory_context == NULL) memory_context = new godot_wasm::context_memory(i, false); // Favour import memory
+          if (memory_context == NULL) memory_context = new godot_wasm::ContextMemory(i, false); // Favour import memory
           break;
         default: FAIL("Export type not implemented", ERR_INVALID_DATA);
       }
@@ -478,7 +478,7 @@ namespace godot {
     return OK;
   }
 
-  wasm_func_t* Wasm::create_callback(godot_wasm::context_func_import* context) {
+  wasm_func_t* Wasm::create_callback(godot_wasm::ContextFuncImport* context) {
     wasm_importtype_vec_t imports;
     DEFER(wasm_importtype_vec_delete(&imports));
     wasm_module_imports(module, &imports);
