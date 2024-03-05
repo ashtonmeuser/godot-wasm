@@ -22,15 +22,13 @@ func read_file(f: String) -> PackedByteArray:
 	return FileAccess.get_file_as_bytes("res://wasm/%s.wasm" % f)
 
 # Dummy import to supply to Wasm modules
-static func dummy(a = "", b = "", c = "", d = ""):
+static func _dummy_import(a = "", b = "", c = "", d = ""):
 	var message = "Dummy import %s %s %s %s" % [a, b, c, d]
 	print(message.strip_edges())
+	return a
 
-func dummy_imports(functions: Array = []) -> Dictionary:
-	var imports = { "functions": {} }
-	for function in functions:
-		imports.functions[function] = [self, "dummy"]
-	return imports
+func dummy_import() -> Array:
+	return [self, "_dummy_import"]
 
 func make_bytes(data: Array):
 	return PackedByteArray(data)
