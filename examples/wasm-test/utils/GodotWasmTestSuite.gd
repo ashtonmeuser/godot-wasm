@@ -25,15 +25,13 @@ func read_file(f: String) -> PoolByteArray:
 	return file.get_buffer(file.get_len())
 
 # Dummy import to supply to Wasm modules
-static func dummy(a = "", b = "", c = "", d = ""):
+static func _dummy_import(a = "", b = "", c = "", d = ""):
 	var message = "Dummy import %s %s %s %s" % [a, b, c, d]
 	print(message.strip_edges())
+	return a
 
-func dummy_imports(functions: Array = []) -> Dictionary:
-	var imports = { "functions": {} }
-	for function in functions:
-		imports.functions[function] = [self, "dummy"]
-	return imports
+func dummy_import() -> Array:
+	return [self, "_dummy_import"]
 
 func make_bytes(data: Array):
 	return PoolByteArray(data)

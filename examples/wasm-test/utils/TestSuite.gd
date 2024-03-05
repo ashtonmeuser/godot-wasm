@@ -6,6 +6,8 @@ signal test_error(message)
 signal test_pass(case)
 signal test_fail(case)
 
+const EPSILON = 0.00001 # See https://github.com/godotengine/godot/blob/master/core/math/math_defs.h
+
 var _log_file # Log file used to check for output and/or errors
 var _error: bool = false # If the current test case has failed
 
@@ -61,6 +63,9 @@ func expect_type(a, t):
 
 func expect_within(a, b, c):
 	if abs(a - b) > c: _fail("Expect within: %s != %s ± %s" % [a, b, c])
+
+func expect_approx(a, b):
+	expect_within(a, b, EPSILON)
 
 func expect_includes(o, v: String):
 	if o is Dictionary:

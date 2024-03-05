@@ -48,37 +48,6 @@ func test_invalid_binary():
 	expect_eq(error, ERR_INVALID_DATA)
 	expect_error("Invalid binary")
 
-func test_imports():
-	var imports = dummy_imports(["import.test_import"])
-	load_wasm("import", imports)
-	expect_empty()
-
-func test_invalid_imports():
-	var wasm = Wasm.new()
-	var buffer = read_file("import")
-	var error = wasm.compile(buffer)
-	expect_eq(error, OK)
-	# Missing import
-	var imports = {}
-	error = wasm.instantiate(imports)
-	expect_eq(error, ERR_CANT_CREATE)
-	expect_error("Missing import function import.test_import")
-	# Invalid import
-	imports = { "functions": { "import.test_import": [] } }
-	error = wasm.instantiate(imports)
-	expect_eq(error, ERR_CANT_CREATE)
-	expect_error("Invalid import function import.test_import")
-	# Invalid import target
-	imports = { "functions": { "import.test_import": [0, "dummy"] } }
-	error = wasm.instantiate(imports)
-	expect_eq(error, ERR_CANT_CREATE)
-	expect_error("Invalid import target")
-	# Invalid import method
-	imports = { "functions": { "import.test_import": [self, 0] } }
-	error = wasm.instantiate(imports)
-	expect_eq(error, ERR_CANT_CREATE)
-	expect_error("Invalid import method")
-
 func test_function():
 	var wasm = load_wasm("simple")
 	var result = wasm.function("add", [1, 2])
@@ -99,18 +68,18 @@ func test_uninstantiated_function():
 	expect_eq(result, null)
 	expect_error("Not instantiated")
 
-func test_invalid_function_args():
+func test_invalid_function_arg_type():
 	var wasm = load_wasm("simple")
 	var result = wasm.function("add", [{}, 2])
 	expect_eq(result, null)
 	expect_error("Unsupported Godot variant type")
 	expect_error("Invalid argument type")
 
-func test_callback_function():
-	var imports = dummy_imports(["import.test_import"])
-	var wasm = load_wasm("import", imports)
-	wasm.function("callback", [])
-	expect_log("Dummy import 123")
+func test_invalid_function_arg_count():
+	var wasm = load_wasm("simple")
+	var result = wasm.function("add", [1])
+	expect_eq(result, null)
+	expect_error("Incorrect number of arguments supplied")
 
 func test_global():
 	var wasm = load_wasm("simple")
@@ -158,24 +127,3 @@ func test_inspect():
 		"memory": {}
 	}
 	expect_eq(inspect, expected)
-	# Import module post-instantiation
-	var imports = dummy_imports(["import.test_import"])
-	wasm = load_wasm("import", imports)
-	inspect = wasm.inspect()
-	expected = {
-		"import_functions": {
-			"import.test_import": [[TYPE_INT], []],
-		},
-		"export_globals": {},
-		"export_functions": {
-			"_initialize": [[], []],
-			"callback": [[], []],
-		},
-		"memory": {
-			"min": 0,
-			"max": PAGES_MAX,
-			"current": 0,
-		}
-	}
-	expect_eq(inspect, expected)
-	expect_empty()

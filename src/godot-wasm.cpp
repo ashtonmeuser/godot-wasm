@@ -15,12 +15,22 @@ namespace godot {
     struct ContextFuncImport: public ContextExtern {
       Object* target; // The object from which to invoke callback method
       String method; // External name; doesn't necessarily match import name
-      ContextFuncImport(uint16_t i): ContextExtern(i) { }
+      std::vector<wasm_valkind_t> results; // Return types
+      ContextFuncImport(uint16_t i, const wasm_functype_t* func_type): ContextExtern(i) {
+        const wasm_valtype_vec_t* func_results = wasm_functype_results(func_type);
+        for (uint16_t i = 0; i < func_results->size; i++) results.push_back(wasm_valtype_kind(func_results->data[i]));
+      }
     };
 
     struct ContextFuncExport: public ContextExtern {
       size_t return_count; // Number of return values
-      ContextFuncExport(uint16_t i, size_t return_count): ContextExtern(i), return_count(return_count) { }
+      std::vector<wasm_valkind_t> params; // Param types
+      ContextFuncExport(uint16_t i, const wasm_functype_t* func_type): ContextExtern(i) {
+        const wasm_valtype_vec_t* func_params = wasm_functype_params(func_type);
+        const wasm_valtype_vec_t* func_results = wasm_functype_results(func_type);
+        for (uint16_t i = 0; i < func_params->size; i++) params.push_back(wasm_valtype_kind(func_params->data[i]));
+        return_count = func_results->size;
+      }
     };
 
     struct ContextMemory: public ContextExtern {
@@ -42,6 +52,14 @@ namespace godot {
       p = NULL;
     }
 
+    inline wasm_val_t error_value(const char* message) {
+      PRINT_ERROR(message);
+      wasm_val_t value;
+      value.kind = WASM_ANYREF;
+      value.of.ref = NULL;
+      return value;
+    }
+
     Variant decode_variant(wasm_val_t value) {
       switch (value.kind) {
         case WASM_I32: return Variant(value.of.i32);
@@ -52,23 +70,35 @@ namespace godot {
       }
     }
 
-    wasm_val_t encode_variant(Variant variant) {
+    wasm_val_t encode_variant(Variant variant, wasm_valkind_t kind) {
       wasm_val_t value;
+      value.kind = kind;
       switch (variant.get_type()) {
         case Variant::INT:
-          value.kind = WASM_I64;
-          value.of.i64 = (int64_t)variant;
-          break;
+          switch (kind) {
+            case WASM_I32:
+              value.of.i32 = (int32_t)variant;
+              return value;
+            case WASM_I64:
+              value.of.i64 = (int64_t)variant;
+              return value;
+            default:
+              return error_value("Invalid target type for integer variant");
+          }
         case Variant::FLOAT:
-          value.kind = WASM_F64;
-          value.of.f64 = (float64_t)variant;
-          break;
+          switch (kind) {
+            case WASM_F32:
+              value.of.f32 = (float32_t)variant;
+              return value;
+            case WASM_F64:
+              value.of.f64 = (float64_t)variant;
+              return value;
+            default:
+              return error_value("Invalid target type for float variant");
+          }
         default:
-          PRINT_ERROR("Unsupported Godot variant type");
-          value.kind = WASM_ANYREF;
-          value.of.ref = NULL;
+          return error_value("Unsupported Godot variant type");
       }
-      return value;
     }
 
     String decode_name(const wasm_name_t* name) {
@@ -83,18 +113,19 @@ namespace godot {
       return d.has(k) && d[k].get_type() == Variant::OBJECT ? Object::cast_to<T>(d[k]) : NULL;
     }
 
-    godot_error extract_results(Variant variant, wasm_val_vec_t* results) {
+    godot_error extract_results(Variant variant, const godot_wasm::ContextFuncImport* context, wasm_val_vec_t* results) {
+      FAIL_IF(results->size != context->results.size(), "Incompatible return value(s)", ERR_INVALID_DATA);
       if (results->size <= 0) return OK;
       if (variant.get_type() == Variant::ARRAY) {
         Array array = variant.operator Array();
         if ((size_t)array.size() != results->size) return ERR_PARAMETER_RANGE_ERROR;
         for (uint16_t i = 0; i < results->size; i++) {
-          results->data[i] = encode_variant(array[i]);
+          results->data[i] = encode_variant(array[i], context->results[i]);
           if (results->data[i].kind == WASM_ANYREF) return ERR_INVALID_DATA;
         }
         return OK;
       } else if (results->size == 1) {
-        results->data[0] = encode_variant(variant);
+        results->data[0] = encode_variant(variant, context->results[0]);
         return results->data[0].kind == WASM_ANYREF ? ERR_INVALID_DATA : OK;
       } else return ERR_INVALID_DATA;
     }
@@ -175,7 +206,7 @@ namespace godot {
       for (uint16_t i = 0; i < args->size; i++) params.push_back(decode_variant(args->data[i]));
       // TODO: Ensure target is valid and has method
       Variant variant = context->target->callv(context->method, params);
-      godot_error error = extract_results(variant, results);
+      godot_error error = extract_results(variant, context, results);
       if (error) FAIL("Extracting import function results failed", trap("Extracting import function results failed\0"));
       return NULL;
     }
@@ -302,8 +333,8 @@ namespace godot {
       }
       const Array& import = dict_safe_get(functions, it.first, Array());
       FAIL_IF(import.size() != 2, "Invalid import function " + it.first, ERR_CANT_CREATE);
-      FAIL_IF(import[0].get_type() != Variant::OBJECT, "Invalid import target", ERR_CANT_CREATE);
-      FAIL_IF(import[1].get_type() != Variant::STRING, "Invalid import method", ERR_CANT_CREATE);
+      FAIL_IF(import[0].get_type() != Variant::OBJECT, "Invalid import target " + it.first, ERR_CANT_CREATE);
+      FAIL_IF(import[1].get_type() != Variant::STRING, "Invalid import method " + it.first, ERR_CANT_CREATE);
       godot_wasm::ContextFuncImport* context = (godot_wasm::ContextFuncImport*)&it.second;
       context->target = import[0];
       context->method = import[1];
@@ -406,11 +437,14 @@ namespace godot {
     const wasm_func_t* func = wasm_extern_as_func(data);
     FAIL_IF(func == NULL, "Failed to retrieve function export " + name, NULL_VARIANT);
 
+    // Validate argument count
+    FAIL_IF(context.params.size() != args.size(), "Incorrect number of arguments supplied", NULL_VARIANT);
+
     // Construct args
     std::vector<wasm_val_t> args_vec;
     for (uint16_t i = 0; i < args.size(); i++) {
       Variant variant = args[i];
-      wasm_val_t value = encode_variant(variant);
+      wasm_val_t value = encode_variant(variant, context.params[i]);
       FAIL_IF(value.kind == WASM_ANYREF, "Invalid argument type", NULL_VARIANT);
       args_vec.push_back(value);
     }
@@ -441,10 +475,11 @@ namespace godot {
       const wasm_externkind_t kind = wasm_externtype_kind(type);
       const String key = decode_name(wasm_importtype_module(imports.data[i])) + "." + decode_name(wasm_importtype_name(imports.data[i]));
       switch (kind) {
-        case WASM_EXTERN_FUNC:
-          import_funcs.emplace(key, godot_wasm::ContextFuncImport(i));
+        case WASM_EXTERN_FUNC: {
+          const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
+          import_funcs.emplace(key, godot_wasm::ContextFuncImport(i, func_type));
           break;
-        case WASM_EXTERN_MEMORY:
+        } case WASM_EXTERN_MEMORY:
           memory_context = new godot_wasm::ContextMemory(i, true);
           break;
         default: FAIL("Import type not implemented", ERR_INVALID_DATA);
@@ -462,8 +497,7 @@ namespace godot {
       switch (kind) {
         case WASM_EXTERN_FUNC: {
           const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
-          const wasm_valtype_vec_t* func_results = wasm_functype_results(func_type);
-          export_funcs.emplace(key, godot_wasm::ContextFuncExport(i, func_results->size));
+          export_funcs.emplace(key, godot_wasm::ContextFuncExport(i, func_type));
           break;
         } case WASM_EXTERN_GLOBAL:
           export_globals.emplace(key, godot_wasm::ContextExtern(i));
