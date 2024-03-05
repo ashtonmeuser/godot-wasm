@@ -1,16 +1,9 @@
 extends GodotWasmTestSuite
 
-var DUMMY_IMPORT = [self, "_dummy"]
-
-# Dummy import to supply to Wasm modules
-func _dummy(a = "", b = "", c = "", d = ""):
-	var message = "Dummy import %s %s %s %s" % [a, b, c, d]
-	print(message.strip_edges())
-
 func test_imports():
 	var imports = { "functions": {
-		"import.import_int": DUMMY_IMPORT,
-		"import.import_float": DUMMY_IMPORT,
+		"import.import_int": dummy_import(),
+		"import.import_float": dummy_import(),
 	} }
 	load_wasm("import", imports)
 	expect_empty()
@@ -28,7 +21,7 @@ func test_invalid_imports():
 	# Invalid import
 	imports = { "functions": {
 		"import.import_int": [],
-		"import.import_float": DUMMY_IMPORT,
+		"import.import_float": dummy_import(),
 	} }
 	error = wasm.instantiate(imports)
 	expect_eq(error, ERR_CANT_CREATE)
@@ -36,7 +29,7 @@ func test_invalid_imports():
 	# Invalid import target
 	imports = { "functions": {
 		"import.import_int": [0, "dummy"],
-		"import.import_float": DUMMY_IMPORT,
+		"import.import_float": dummy_import(),
 	} }
 	error = wasm.instantiate(imports)
 	expect_eq(error, ERR_CANT_CREATE)
@@ -44,7 +37,7 @@ func test_invalid_imports():
 	# Invalid import method
 	imports = { "functions": {
 		"import.import_int": [self, 0],
-		"import.import_float": DUMMY_IMPORT,
+		"import.import_float": dummy_import(),
 	} }
 	error = wasm.instantiate(imports)
 	expect_eq(error, ERR_CANT_CREATE)
@@ -52,8 +45,8 @@ func test_invalid_imports():
 
 func test_callback_function():
 	var imports = { "functions": {
-		"import.import_int": DUMMY_IMPORT,
-		"import.import_float": DUMMY_IMPORT,
+		"import.import_int": dummy_import(),
+		"import.import_float": dummy_import(),
 	} }
 	var wasm = load_wasm("import", imports)
 	wasm.function("callback", [])
@@ -63,8 +56,8 @@ func test_callback_function():
 func test_inspect():
 	# Import module post-instantiation
 	var imports = { "functions": {
-		"import.import_int": DUMMY_IMPORT,
-		"import.import_float": DUMMY_IMPORT,
+		"import.import_int": dummy_import(),
+		"import.import_float": dummy_import(),
 	} }
 	var wasm = load_wasm("import", imports)
 	var inspect = wasm.inspect()
