@@ -3,7 +3,7 @@
 
 #include "wasm.h"
 
-#define STORE ::godot_wasm::Store::instance().store
+#define GODOT_WASM_STORE ::godot_wasm::Store::instance().store
 
 namespace godot_wasm {
   struct Store {

@@ -1,5 +1,5 @@
-#ifndef WASI_SHIM_H
-#define WASI_SHIM_H
+#ifndef GODOT_WASM_WASI_SHIM_H
+#define GODOT_WASM_WASI_SHIM_H
 
 #include <functional>
 #include "wasm.h"

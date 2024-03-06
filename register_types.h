@@ -4,15 +4,15 @@
 // This define is only needed because the GODOT_MODULE define isn't detected here
 // May be related to https://github.com/godotengine/godot/issues/75914
 #ifdef GDEXTENSION
-  #define NS godot
+  #define GODOT_WASM_NS godot
   #include <godot_cpp/core/class_db.hpp>
 #else
-  #define NS
+  #define GODOT_WASM_NS
   #include "modules/register_module_types.h"
   #include "core/object/class_db.h"
 #endif
 
-void initialize_wasm_module(NS::ModuleInitializationLevel p_level);
-void uninitialize_wasm_module(NS::ModuleInitializationLevel p_level);
+void initialize_wasm_module(GODOT_WASM_NS::ModuleInitializationLevel p_level);
+void uninitialize_wasm_module(GODOT_WASM_NS::ModuleInitializationLevel p_level);
 
 #endif

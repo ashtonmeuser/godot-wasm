@@ -27,18 +27,18 @@ namespace godot {
       std::map<String, godot_wasm::ContextExtern> export_globals;
       std::map<String, godot_wasm::ContextFuncExport> export_funcs;
       void reset_instance();
-      godot_error map_names();
+      GODOT_WASM_ERROR map_names();
       wasm_func_t* create_callback(godot_wasm::ContextFuncImport* context);
 
     public:
-      static void REGISTRATION_METHOD();
+      static void GODOT_WASM_REGISTRATION_METHOD();
       Wasm();
       ~Wasm();
       void _init();
       void exit(int32_t code);
-      godot_error compile(PackedByteArray bytecode);
-      godot_error instantiate(const Dictionary import_map);
-      godot_error load(PackedByteArray bytecode, const Dictionary import_map);
+      GODOT_WASM_ERROR compile(PackedByteArray bytecode);
+      GODOT_WASM_ERROR instantiate(const Dictionary import_map);
+      GODOT_WASM_ERROR load(PackedByteArray bytecode, const Dictionary import_map);
       Dictionary inspect() const;
       Variant function(String name, Array args) const;
       Variant global(String name) const;

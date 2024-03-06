@@ -72,7 +72,7 @@ namespace godot {
 
     // WASI fd_write: [I32, I32, I32, I32] -> [I32]
     wasm_trap_t* wasi_fd_write(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 4 || results->size != 1, "Invalid arguments fd_write", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
+      GODOT_WASM_FAIL_IF(args->size != 4 || results->size != 1, "Invalid arguments fd_write", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
@@ -87,7 +87,7 @@ namespace godot {
         wasi_io_vector iov = get_io_vector(memory, offset_iov, i);
         std::string message = std::string(data + iov.offset, data + iov.offset + iov.length);
         if (iov.length == 1 && message == "\u000A") continue; // Skip line feed
-        fd == 1 ? PRINT(message.c_str()) : PRINT_ERROR(message.c_str());
+        fd == 1 ? GODOT_WASM_PRINT(message.c_str()) : GODOT_WASM_PRINT_ERROR(message.c_str());
         written += iov.length;
       }
       memcpy(data + offset_written, &written, sizeof(int32_t));
@@ -96,7 +96,7 @@ namespace godot {
 
     // WASI proc_exit: [I32] -> []
     wasm_trap_t* wasi_proc_exit(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 1 || results->size != 0, "Invalid arguments proc_exit", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
+      GODOT_WASM_FAIL_IF(args->size != 1 || results->size != 0, "Invalid arguments proc_exit", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       if (!wasm->has_permission("exit")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       wasm->exit(args->data[0].of.i32);
@@ -105,7 +105,7 @@ namespace godot {
 
     // WASI args_sizes_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_args_sizes_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
+      GODOT_WASM_FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
@@ -113,7 +113,7 @@ namespace godot {
       byte_t* data = wasm_memory_data(memory);
       int32_t offset_count = args->data[0].of.i32;
       int32_t offset_length = args->data[1].of.i32;
-      wasi_encoded_strings encoded = encode_args(CMDLINE_ARGS);
+      wasi_encoded_strings encoded = encode_args(GODOT_WASM_CMDLINE_ARGS);
       memcpy(data + offset_count, &encoded.count, sizeof(int32_t));
       memcpy(data + offset_length, &encoded.length, sizeof(int32_t));
       return wasi_result(results);
@@ -121,7 +121,7 @@ namespace godot {
 
     // WASI args_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_args_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
+      GODOT_WASM_FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
@@ -129,7 +129,7 @@ namespace godot {
       byte_t* data = wasm_memory_data(memory);
       int32_t offset_environ = args->data[0].of.i32;
       int32_t offset_buffer = args->data[1].of.i32;
-      wasi_encoded_strings encoded = encode_args(CMDLINE_ARGS);
+      wasi_encoded_strings encoded = encode_args(GODOT_WASM_CMDLINE_ARGS);
       for (auto i = 0; i < encoded.count; i++) {
         std::string s = encoded.args[i];
         memcpy(data + offset_environ, &offset_buffer, sizeof(int32_t));
@@ -142,7 +142,7 @@ namespace godot {
 
     // WASI environ_sizes_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_environ_sizes_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments environ_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
+      GODOT_WASM_FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments environ_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
@@ -157,13 +157,13 @@ namespace godot {
 
     // WASI environ_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_environ_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments environ_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
+      GODOT_WASM_FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments environ_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       return wasi_result(results);
     }
 
     // WASI random_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_random_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments random_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
+      GODOT_WASM_FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments random_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
@@ -171,14 +171,14 @@ namespace godot {
       byte_t* data = wasm_memory_data(memory);
       int32_t offset = args->data[0].of.i32;
       int32_t length = args->data[1].of.i32;
-      PackedByteArray bytes = RANDOM_BYTES(length);
-      memcpy(data + offset, BYTE_ARRAY_POINTER(bytes), length);
+      PackedByteArray bytes = GODOT_WASM_RANDOM_BYTES(length);
+      memcpy(data + offset, GODOT_WASM_BYTE_ARRAY_POINTER(bytes), length);
       return wasi_result(results);
     }
 
     // WASI clock_time_get: [I32, I64, I32] -> [I32]
     wasm_trap_t* wasi_clock_time_get(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-      FAIL_IF(args->size != 3 || results->size != 1, "Invalid arguments clock_time_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
+      GODOT_WASM_FAIL_IF(args->size != 3 || results->size != 1, "Invalid arguments clock_time_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       Wasm* wasm = (Wasm*)env;
       wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
@@ -186,7 +186,7 @@ namespace godot {
       byte_t* data = wasm_memory_data(memory);
       int32_t clock_id = args->data[0].of.i32;
       int32_t offset = args->data[2].of.i32;
-      int64_t t = clock_id == __WASI_CLOCKID_REALTIME ? TIME_REALTIME : TIME_MONOTONIC;
+      int64_t t = clock_id == __WASI_CLOCKID_REALTIME ? GODOT_WASM_TIME_REALTIME : GODOT_WASM_TIME_MONOTONIC;
       memcpy(data + offset, &t, sizeof(t));
       return wasi_result(results);
     }
@@ -199,7 +199,7 @@ namespace godot {
       wasm_valtype_vec_t params = { p_types->size(), p_types->data() };
       wasm_valtype_vec_t results = { r_types->size(), r_types->data() };
       wasm_functype_t* functype = wasm_functype_new(&params, &results);
-      DEFER(wasm_functype_delete(functype));
+      GODOT_WASM_DEFER(wasm_functype_delete(functype));
       return wasm_func_new_with_env(store, functype, std::get<2>(signature), wasm, NULL);
     }
 
