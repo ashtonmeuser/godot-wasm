@@ -32,6 +32,7 @@ if env["platform"] == "windows":
         env.Append(LINKFLAGS=["bcrypt.lib", "userenv.lib", "ws2_32.lib", "advapi32.lib", "ntdll.lib"])
         # Additional libraries to build wasmtime for Windows
         if env["wasm_runtime"] == "wasmtime":
+            env.Append(CPPDEFINES=["WASM_API_EXTERN", "WASI_API_EXTERN"])
             env.Append(LINKFLAGS=["shell32.lib", "ole32.lib", "wasmtime\\lib\\wasmtime.dll.lib"])
             env.Append(LINKFLAGS=["/WX:NO"])  # Temporarily disable warnings as errors to fix LIBCMT conflict warning
 
