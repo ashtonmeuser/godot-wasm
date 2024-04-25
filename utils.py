@@ -79,7 +79,7 @@ def _patch_dll_import():
 
 def download_wasmer(env, force=False, version=WASMER_VER_DEFAULT):
     _validate_version(version)
-    if not force and os.path.isdir("wasmer"):
+    if not force and os.path.isdir("wasmer") and len(os.listdir("wasmer")):
         return  # Skip download
     print("Downloading Wasmer library {}".format(version))
     shutil.rmtree("wasmer", True)  # Remove old library
@@ -111,7 +111,7 @@ def download_wasmer(env, force=False, version=WASMER_VER_DEFAULT):
 
 def download_wasmtime(env, force=False, version=WASMTIME_VER_DEFAULT):
     _validate_version(version)
-    if not force and os.path.isdir("wasmtime"):
+    if not force and os.path.isdir("wasmtime") and len(os.listdir("wasmtime")):
         return  # Skip download
     print("Downloading Wasmtime library {}".format(version))
     shutil.rmtree("wasmtime", True)  # Remove old library
