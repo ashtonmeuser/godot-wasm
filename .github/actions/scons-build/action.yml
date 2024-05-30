@@ -25,7 +25,7 @@ runs:
       run: echo "name=${{ inputs.platform }}-${{ github.workflow }}-${{ inputs.cache-suffix }}" >> $GITHUB_OUTPUT
 
     - name: Cache Scons
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ inputs.scons-cache }}
         key: scons-${{ steps.cache-name.outputs.name }}-${{ github.ref }}-${{ github.sha }}

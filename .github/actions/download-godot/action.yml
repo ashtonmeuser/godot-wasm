@@ -34,7 +34,7 @@ runs:
 
     - name: Cache Godot
       id: cache-godot
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ${{ github.workspace }}/Godot*.x86_64
