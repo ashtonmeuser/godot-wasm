@@ -80,7 +80,7 @@ jobs:
           version: ${{ env.GODOT_REF }}
 
       - name: Download Addon
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.platform }}
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ matrix.platform }}
@@ -117,7 +117,7 @@ jobs:
           version: ${{ env.GODOT_REF }}
 
       - name: Download Addon
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.platform }}
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ matrix.platform }}
