@@ -35,7 +35,7 @@ if env["platform"] in ["osx", "macos"]:
     env.Prepend(CFLAGS=["-std=gnu11"])
     env.Prepend(CXXFLAGS=["-std=gnu++14"])
     env.Append(CCFLAGS=["-arch", "x86_64", "-Wall", "-g", "-O3"])
-    env.Append(LINKFLAGS=["-arch", "x86_64", "-framework", "Security"])
+    env.Append(LINKFLAGS=["-arch", "x86_64", "-framework", "Security", "-framework", "CoreFoundation", "-framework", "SystemConfiguration"])
 elif env["platform"] == "linux":
     env.Prepend(CFLAGS=["-std=gnu11"])
     env.Prepend(CXXFLAGS=["-std=gnu++14"])
