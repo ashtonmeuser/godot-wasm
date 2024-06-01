@@ -57,7 +57,7 @@ namespace godot {
         std::string bytes = std::string(s.utf8().get_data()) + '\0'; // Null termination
         encoded.count += 1;
         encoded.args.push_back(bytes);
-        encoded.length += bytes.length();
+        encoded.length += (int32_t)bytes.length();
       }
       return encoded;
     }
@@ -136,7 +136,7 @@ namespace godot {
         memcpy(data + offset_environ, &offset_buffer, sizeof(int32_t));
         memcpy(data + offset_buffer, s.c_str(), s.length());
         offset_environ += sizeof(int32_t);
-        offset_buffer += s.length();
+        offset_buffer += (int32_t)s.length();
       }
       return wasi_result(results);
     }

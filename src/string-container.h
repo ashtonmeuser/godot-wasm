@@ -17,7 +17,7 @@ namespace {
 }
 
 namespace godot{
-    template <typename T> String string_container_get(const T& container, size_t i) {
+    template <typename T> String string_container_get(T container, const int i) {
         if constexpr (has_subscript_operator<T>::value) return container[i];
         else return container.get(i);
     }
