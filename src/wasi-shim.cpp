@@ -4,6 +4,7 @@
 #include "wasi-shim.h"
 #include "godot-wasm.h"
 #include "defer.h"
+#include "string-container.h"
 
 // See https://github.com/WebAssembly/wasi-libc/blob/main/libc-bottom-half/headers/public/wasi/api.h
 #define __WASI_CLOCKID_REALTIME (UINT32_C(0)) // The clock measuring real time
@@ -35,11 +36,11 @@ namespace godot {
       return iov;
     }
 
-    template <class T> wasi_encoded_strings encode_args(T args) {
+    template <typename T> wasi_encoded_strings encode_args(T args) {
       wasi_encoded_strings encoded = { 0, 0, {} };
       String incomplete = "";
       for (auto i = 0; i < args.size(); i++) {
-        String s = args[i];
+        String s = string_container_get(args, i);
         if (!s.begins_with("--")) { // Invalid; may be value for previous key
           if (incomplete == "") continue; // Ignore garbage
           s = incomplete + "=" + s; // Value for previous key
