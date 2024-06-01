@@ -13,9 +13,9 @@ Required because List does not support subscript operator, GDExtension PackedStr
 
 namespace {
   template <typename, typename = void> struct has_subscript_operator: std::false_type {};
-  template <typename T> struct has_subscript_operator<T, std::void_t<decltype(std::declval<T&>()[std::declval<size_t>()])>>: std::true_type {};
+  template <typename T> struct has_subscript_operator<T, std::__void_t<decltype(std::declval<T&>()[std::declval<size_t>()])>>: std::true_type {};
   template <typename, typename = void> struct has_get_method: std::false_type {};
-  template <typename T> struct has_get_method<T, std::void_t<decltype(std::declval<T&>().get(std::declval<size_t>()))>>: std::true_type {};
+  template <typename T> struct has_get_method<T, std::__void_t<decltype(std::declval<T&>().get(std::declval<size_t>()))>>: std::true_type {};
 }
 
 namespace godot {
