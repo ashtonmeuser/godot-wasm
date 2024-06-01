@@ -19,11 +19,14 @@ elif module_env["wasm_runtime"] == "wasmtime":
 
 # Check platform specifics
 if env["platform"] in ["linux", "linuxbsd", "x11"]:
+    env.Prepend(CXXFLAGS=["-std=c++17"])
     env["LIBRUNTIMESUFFIX"] = ".a"
 elif env["platform"] in ["osx", "macos"]:
+    env.Prepend(CXXFLAGS=["-std=c++17"])
     env["LIBRUNTIMESUFFIX"] = ".a"
     env.Append(LINKFLAGS=["-framework", "Security", "-framework", "CoreFoundation", "-framework", "SystemConfiguration"])
 elif env["platform"] == "windows":
+    env.Prepend(CCFLAGS=["/std:c++17"])
     if env.get("use_mingw"):  # MinGW
         env["LIBRUNTIMESUFFIX"] = ".a"
         env.Append(LIBS=["userenv"])

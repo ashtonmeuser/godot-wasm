@@ -32,13 +32,13 @@ elif env["wasm_runtime"] == "wasmtime":
 
 # Check platform specifics
 if env["platform"] in ["osx", "macos"]:
-    env.Prepend(CFLAGS=["-std=gnu11"])
-    env.Prepend(CXXFLAGS=["-std=gnu++17"])
+    env.Prepend(CFLAGS=["-std=c11"])
+    env.Prepend(CXXFLAGS=["-std=c++17"])
     env.Append(CCFLAGS=["-arch", "x86_64", "-Wall", "-g", "-O3"])
     env.Append(LINKFLAGS=["-arch", "x86_64", "-framework", "Security", "-framework", "CoreFoundation", "-framework", "SystemConfiguration"])
 elif env["platform"] == "linux":
-    env.Prepend(CFLAGS=["-std=gnu11"])
-    env.Prepend(CXXFLAGS=["-std=gnu++17"])
+    env.Prepend(CFLAGS=["-std=c11"])
+    env.Prepend(CXXFLAGS=["-std=c++17"])
     env.Append(CCFLAGS=["-fPIC", "-g", "-O3"])
 elif env["platform"] == "windows":
     env.Prepend(CCFLAGS=["/std:c++17", "-W3", "-GR", "-O2", "-EHsc"])
