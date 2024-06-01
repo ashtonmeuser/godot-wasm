@@ -1,6 +1,11 @@
 #ifndef GODOT_WASM_DEFS_H
 #define GODOT_WASM_DEFS_H
 
+/*
+Common definitions and imports
+Useful for minimizing changes to implementation files between targets e.g. GDExtension, GDNative, Godot module
+*/
+
 #ifdef GODOT_MODULE // Godot includes when building module
   #include "core/os/os.h"
   #include "core/crypto/crypto.h"
