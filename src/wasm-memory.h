@@ -35,7 +35,7 @@ namespace godot {
       WasmMemory();
       ~WasmMemory();
       void _init();
-      void set_memory(const wasm_memory_t* memory);
+      void set_memory(const wasm_memory_t* memory_new);
       wasm_memory_t* get_memory() const;
       Dictionary inspect() const;
       godot_error grow(uint32_t pages);
