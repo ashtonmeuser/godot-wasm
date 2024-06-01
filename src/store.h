@@ -1,6 +1,11 @@
 #ifndef GODOT_WASM_STORE_H
 #define GODOT_WASM_STORE_H
 
+/*
+Singleton Wasm C API store
+The same store is used between all compiled Wasm modules
+*/
+
 #include "wasm.h"
 
 #define STORE ::godot_wasm::Store::instance().store

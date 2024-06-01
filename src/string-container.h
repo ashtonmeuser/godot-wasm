@@ -1,6 +1,13 @@
 #ifndef GODOT_WASM_STRING_CONTAINER_H
 #define GODOT_WASM_STRING_CONTAINER_H
 
+/*
+Gets an element of a container of Godot strings
+E.g. List, PoolStringArray, PackedStringArray
+Handles cases where type differs across target i.e. GDExtension, GDNative, Godot module
+Required because List does not support subscript operator, GDExtension PackedStringArray does not support get()
+*/
+
 #include <type_traits>
 #include "defs.h"
 
