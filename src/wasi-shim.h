@@ -2,7 +2,7 @@
 #define WASI_SHIM_H
 
 #include <functional>
-#include "wasm.h"
+#include <wasm.h>
 #include "defs.h"
 
 namespace godot {
