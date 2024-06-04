@@ -1,6 +1,6 @@
 #include <string>
 #include <vector>
-#include "godot-wasm.h"
+#include "wasm.h"
 #include "wasi-shim.h"
 #include "defer.h"
 #include "store.h"

@@ -2,7 +2,7 @@
 #include <vector>
 #include <map>
 #include "wasi-shim.h"
-#include "godot-wasm.h"
+#include "wasm.h"
 #include "defer.h"
 #include "string-container.h"
 
