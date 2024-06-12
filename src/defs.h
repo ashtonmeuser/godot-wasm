@@ -7,23 +7,23 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
 */
 
 #ifdef GODOT_MODULE // Godot includes when building module
-  #include "core/os/os.h"
-  #include "core/os/time.h"
-  #include "core/crypto/crypto.h"
-  #include "core/io/stream_peer.h"
+  #include <core/os/os.h>
+  #include <core/os/time.h>
+  #include <core/crypto/crypto.h>
+  #include <core/io/stream_peer.h>
 #else // Godot addon includes
-  #include "godot_cpp/classes/ref_counted.hpp"
-  #include "godot_cpp/classes/os.hpp"
-  #include "godot_cpp/classes/time.hpp"
-  #include "godot_cpp/classes/crypto.hpp"
-  #include "godot_cpp/classes/stream_peer_extension.hpp"
-  #include "godot_cpp/variant/utility_functions.hpp"
+  #include <godot_cpp/classes/ref_counted.hpp>
+  #include <godot_cpp/classes/os.hpp>
+  #include <godot_cpp/classes/time.hpp>
+  #include <godot_cpp/classes/crypto.hpp>
+  #include <godot_cpp/classes/stream_peer_extension.hpp>
+  #include <godot_cpp/variant/utility_functions.hpp>
 #endif
 
 #ifdef GODOT_MODULE
-  #define godot_error Error
   #define PRINT(message) print_line(String(message))
   #define PRINT_ERROR(message) print_error("Godot Wasm: " + String(message))
+  #define godot_error Error
   #define REGISTRATION_METHOD _bind_methods
   #define RANDOM_BYTES(n) Crypto::create()->generate_random_bytes(n)
 #else
