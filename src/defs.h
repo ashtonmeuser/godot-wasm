@@ -11,6 +11,7 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
   #include <core/os/time.h>
   #include <core/crypto/crypto.h>
   #include <core/io/stream_peer.h>
+  #include <core/variant/variant_utility.h>
 #else // Godot addon includes
   #include <godot_cpp/classes/ref_counted.hpp>
   #include <godot_cpp/classes/os.hpp>
@@ -30,6 +31,7 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
   #define PRINT(message) UtilityFunctions::print(String(message))
   #define PRINT_ERROR(message) _err_print_error(__FUNCTION__, __FILE__, __LINE__, "Godot Wasm: " + String(message))
   #define godot_error Error
+  #define VariantUtilityFunctions UtilityFunctions
   #define REGISTRATION_METHOD _bind_methods
   #define RANDOM_BYTES(n) [n]()->PackedByteArray{Ref<Crypto> c;c.instantiate();return c->generate_random_bytes(n);}()
 #endif

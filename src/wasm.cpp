@@ -13,7 +13,7 @@ namespace godot {
     };
 
     struct ContextFuncImport: public ContextExtern {
-      Object* target; // The object from which to invoke callback method
+      ObjectID target; // The ID of the object on which to invoke callback method
       String method; // External name; doesn't necessarily match import name
       std::vector<wasm_valkind_t> results; // Return types
       ContextFuncImport(uint16_t i, const wasm_functype_t* func_type): ContextExtern(i) {
@@ -205,7 +205,9 @@ namespace godot {
       // TODO: Check if args and results match expected sizes
       for (uint16_t i = 0; i < args->size; i++) params.push_back(decode_variant(args->data[i]));
       // TODO: Ensure target is valid and has method
-      Variant variant = context->target->callv(context->method, params);
+      Object* target = ObjectDB::get_instance(context->target);
+      FAIL_IF(target == nullptr, "Failed to retrieve import function target", trap("Failed to retrieve import function target\0"));
+      Variant variant = target->callv(context->method, params);
       godot_error error = extract_results(variant, context, results);
       if (error) FAIL("Extracting import function results failed", trap("Extracting import function results failed\0"));
       return NULL;
@@ -334,9 +336,10 @@ namespace godot {
       const Array& import = dict_safe_get(functions, it.first, Array());
       FAIL_IF(import.size() != 2, "Invalid import function " + it.first, ERR_CANT_CREATE);
       FAIL_IF(import[0].get_type() != Variant::OBJECT, "Invalid import target " + it.first, ERR_CANT_CREATE);
+      FAIL_IF(!VariantUtilityFunctions::is_instance_valid(import[0]), "Invalid import target " + it.first, ERR_CANT_CREATE);
       FAIL_IF(import[1].get_type() != Variant::STRING, "Invalid import method " + it.first, ERR_CANT_CREATE);
       godot_wasm::ContextFuncImport* context = (godot_wasm::ContextFuncImport*)&it.second;
-      context->target = import[0];
+      context->target = import[0].operator Object*()->get_instance_id();
       context->method = import[1];
       extern_map[it.second.index] = wasm_func_as_extern(create_callback(context));
     }
