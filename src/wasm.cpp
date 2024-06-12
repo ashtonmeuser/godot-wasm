@@ -204,8 +204,7 @@ namespace godot {
       Array params = Array();
       // TODO: Check if args and results match expected sizes
       for (uint16_t i = 0; i < args->size; i++) params.push_back(decode_variant(args->data[i]));
-      // TODO: Ensure target is valid and has method
-      Object* target = ObjectDB::get_instance(context->target);
+      Object* target = INSTANCE_FROM_ID(context->target);
       FAIL_IF(target == nullptr, "Failed to retrieve import function target", trap("Failed to retrieve import function target\0"));
       Variant variant = target->callv(context->method, params);
       godot_error error = extract_results(variant, context, results);
@@ -336,7 +335,7 @@ namespace godot {
       const Array& import = dict_safe_get(functions, it.first, Array());
       FAIL_IF(import.size() != 2, "Invalid import function " + it.first, ERR_CANT_CREATE);
       FAIL_IF(import[0].get_type() != Variant::OBJECT, "Invalid import target " + it.first, ERR_CANT_CREATE);
-      FAIL_IF(!VariantUtilityFunctions::is_instance_valid(import[0]), "Invalid import target " + it.first, ERR_CANT_CREATE);
+      FAIL_IF(!INSTANCE_VALIDATE(import[0]), "Invalid import target " + it.first, ERR_CANT_CREATE);
       FAIL_IF(import[1].get_type() != Variant::STRING, "Invalid import method " + it.first, ERR_CANT_CREATE);
       godot_wasm::ContextFuncImport* context = (godot_wasm::ContextFuncImport*)&it.second;
       context->target = import[0].operator Object*()->get_instance_id();
