@@ -43,6 +43,43 @@ func test_invalid_imports():
 	expect_eq(error, ERR_CANT_CREATE)
 	expect_error("Invalid import method import.import_int")
 
+func test_instantiation_freed_target():
+	var target = ImportTarget.new()
+	var imports = { "functions": {
+		"import.import_int": target.dummy_import(),
+		"import.import_float": target.dummy_import(),
+	} }
+	var wasm = Wasm.new()
+	var buffer = read_file("import")
+	var error = wasm.compile(buffer)
+	expect_eq(error, OK)
+	target.free() # Free target before instantiation
+	error = wasm.instantiate(imports)
+	expect_eq(error, ERR_CANT_CREATE)
+	expect_error("Invalid import target import.import_(int|float)")
+
+func test_invocation_freed_target():
+	var target = ImportTarget.new()
+	var imports = { "functions": {
+		"import.import_int": target.dummy_import(),
+		"import.import_float": target.dummy_import(),
+	} }
+	var wasm = load_wasm("import", imports)
+	target.free() # Free target before invocation
+	wasm.function("callback", [])
+	expect_error("Failed to retrieve import function target")
+	expect_error("Failed calling function callback")
+
+func test_import_method_missing():
+	var imports = { "functions": {
+		"import.import_int": [self, "invalid_method_0"],
+		"import.import_float": [self, "invalid_method_1"],
+	} }
+	var wasm = load_wasm("import", imports)
+	wasm.function("callback", [])
+	expect_error(".*::invalid_method_0': Method not found.*")
+	expect_error(".*::invalid_method_1': Method not found.*")
+
 func test_callback_function():
 	var imports = { "functions": {
 		"import.import_int": dummy_import(),
