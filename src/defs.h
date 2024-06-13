@@ -7,9 +7,9 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
 */
 
 #ifdef GODOT_MODULE // Godot includes when building module
-  #include "core/os/os.h"
-  #include "core/crypto/crypto.h"
-  #include "core/io/stream_peer.h"
+  #include <core/os/os.h>
+  #include <core/crypto/crypto.h>
+  #include <core/io/stream_peer.h>
 #else // Godot addon includes
   #include <Godot.hpp>
   #include <OS.hpp>
@@ -18,9 +18,11 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
 #endif
 
 #ifdef GODOT_MODULE
-  #define godot_error Error
   #define PRINT(message) print_line(String(message))
   #define PRINT_ERROR(message) print_error("Godot Wasm: " + String(message))
+  #define godot_error Error
+  #define INSTANCE_FROM_ID(id) ObjectDB::get_instance(id)
+  #define INSTANCE_VALIDATE(id) VariantUtilityFunctions::is_instance_valid(id)
   #define REGISTRATION_METHOD _bind_methods
   #define RANDOM_BYTES(n) Crypto::create()->generate_random_bytes(n)
 #else
@@ -32,6 +34,8 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
   #define ERR_PARAMETER_RANGE_ERROR GODOT_ERR_PARAMETER_RANGE_ERROR
   #define PRINT(message) Godot::print(String(message))
   #define PRINT_ERROR(message) Godot::print_error("Godot Wasm: " + String(message), __func__, __FILE__, __LINE__)
+  #define INSTANCE_FROM_ID(id) ObjectDB::get_instance(id)
+  #define INSTANCE_VALIDATE(id) UtilityFunctions::is_instance_valid(id)
   #define GDCLASS GODOT_CLASS
   #define REGISTRATION_METHOD _register_methods
   #define RANDOM_BYTES(n) Crypto::_new()->generate_random_bytes(n)

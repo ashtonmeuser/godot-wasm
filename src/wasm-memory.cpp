@@ -1,4 +1,4 @@
-#include "wasm.h"
+#include <wasm.h>
 #include "wasm-memory.h"
 #include "store.h"
 

@@ -2,7 +2,7 @@
 
 #include "register_types.h"
 #include "core/class_db.h"
-#include "src/godot-wasm.h"
+#include "src/wasm.h"
 #include "src/wasm-memory.h"
 
 void register_wasm_types() {
