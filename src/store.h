@@ -6,7 +6,7 @@ Singleton Wasm C API store
 The same store is used between all compiled Wasm modules
 */
 
-#include "wasm.h"
+#include <wasm.h>
 
 #define STORE ::godot_wasm::Store::instance().store
 

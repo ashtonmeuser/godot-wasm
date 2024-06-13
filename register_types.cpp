@@ -1,5 +1,5 @@
 #include "register_types.h"
-#include "src/godot-wasm.h"
+#include "src/wasm.h"
 #include "src/wasm-memory.h"
 
 using namespace godot;
