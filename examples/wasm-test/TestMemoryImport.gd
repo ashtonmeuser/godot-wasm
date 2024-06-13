@@ -37,6 +37,35 @@ func test_module_memory():
 	expect(wasm.memory is StreamPeer)
 	expect_empty()
 
+func test_inspect_memory_import():
+	# Imported memory pre-instantiation
+	var wasm = Wasm.new()
+	var buffer = read_file("memory-import")
+	var error = wasm.compile(buffer)
+	expect_eq(error, OK)
+	var inspect = wasm.inspect()
+	var expected = {
+		"min": PAGE_SIZE * 100,
+		"max": PAGES_MAX,
+		"import": true,
+	}
+	expect_eq(inspect.get("memory"), expected)
+	# Imported memory post-instantiation
+	var memory = WasmMemory.new()
+	error = memory.grow(100)
+	expect_eq(error, OK)
+	var imports = { "memory": memory }
+	error = wasm.instantiate(imports)
+	expect_eq(error, OK)
+	inspect = wasm.inspect()
+	expected = {
+		"min": PAGE_SIZE * 100,
+		"max": PAGES_MAX,
+		"current": PAGE_SIZE * 100,
+		"import": true,
+	}
+	expect_eq(inspect.get("memory"), expected)
+
 func test_memory_import():
 	var memory = WasmMemory.new()
 	var error = memory.grow(100)
