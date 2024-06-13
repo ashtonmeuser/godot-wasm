@@ -112,6 +112,7 @@ func test_inspect():
 			"min": 0,
 			"max": PAGES_MAX,
 			"current": 0,
+			"import": false,
 		}
 	}
 	expect_eq(inspect, expected)

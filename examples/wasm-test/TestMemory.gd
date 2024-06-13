@@ -33,6 +33,7 @@ func test_inspect_memory():
 	var expected = {
 		"min": PAGE_SIZE,
 		"max": PAGES_MAX,
+		"import": false,
 	}
 	expect_eq(inspect.get("memory"), expected)
 	# Exported memory post-instantiation
@@ -43,6 +44,7 @@ func test_inspect_memory():
 		"min": PAGE_SIZE,
 		"max": PAGES_MAX,
 		"current": PAGE_SIZE,
+		"import": false,
 	}
 	expect_eq(inspect.get("memory"), expected)
 

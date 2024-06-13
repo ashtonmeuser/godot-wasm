@@ -402,7 +402,9 @@ namespace godot {
     dict["import_functions"] = import_func_sigs;
     dict["export_globals"] = export_global_sigs;
     dict["export_functions"] = export_func_sigs;
-    dict["memory"] = memory != NULL && memory->get_memory() ? memory->inspect() : get_memory_limits(module, memory_context);
+    Dictionary dict_memory = memory != NULL && memory->get_memory() ? memory->inspect() : get_memory_limits(module, memory_context);
+    if (memory_context != NULL) dict_memory["import"] = memory_context->import;
+    dict["memory"] = dict_memory;
     return dict;
   }
 
