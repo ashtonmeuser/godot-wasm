@@ -13,7 +13,7 @@ namespace godot {
     };
 
     struct ContextFuncImport: public ContextExtern {
-      ObjectID target; // The ID of the object on which to invoke callback method
+      uint64_t target; // The ID of the object on which to invoke callback method
       String method; // External name; doesn't necessarily match import name
       std::vector<wasm_valkind_t> results; // Return types
       ContextFuncImport(uint16_t i, const wasm_functype_t* func_type): ContextExtern(i) {
