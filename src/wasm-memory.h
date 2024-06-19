@@ -27,15 +27,15 @@ namespace godot {
 
     private:
       INTERFACE_DECLARE;
-      wasm_memory_t* memory;
-      uint32_t pointer;
+      wasm_memory_t* _memory;
+      uint32_t _pointer;
 
     public:
       static void REGISTRATION_METHOD();
       WasmMemory();
       ~WasmMemory();
       void _init();
-      void set_memory(const wasm_memory_t* memory_new);
+      void set_memory(const wasm_memory_t* memory);
       wasm_memory_t* get_memory() const;
       Dictionary inspect() const;
       godot_error grow(uint32_t pages);

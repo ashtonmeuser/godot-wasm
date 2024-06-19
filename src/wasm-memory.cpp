@@ -34,8 +34,8 @@ namespace godot {
 
   WasmMemory::WasmMemory() {
     INTERFACE_DEFINE;
-    memory = NULL;
-    pointer = 0;
+    _memory = NULL;
+    _pointer = 0;
   }
 
   WasmMemory::~WasmMemory() {
@@ -46,51 +46,51 @@ namespace godot {
     INTERFACE_INIT;
   }
 
-  void WasmMemory::set_memory(const wasm_memory_t* memory_new) {
-    if (memory != NULL) wasm_memory_delete(memory);
-    memory = (wasm_memory_t*)memory_new;
+  void WasmMemory::set_memory(const wasm_memory_t* memory) {
+    if (_memory != NULL) wasm_memory_delete(_memory);
+    _memory = (wasm_memory_t*)memory;
   }
 
   wasm_memory_t* WasmMemory::get_memory() const {
-    return memory;
+    return _memory;
   }
 
   Dictionary WasmMemory::inspect() const {
-    if (memory == NULL) return Dictionary();
-    auto limits = wasm_memorytype_limits(wasm_memory_type(memory));
+    if (_memory == NULL) return Dictionary();
+    auto limits = wasm_memorytype_limits(wasm_memory_type(_memory));
     Dictionary dict;
     dict["min"] = limits->min * PAGE_SIZE;
     dict["max"] = limits->max * PAGE_SIZE;
-    dict["current"] = wasm_memory_size(memory) * PAGE_SIZE;
+    dict["current"] = wasm_memory_size(_memory) * PAGE_SIZE;
     return dict;
   }
 
   godot_error WasmMemory::grow(uint32_t pages) {
-    if (!memory) { // Create new memory
+    if (!_memory) { // Create new memory
       const wasm_limits_t limits = { pages, wasm_limits_max_default };
-      memory = wasm_memory_new(STORE, wasm_memorytype_new(&limits));
-      return memory ? OK : FAILED;
+      _memory = wasm_memory_new(STORE, wasm_memorytype_new(&limits));
+      return _memory ? OK : FAILED;
     }
-    FAIL_IF(memory == NULL, "Invalid memory", ERR_INVALID_DATA);
-    return wasm_memory_grow(memory, pages) ? OK : FAILED;
+    FAIL_IF(_memory == NULL, "Invalid memory", ERR_INVALID_DATA);
+    return wasm_memory_grow(_memory, pages) ? OK : FAILED;
   }
 
   Ref<WasmMemory> WasmMemory::seek(int p_pos) {
     Ref<WasmMemory> ref = Ref<WasmMemory>(this);
     FAIL_IF(p_pos < 0, "Invalid memory position", ref);
-    pointer = p_pos;
+    _pointer = p_pos;
     return ref;
   }
 
   uint32_t WasmMemory::get_position() const {
-    return pointer;
+    return _pointer;
   }
 
   godot_error WasmMemory::INTERFACE_GET_DATA {
-    FAIL_IF(memory == NULL, "Invalid memory", ERR_INVALID_DATA);
-    byte_t* data = wasm_memory_data(memory) + pointer;
+    FAIL_IF(_memory == NULL, "Invalid memory", ERR_INVALID_DATA);
+    byte_t* data = wasm_memory_data(_memory) + _pointer;
     memcpy(buffer, data, bytes);
-    pointer += bytes;
+    _pointer += bytes;
     #ifndef GODOT_MODULE
       *received = bytes;
     #endif
@@ -107,11 +107,11 @@ namespace godot {
   }
 
   godot_error WasmMemory::INTERFACE_PUT_DATA {
-    FAIL_IF(memory == NULL, "Invalid memory", ERR_INVALID_DATA);
+    FAIL_IF(_memory == NULL, "Invalid memory", ERR_INVALID_DATA);
     if (bytes <= 0) return OK;
-    byte_t* data = wasm_memory_data(memory) + pointer;
+    byte_t* data = wasm_memory_data(_memory) + _pointer;
     memcpy(data, buffer, bytes);
-    pointer += bytes;
+    _pointer += bytes;
     #ifndef GODOT_MODULE
       *sent = bytes;
     #endif
