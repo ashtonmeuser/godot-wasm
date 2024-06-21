@@ -241,38 +241,49 @@ namespace godot {
   }
 
   Wasm::Wasm() {
+    // Initial state
     _module = NULL;
     _instance = NULL;
     _memory_context = NULL;
-    reset_instance(); // Set initial state
-  }
 
-  Wasm::~Wasm() {
+    // Module and instance state
+    reset_module();
     reset_instance();
-    unset(_module, wasm_module_delete);
-  }
 
-  void Wasm::_init() { }
-
-  void Wasm::exit(int32_t code) {
-    reset_instance(); // Reset instance state
-    code ? PRINT_ERROR("Module exited with error " + String::num_int64(code)) : PRINT("Module exited successfully");
-    // TODO: Emit signal
-  }
-
-  void Wasm::reset_instance() {
-    unset(_instance, wasm_instance_delete);
-    unset(_memory_context);
-    _memory = Ref<WasmMemory>(NULL);
-    _import_funcs.clear();
-    _export_globals.clear();
-    _export_funcs.clear();
+    // Default settings
     _permissions.clear();
     _permissions["print"] = true;
     _permissions["time"] = true;
     _permissions["random"] = true;
     _permissions["args"] = true;
     _permissions["exit"] = true;
+  }
+
+  Wasm::~Wasm() {
+    reset_instance();
+    reset_module();
+    unset(_module, wasm_module_delete);
+  }
+
+  void Wasm::_init() { }
+
+  void Wasm::exit(int32_t code) {
+    reset_instance();
+    code ? PRINT_ERROR("Module exited with error " + String::num_int64(code)) : PRINT("Module exited successfully");
+    // TODO: Emit signal
+  }
+
+  void Wasm::reset_module() {
+    unset(_module, wasm_module_delete);
+    unset(_memory_context);
+    _import_funcs.clear();
+    _export_globals.clear();
+    _export_funcs.clear();
+  }
+
+  void Wasm::reset_instance() {
+    unset(_instance, wasm_instance_delete);
+    _memory = Ref<WasmMemory>(NULL);
   }
 
   Ref<WasmMemory> Wasm::get_memory() const {
@@ -295,8 +306,9 @@ namespace godot {
   }
 
   godot_error Wasm::compile(PackedByteArray bytecode) {
-    reset_instance(); // Reset instance
-    unset(_module, wasm_module_delete); // Reset module
+    // Reset instance and module state
+    reset_instance();
+    reset_module();
 
     // Load binary
     wasm_byte_vec_t wasm_bytes;
@@ -318,6 +330,9 @@ namespace godot {
   }
 
   godot_error Wasm::instantiate(const Dictionary import_map) {
+    // Reset instance state
+    reset_instance();
+
     // Prepare module externs
     std::map<uint16_t, wasm_extern_t*> extern_map;
     DEFER(for (auto &it: extern_map) wasm_extern_delete(it.second));

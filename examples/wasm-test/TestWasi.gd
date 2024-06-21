@@ -20,6 +20,17 @@ func test_proc_exit():
 	wasm.function("proc_exit", [1])
 	expect_error("Module exited with error 1")
 
+func test_multi_instantiate():
+	var wasm = Wasm.new()
+	var buffer = read_file("wasi")
+	var error = wasm.compile(buffer)
+	expect_eq(error, OK)
+	for _i in 5:
+		error = wasm.instantiate({})
+		expect_eq(error, OK)
+		wasm.function("proc_exit", [0])
+		expect_log("Module exited successfully")
+
 func test_args_get():
 	var args = get_cmdline_user_args()
 	var wasm = load_wasm("wasi")

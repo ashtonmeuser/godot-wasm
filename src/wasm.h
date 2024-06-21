@@ -26,6 +26,7 @@ namespace godot {
       std::map<String, godot_wasm::ContextFuncImport> _import_funcs;
       std::map<String, godot_wasm::ContextExtern> _export_globals;
       std::map<String, godot_wasm::ContextFuncExport> _export_funcs;
+      void reset_module();
       void reset_instance();
       godot_error map_names();
       wasm_func_t* create_callback(godot_wasm::ContextFuncImport* context);
