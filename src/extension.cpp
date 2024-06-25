@@ -21,6 +21,10 @@ namespace godot {
       _name = std::string(name.utf8().get_data());
     }
 
+    Extension::Extension(const String name, Wasm* wasm_instance, const Object* target): wasm(wasm_instance), _target(target->get_instance_id()) {
+      _name = std::string(name.utf8().get_data());
+    }
+
     std::map<std::string, extension_callback_map>& Extension::get_extension_map() {
       static std::map<std::string, extension_callback_map> extensionMap;
       return extensionMap;

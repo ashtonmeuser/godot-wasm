@@ -46,6 +46,7 @@ namespace godot {
       Variant function(String name, Array args) const;
       Variant global(String name) const;
       Ref<WasmMemory> get_memory() const;
+      godot_error extension(const String name, const Variant target);
       void set_permissions(const Dictionary &update);
       Dictionary get_permissions() const;
       bool has_permission(String permission) const;

@@ -26,6 +26,7 @@ namespace godot {
       public:
         Wasm* wasm;
         Extension(const String name, Wasm* wasm);
+        Extension(const String name, Wasm* wasm, const Object* target);
         static bool validate_extension(const String name);
         static void register_extension(const std::string name, const extension_callback_map& callbacks);
         wasm_func_t* get_callback(wasm_store_t* store, const String callback) const;

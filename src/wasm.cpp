@@ -220,6 +220,7 @@ namespace godot {
       register_method("inspect", &Wasm::inspect);
       register_method("global", &Wasm::global);
       register_method("function", &Wasm::function);
+      register_method("extension", &Wasm::extension);
       register_method("has_permission", &Wasm::has_permission);
       register_property<Wasm, Ref<WasmMemory>>("memory", &Wasm::memory, NULL);
       register_property<Wasm, Dictionary>("permissions", &Wasm::permissions, Dictionary());
@@ -230,6 +231,7 @@ namespace godot {
       ClassDB::bind_method(D_METHOD("inspect"), &Wasm::inspect);
       ClassDB::bind_method(D_METHOD("global", "name"), &Wasm::global);
       ClassDB::bind_method(D_METHOD("function", "name", "args"), &Wasm::function);
+      ClassDB::bind_method(D_METHOD("extension", "name", "target"), &Wasm::extension);
       ClassDB::bind_method(D_METHOD("set_permissions"), &Wasm::set_permissions);
       ClassDB::bind_method(D_METHOD("get_permissions"), &Wasm::get_permissions);
       ClassDB::bind_method(D_METHOD("has_permission", "permission"), &Wasm::has_permission);
@@ -289,6 +291,22 @@ namespace godot {
   Ref<WasmMemory> Wasm::get_memory() const {
     return _memory;
   };
+
+  godot_error Wasm::extension(const String name, const Variant target) {
+    if (target.get_type() == Variant::NIL) {
+       _extensions.erase(name);
+       return OK;
+    }
+    FAIL_IF(target.get_type() != Variant::OBJECT, "Invalid extension target", ERR_INVALID_DATA);
+    FAIL_IF(!INSTANCE_VALIDATE(target), "Invalid extension target", ERR_INVALID_DATA);
+    auto object = target.operator Object*();
+    if (object == this) {
+      _extensions.insert_or_assign(name, godot_wasm::Extension(name, this));
+    } else {
+      _extensions.insert_or_assign(name, godot_wasm::Extension(name, this, object));
+    }
+    return OK;
+  }
 
   void Wasm::set_permissions(const Dictionary &update) {
     for (auto i = 0; i < _permissions.keys().size(); i++) {
