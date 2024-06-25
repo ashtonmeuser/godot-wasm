@@ -64,6 +64,15 @@
 				Equivalent to calling [method compile] and [method instantiate].
 			</description>
 		</method>
+		<method name="extension">
+			<return type="int" enum="Error" />
+			<param index="0" name="name" type="String" />
+			<param index="1" name="target" type="Object" />
+			<description>
+				Use a built-in Godot Wasm extension to satisfy WebAssembly module imports.
+				The target supplied may be accessed by the extension.
+			</description>
+		</method>
 	</methods>
 	<members>
 		<member name="memory" type="WasmMemory" setter="" getter="get_memory">
