@@ -5,6 +5,7 @@
 #include <wasm.h>
 #include "defs.h"
 #include "wasm-memory.h"
+#include "extension.h"
 
 namespace godot {
   namespace godot_wasm {
@@ -26,6 +27,7 @@ namespace godot {
       std::map<String, godot_wasm::ContextFuncImport> _import_funcs;
       std::map<String, godot_wasm::ContextExtern> _export_globals;
       std::map<String, godot_wasm::ContextFuncExport> _export_funcs;
+      std::map<String, godot_wasm::Extension> _extensions;
       void reset_module();
       void reset_instance();
       godot_error map_names();

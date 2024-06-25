@@ -1,7 +1,6 @@
 #include <string>
 #include <vector>
 #include "wasm.h"
-#include "wasi-shim.h"
 #include "defer.h"
 #include "store.h"
 
@@ -257,6 +256,7 @@ namespace godot {
     _permissions["random"] = true;
     _permissions["args"] = true;
     _permissions["exit"] = true;
+    _extensions.insert_or_assign("wasi", godot_wasm::Extension("wasi", this));
   }
 
   Wasm::~Wasm() {
@@ -339,23 +339,27 @@ namespace godot {
 
     // Construct import functions
     const Dictionary& functions = dict_safe_get(import_map, "functions", Dictionary());
-    for (const auto &it: _import_funcs) {
-      if (!functions.keys().has(it.first)) {
-        // Attempt to use default WASI import
-        auto callback = godot_wasm::get_wasi_callback(STORE, this, it.first);
-        FAIL_IF(callback == NULL, "Missing import function " + it.first, ERR_CANT_CREATE);
-        extern_map[it.second.index] = wasm_func_as_extern(callback);
+    for (const auto &it_func: _import_funcs) {
+      if (!functions.keys().has(it_func.first)) {
+        // Attempt to use extension import
+        wasm_func_t* callback = NULL;
+        for (const auto &it_extension: _extensions) {
+          callback = it_extension.second.get_callback(STORE, it_func.first);
+          if (callback != NULL) break;
+        }
+        FAIL_IF(callback == NULL, "Missing import function " + it_func.first, ERR_CANT_CREATE);
+        extern_map[it_func.second.index] = wasm_func_as_extern(callback);
         continue;
       }
-      const Array& import = dict_safe_get(functions, it.first, Array());
-      FAIL_IF(import.size() != 2, "Invalid import function " + it.first, ERR_CANT_CREATE);
-      FAIL_IF(import[0].get_type() != Variant::OBJECT, "Invalid import target " + it.first, ERR_CANT_CREATE);
-      FAIL_IF(!INSTANCE_VALIDATE(import[0]), "Invalid import target " + it.first, ERR_CANT_CREATE);
-      FAIL_IF(import[1].get_type() != Variant::STRING, "Invalid import method " + it.first, ERR_CANT_CREATE);
-      godot_wasm::ContextFuncImport* context = (godot_wasm::ContextFuncImport*)&it.second;
+      const Array& import = dict_safe_get(functions, it_func.first, Array());
+      FAIL_IF(import.size() != 2, "Invalid import function " + it_func.first, ERR_CANT_CREATE);
+      FAIL_IF(import[0].get_type() != Variant::OBJECT, "Invalid import target " + it_func.first, ERR_CANT_CREATE);
+      FAIL_IF(!INSTANCE_VALIDATE(import[0]), "Invalid import target " + it_func.first, ERR_CANT_CREATE);
+      FAIL_IF(import[1].get_type() != Variant::STRING, "Invalid import method " + it_func.first, ERR_CANT_CREATE);
+      godot_wasm::ContextFuncImport* context = (godot_wasm::ContextFuncImport*)&it_func.second;
       context->target = import[0].operator Object*()->get_instance_id();
       context->method = import[1];
-      extern_map[it.second.index] = wasm_func_as_extern(create_callback(context));
+      extern_map[it_func.second.index] = wasm_func_as_extern(create_callback(context));
     }
 
     // Configure import memory
