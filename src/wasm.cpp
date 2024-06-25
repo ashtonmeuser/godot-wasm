@@ -221,9 +221,7 @@ namespace godot {
       register_method("global", &Wasm::global);
       register_method("function", &Wasm::function);
       register_method("extension", &Wasm::extension);
-      register_method("has_permission", &Wasm::has_permission);
       register_property<Wasm, Ref<WasmMemory>>("memory", &Wasm::memory, NULL);
-      register_property<Wasm, Dictionary>("permissions", &Wasm::permissions, Dictionary());
     #else
       ClassDB::bind_method(D_METHOD("compile", "bytecode"), &Wasm::compile);
       ClassDB::bind_method(D_METHOD("instantiate", "import_map"), &Wasm::instantiate);
@@ -232,11 +230,7 @@ namespace godot {
       ClassDB::bind_method(D_METHOD("global", "name"), &Wasm::global);
       ClassDB::bind_method(D_METHOD("function", "name", "args"), &Wasm::function);
       ClassDB::bind_method(D_METHOD("extension", "name", "target"), &Wasm::extension);
-      ClassDB::bind_method(D_METHOD("set_permissions"), &Wasm::set_permissions);
-      ClassDB::bind_method(D_METHOD("get_permissions"), &Wasm::get_permissions);
-      ClassDB::bind_method(D_METHOD("has_permission", "permission"), &Wasm::has_permission);
       ClassDB::bind_method(D_METHOD("get_memory"), &Wasm::get_memory);
-      ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "permissions"), "set_permissions", "get_permissions");
       ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "memory"), "", "get_memory");
     #endif
   }
@@ -252,12 +246,6 @@ namespace godot {
     reset_instance();
 
     // Default settings
-    _permissions.clear();
-    _permissions["print"] = true;
-    _permissions["time"] = true;
-    _permissions["random"] = true;
-    _permissions["args"] = true;
-    _permissions["exit"] = true;
     _extensions.insert_or_assign("wasi", godot_wasm::Extension("wasi", this));
   }
 
@@ -306,21 +294,6 @@ namespace godot {
       _extensions.insert_or_assign(name, godot_wasm::Extension(name, this, object));
     }
     return OK;
-  }
-
-  void Wasm::set_permissions(const Dictionary &update) {
-    for (auto i = 0; i < _permissions.keys().size(); i++) {
-      Variant key = _permissions.keys()[i];
-      _permissions[key] = dict_safe_get(update, key, _permissions[key]);
-    }
-  }
-
-  Dictionary Wasm::get_permissions() const {
-    return _permissions;
-  }
-
-  bool Wasm::has_permission(String permission) const {
-    return dict_safe_get(_permissions, permission, false);
   }
 
   godot_error Wasm::compile(PackedByteArray bytecode) {

@@ -22,7 +22,6 @@ namespace godot {
       wasm_module_t* _module;
       wasm_instance_t* _instance;
       godot_wasm::ContextMemory* _memory_context;
-      Dictionary _permissions;
       Ref<WasmMemory> _memory;
       std::map<String, godot_wasm::ContextFuncImport> _import_funcs;
       std::map<String, godot_wasm::ContextExtern> _export_globals;
@@ -47,9 +46,6 @@ namespace godot {
       Variant global(String name) const;
       Ref<WasmMemory> get_memory() const;
       godot_error extension(const String name, const Variant target);
-      void set_permissions(const Dictionary &update);
-      Dictionary get_permissions() const;
-      bool has_permission(String permission) const;
   };
 }
 

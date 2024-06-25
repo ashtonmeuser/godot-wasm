@@ -73,7 +73,6 @@ namespace godot {
       FAIL_IF(args->size != 4 || results->size != 1, "Invalid arguments fd_write", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       wasm_memory_t* memory = extension->wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
-      if (!extension->wasm->has_permission("print")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
       int32_t fd = args->data[0].of.i32;
       int32_t offset_iov = args->data[1].of.i32;
@@ -94,7 +93,6 @@ namespace godot {
     // WASI proc_exit: [I32] -> []
     wasm_trap_t* wasi_proc_exit(godot_wasm::Extension* extension, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 1 || results->size != 0, "Invalid arguments proc_exit", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
-      if (!extension->wasm->has_permission("exit")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       extension->wasm->exit(args->data[0].of.i32);
       return NULL;
     }
@@ -104,7 +102,6 @@ namespace godot {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       wasm_memory_t* memory = extension->wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
-      if (!extension->wasm->has_permission("args")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
       int32_t offset_count = args->data[0].of.i32;
       int32_t offset_length = args->data[1].of.i32;
@@ -119,7 +116,6 @@ namespace godot {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       wasm_memory_t* memory = extension->wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
-      if (!extension->wasm->has_permission("args")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
       int32_t offset_environ = args->data[0].of.i32;
       int32_t offset_buffer = args->data[1].of.i32;
@@ -159,7 +155,6 @@ namespace godot {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments random_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       wasm_memory_t* memory = extension->wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
-      if (!extension->wasm->has_permission("random")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
       int32_t offset = args->data[0].of.i32;
       int32_t length = args->data[1].of.i32;
@@ -173,7 +168,6 @@ namespace godot {
       FAIL_IF(args->size != 3 || results->size != 1, "Invalid arguments clock_time_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       wasm_memory_t* memory = extension->wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
-      if (!extension->wasm->has_permission("time")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
       int32_t clock_id = args->data[0].of.i32;
       int32_t offset = args->data[2].of.i32;
