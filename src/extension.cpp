@@ -17,11 +17,11 @@ namespace godot {
   }
 
   namespace godot_wasm {
-    Extension::Extension(const String name, Wasm* wasm_instance): wasm(wasm_instance), _target(0) {
+    Extension::Extension(const String name, Wasm* wasm_instance): _target(0), wasm(wasm_instance) {
       _name = std::string(name.utf8().get_data());
     }
 
-    Extension::Extension(const String name, Wasm* wasm_instance, const Object* target): wasm(wasm_instance), _target(target->get_instance_id()) {
+    Extension::Extension(const String name, Wasm* wasm_instance, const Object* target): _target(target->get_instance_id()), wasm(wasm_instance) {
       _name = std::string(name.utf8().get_data());
     }
 

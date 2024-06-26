@@ -25,7 +25,7 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
   #define PRINT(message) print_line(String(message))
   #define PRINT_ERROR(message) print_error("Godot Wasm: " + String(message))
   #define godot_error Error
-  #define INSTANCE_FROM_ID(id) ObjectDB::get_instance(id)
+  #define INSTANCE_FROM_ID(id) ObjectDB::get_instance(ObjectID(id))
   #define INSTANCE_VALIDATE(id) VariantUtilityFunctions::is_instance_valid(id)
   #define REGISTRATION_METHOD _bind_methods
   #define RANDOM_BYTES(n) Crypto::create()->generate_random_bytes(n)
