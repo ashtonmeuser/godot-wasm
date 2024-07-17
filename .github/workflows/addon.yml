@@ -20,7 +20,7 @@ jobs:
           - platform: linux
             os: ubuntu-latest
           - platform: osx
-            os: macos-11
+            os: macos-latest
           - platform: windows
             os: windows-latest
     runs-on: ${{ matrix.os }}
@@ -65,7 +65,7 @@ jobs:
           - platform: linux
             os: ubuntu-latest
           - platform: osx
-            os: macos-11
+            os: macos-latest
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
@@ -100,7 +100,7 @@ jobs:
           - platform: linux
             os: ubuntu-latest
           - platform: osx
-            os: macos-11
+            os: macos-latest
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
