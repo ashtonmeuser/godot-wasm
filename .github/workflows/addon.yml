@@ -20,7 +20,7 @@ jobs:
           - platform: linux
             os: ubuntu-latest
           - platform: macos
-            os: macos-11
+            os: macos-latest
           - platform: windows
             os: windows-latest
     runs-on: ${{ matrix.os }}
@@ -64,7 +64,7 @@ jobs:
           - platform: linux
             os: ubuntu-latest
           - platform: macos
-            os: macos-11
+            os: macos-latest
           - platform: windows
             os: windows-latest
     runs-on: ${{ matrix.os }}
@@ -101,7 +101,7 @@ jobs:
           - platform: linux
             os: ubuntu-latest
           - platform: macos
-            os: macos-11
+            os: macos-latest
           - platform: windows
             os: windows-latest
     runs-on: ${{ matrix.os }}
