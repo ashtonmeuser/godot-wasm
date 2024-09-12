@@ -67,7 +67,7 @@ jobs:
           - platform: osx
             os: macos-latest
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -102,7 +102,7 @@ jobs:
           - platform: osx
             os: macos-latest
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v4
