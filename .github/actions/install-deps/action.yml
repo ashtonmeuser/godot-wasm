@@ -19,7 +19,7 @@ runs:
 
     - name: Install Python Packages
       shell: bash
-      run: python -m pip install scons
+      run: python -m pip install scons==4.7.0
 
     - name: Install Windows Python Packages
       if: runner.os == 'Windows'
