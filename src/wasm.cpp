@@ -55,7 +55,7 @@ namespace godot {
     inline wasm_val_t error_value(const char* message) {
       PRINT_ERROR(message);
       wasm_val_t value;
-      value.kind = WASM_ANYREF;
+      value.kind = GODOT_WASM_EXTERNREF;
       value.of.ref = NULL;
       return value;
     }
@@ -121,12 +121,12 @@ namespace godot {
         if ((size_t)array.size() != results->size) return ERR_PARAMETER_RANGE_ERROR;
         for (uint16_t i = 0; i < results->size; i++) {
           results->data[i] = encode_variant(array[i], context->results[i]);
-          if (results->data[i].kind == WASM_ANYREF) return ERR_INVALID_DATA;
+          if (results->data[i].kind == GODOT_WASM_EXTERNREF) return ERR_INVALID_DATA;
         }
         return OK;
       } else if (results->size == 1) {
         results->data[0] = encode_variant(variant, context->results[0]);
-        return results->data[0].kind == WASM_ANYREF ? ERR_INVALID_DATA : OK;
+        return results->data[0].kind == GODOT_WASM_EXTERNREF ? ERR_INVALID_DATA : OK;
       } else return ERR_INVALID_DATA;
     }
 
@@ -335,7 +335,7 @@ namespace godot {
       const Array& import = dict_safe_get(functions, it.first, Array());
       FAIL_IF(import.size() != 2, "Invalid import function " + it.first, ERR_CANT_CREATE);
       FAIL_IF(import[0].get_type() != Variant::OBJECT, "Invalid import target " + it.first, ERR_CANT_CREATE);
-      FAIL_IF(!INSTANCE_VALIDATE(import[0]), "Invalid import target " + it.first, ERR_CANT_CREATE);
+      FAIL_IF(!INSTANCE_FROM_ID(import[0]), "Invalid import target " + it.first, ERR_CANT_CREATE);
       FAIL_IF(import[1].get_type() != Variant::STRING, "Invalid import method " + it.first, ERR_CANT_CREATE);
       godot_wasm::ContextFuncImport* context = (godot_wasm::ContextFuncImport*)&it.second;
       context->target = import[0].operator Object*()->get_instance_id();
@@ -449,7 +449,7 @@ namespace godot {
     for (uint16_t i = 0; i < args.size(); i++) {
       Variant variant = args[i];
       wasm_val_t value = encode_variant(variant, context.params[i]);
-      FAIL_IF(value.kind == WASM_ANYREF, "Invalid argument type", NULL_VARIANT);
+      FAIL_IF(value.kind == GODOT_WASM_EXTERNREF, "Invalid argument type", NULL_VARIANT);
       args_vec.push_back(value);
     }
     wasm_val_vec_t f_args = { args_vec.size(), args_vec.data() };
