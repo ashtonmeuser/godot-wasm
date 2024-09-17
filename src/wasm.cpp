@@ -335,7 +335,7 @@ namespace godot {
       const Array& import = dict_safe_get(functions, it.first, Array());
       FAIL_IF(import.size() != 2, "Invalid import function " + it.first, ERR_CANT_CREATE);
       FAIL_IF(import[0].get_type() != Variant::OBJECT, "Invalid import target " + it.first, ERR_CANT_CREATE);
-      FAIL_IF(!INSTANCE_FROM_ID(import[0]), "Invalid import target " + it.first, ERR_CANT_CREATE);
+      FAIL_IF(!INSTANCE_VALIDATE(import[0]), "Invalid import target " + it.first, ERR_CANT_CREATE);
       FAIL_IF(import[1].get_type() != Variant::STRING, "Invalid import method " + it.first, ERR_CANT_CREATE);
       godot_wasm::ContextFuncImport* context = (godot_wasm::ContextFuncImport*)&it.second;
       context->target = import[0].operator Object*()->get_instance_id();
