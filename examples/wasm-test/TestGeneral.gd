@@ -52,6 +52,7 @@ func test_function():
 	var wasm = load_wasm("simple")
 	var result = wasm.function("add", [1, 2])
 	expect_eq(result, 3)
+	expect_empty()
 
 func test_invalid_function():
 	var wasm = load_wasm("simple")
@@ -78,6 +79,17 @@ func test_invalid_function_arg_type():
 func test_invalid_function_arg_count():
 	var wasm = load_wasm("simple")
 	var result = wasm.function("add", [1])
+	expect_eq(result, null)
+	expect_error("Incorrect number of arguments supplied")
+
+func test_function_default_args():
+	if !Utils.godot_4(): return # Default arguments are unsupported in GDNative
+	var wasm = load_wasm("simple")
+	var result = wasm.function("count") # Expects no arguments
+	expect_eq(result, 1)
+	result = wasm.function("add", [1, 2])
+	expect_eq(result, 3)
+	result = wasm.function("add") # Expects arguments
 	expect_eq(result, null)
 	expect_error("Incorrect number of arguments supplied")
 
@@ -122,8 +134,9 @@ func test_inspect():
 		},
 		"export_functions": {
 			"_initialize": [[], []],
-			"add": [[TYPE_INT, TYPE_INT], [TYPE_INT]]
+			"add": [[TYPE_INT, TYPE_INT], [TYPE_INT]],
+			"count": [[], [TYPE_INT]],
 		},
-		"memory": {}
+		"memory": {},
 	}
 	expect_eq(inspect, expected)

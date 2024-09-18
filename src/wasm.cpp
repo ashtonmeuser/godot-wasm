@@ -230,7 +230,7 @@ namespace godot {
       ClassDB::bind_method(D_METHOD("load", "bytecode", "import_map"), &Wasm::load);
       ClassDB::bind_method(D_METHOD("inspect"), &Wasm::inspect);
       ClassDB::bind_method(D_METHOD("global", "name"), &Wasm::global);
-      ClassDB::bind_method(D_METHOD("function", "name", "args"), &Wasm::function);
+      ClassDB::bind_method(D_METHOD("function", "name", "args"), &Wasm::function, DEFVAL(Array()));
       ClassDB::bind_method(D_METHOD("set_permissions"), &Wasm::set_permissions);
       ClassDB::bind_method(D_METHOD("get_permissions"), &Wasm::get_permissions);
       ClassDB::bind_method(D_METHOD("has_permission", "permission"), &Wasm::has_permission);
