@@ -15,3 +15,6 @@ static func file_length(f: FileAccess) -> int:
 
 static func to_utf8(s: String) -> PackedByteArray:
 	return s.to_utf8_buffer()
+
+static func godot_4() -> bool:
+	return Engine.get_version_info()["major"] == 4
