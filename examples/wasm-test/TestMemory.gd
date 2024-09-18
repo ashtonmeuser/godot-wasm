@@ -14,9 +14,10 @@ func test_inspect_compiled():
 		},
 		"export_functions": {
 			"_initialize": [[], []],
-			"add": [[TYPE_INT, TYPE_INT], [TYPE_INT]]
+			"add": [[TYPE_INT, TYPE_INT], [TYPE_INT]],
+			"count": [[], [TYPE_INT]],
 		},
-		"memory": {}
+		"memory": {},
 	}
 	expect_eq(inspect, expected)
 
