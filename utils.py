@@ -6,9 +6,9 @@ import tarfile
 from zipfile import ZipFile
 
 WASMER_BASE_URL = "https://github.com/wasmerio/wasmer/releases/download/{0}/wasmer-{1}.tar.gz"
-WASMER_VER_DEFAULT = "v4.3.7"
+WASMER_VER_DEFAULT = "v4.4.0"
 WASMTIME_BASE_URL = "https://github.com/bytecodealliance/wasmtime/releases/download/{0}/wasmtime-{0}-{1}-c-api.{2}"
-WASMTIME_VER_DEFAULT = "v24.0.0"
+WASMTIME_VER_DEFAULT = "v25.0.2"
 
 
 def _validate_version(v):

@@ -53,6 +53,5 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
 #define TIME_MONOTONIC OS::get_singleton()->get_ticks_usec() * 1000
 #define NULL_VARIANT Variant()
 #define PAGE_SIZE 65536
-#define GODOT_WASM_EXTERNREF 128 // Different enums in Wasmer & Wasmtime (see https://github.com/wasmerio/wasmer/issues/5082)
 
 #endif
