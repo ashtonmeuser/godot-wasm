@@ -16,11 +16,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Clean Binaries
-        run: rm -rf ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
+        run: find ${{ github.workspace }}/${{ env.LIBRARY_PATH }} -mindepth 1 -type d -exec rm -rf {} +
 
       - name: Download Artifact
         # Non-standard download action required for cross-workflow downloads
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v6
         with:
           workflow: addon.yml
           commit: ${{ github.sha }}
