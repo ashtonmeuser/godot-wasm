@@ -34,6 +34,6 @@ jobs:
           zip -r ${{ env.RELEASE_ASSET }} godot-wasm
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: ${{ github.workspace }}/${{ env.RELEASE_ASSET }}
