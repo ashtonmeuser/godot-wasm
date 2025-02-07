@@ -22,7 +22,7 @@ elif env["wasm_runtime"] == "wasmtime":
 # Check platform specifics
 if env["platform"] == "windows":
     # Additional libraries required by Wasmer
-    env.Append(LIBS=["oleaut32", "ole32.lib"])
+    env.Append(LIBS=["oleaut32", "ole32.lib", "runtimeobject.lib"])
     if env.get("use_mingw"):  # MinGW
         env["LIBRUNTIMESUFFIX"] = ".a"
         env.Append(LIBS=["userenv"])
