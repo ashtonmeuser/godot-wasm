@@ -197,8 +197,13 @@ namespace godot {
       auto r_types = new std::vector<wasm_valtype_t*>;
       for (auto &it: std::get<0>(signature)) p_types->push_back(wasm_valtype_new(it));
       for (auto &it: std::get<1>(signature)) r_types->push_back(wasm_valtype_new(it));
-      wasm_valtype_vec_t params = { p_types->size(), p_types->data() };
-      wasm_valtype_vec_t results = { r_types->size(), r_types->data() };
+
+      wasm_valtype_vec_t params;
+      wasm_valtype_vec_new(&params, p_types->size(), p_types->data());
+
+      wasm_valtype_vec_t results;
+      wasm_valtype_vec_new(&results, r_types->size(), r_types->data());
+
       wasm_functype_t* functype = wasm_functype_new(&params, &results);
       DEFER(wasm_functype_delete(functype));
       return wasm_func_new_with_env(store, functype, std::get<2>(signature), wasm, NULL);

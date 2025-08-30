@@ -301,8 +301,7 @@ namespace godot {
     // Load binary
     wasm_byte_vec_t wasm_bytes;
     DEFER(wasm_byte_vec_delete(&wasm_bytes));
-    wasm_byte_vec_new_uninitialized(&wasm_bytes, bytecode.size());
-    memcpy(wasm_bytes.data, BYTE_ARRAY_POINTER(bytecode), bytecode.size());
+    wasm_byte_vec_new(&wasm_bytes, bytecode.size(), (const wasm_byte_t *)bytecode.ptr());
 
     // Validate binary
     FAIL_IF(!wasm_module_validate(STORE, &wasm_bytes), "Invalid binary", ERR_INVALID_DATA);
@@ -320,7 +319,6 @@ namespace godot {
   godot_error Wasm::instantiate(const Dictionary import_map) {
     // Prepare module externs
     std::map<uint16_t, wasm_extern_t*> extern_map;
-    DEFER(for (auto &it: extern_map) wasm_extern_delete(it.second));
 
     // Construct import functions
     const Dictionary& functions = dict_safe_get(import_map, "functions", Dictionary());
@@ -356,7 +354,10 @@ namespace godot {
     // Sort imports by index
     std::vector<wasm_extern_t*> extern_list;
     for (auto &it: extern_map) extern_list.push_back(it.second); // Maps iterate over sorted keys
-    wasm_extern_vec_t imports = { extern_list.size(), extern_list.data() };
+
+    wasm_extern_vec_t imports;
+    DEFER(wasm_extern_vec_delete(&imports));
+    wasm_extern_vec_new(&imports, extern_list.size(), extern_list.data());
 
     // Instantiate with imports
     instance = wasm_instance_new(STORE, module, &imports, NULL);
@@ -452,20 +453,23 @@ namespace godot {
       FAIL_IF(value.kind == WASM_EXTERNREF, "Invalid argument type", NULL_VARIANT);
       args_vec.push_back(value);
     }
-    wasm_val_vec_t f_args = { args_vec.size(), args_vec.data() };
+    wasm_val_vec_t f_args;
+    DEFER(wasm_val_vec_delete(&f_args));
+    wasm_val_vec_new(&f_args,  args_vec.size(), args_vec.data());
 
     // Construct return values
-    std::vector<wasm_val_t> results_vec(context.return_count);
-    wasm_val_vec_t f_results = { results_vec.size(), results_vec.data() };
+    wasm_val_vec_t f_results;
+    DEFER(wasm_val_vec_delete(&f_results));
+    wasm_val_vec_new_uninitialized(&f_results,  context.return_count);
 
     // Call function
     FAIL_IF(wasm_func_call(func, &f_args, &f_results), "Failed calling function " + name, NULL_VARIANT);
 
     // Extract result(s)
     if (context.return_count == 0) return NULL_VARIANT;
-    if (context.return_count == 1) return decode_variant(results_vec[0]);
+    if (context.return_count == 1) return decode_variant(f_results.data[0]);
     Array results = Array();
-    for (uint16_t i = 0; i < context.return_count; i++) results.append(decode_variant(results_vec[i]));
+    for (uint16_t i = 0; i < context.return_count; i++) results.append(decode_variant(f_results.data[i]));
     return results;
   }
 
