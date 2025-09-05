@@ -5,7 +5,7 @@ from utils import download_wasmer, download_wasmtime, WASMER_VER_DEFAULT, WASMTI
 opts = Variables([], ARGUMENTS)
 
 # Define options
-opts.Add(EnumVariable("wasm_runtime", "Wasm runtime used", "wasmer", ["wasmer", "wasmtime"]))
+opts.Add(EnumVariable("wasm_runtime", "Wasm runtime used", "wasmtime", ["wasmer", "wasmtime"]))
 opts.Add(BoolVariable("download_runtime", "(Re)download runtime library", "no"))
 opts.Add("runtime_version", "Runtime library version", None)
 
