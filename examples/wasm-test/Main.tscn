@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d40co37swb17"]
 
-[ext_resource type="Script" path="res://utils/TestRunner.gd" id="1_hns0s"]
+[ext_resource type="Script" uid="uid://cwtk45ltvofcy" path="res://utils/TestRunner.gd" id="1_hns0s"]
 
 [node name="Main" type="RichTextLabel"]
 anchors_preset = 15
