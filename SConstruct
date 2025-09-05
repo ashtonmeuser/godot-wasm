@@ -21,6 +21,8 @@ elif env["wasm_runtime"] == "wasmtime":
 
 # Check platform specifics
 if env["platform"] == "windows":
+    # Additional libraries required by Wasmer
+    env.Append(LIBS=["ole32.lib", "runtimeobject.lib"])
     if env.get("use_mingw"):  # MinGW
         env["LIBRUNTIMESUFFIX"] = ".a"
         env.Append(LIBS=["userenv"])
@@ -32,7 +34,7 @@ if env["platform"] == "windows":
         env.Append(LINKFLAGS=["bcrypt.lib", "userenv.lib", "ws2_32.lib", "advapi32.lib", "ntdll.lib"])
         # Additional libraries to build wasmtime for Windows
         if env["wasm_runtime"] == "wasmtime":
-            env.Append(LINKFLAGS=["shell32.lib", "ole32.lib", "wasmtime\\lib\\wasmtime.dll.lib"])
+            env.Append(LINKFLAGS=["shell32.lib", "ole32.lib"])
             env.Append(LINKFLAGS=["/WX:NO"])  # Temporarily disable warnings as errors to fix LIBCMT conflict warning
 
 # Defines for GDExtension specific API

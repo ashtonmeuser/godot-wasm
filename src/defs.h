@@ -26,7 +26,7 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
   #define PRINT_ERROR(message) print_error("Godot Wasm: " + String(message))
   #define godot_error Error
   #define INSTANCE_FROM_ID(id) ObjectDB::get_instance(id)
-  #define INSTANCE_VALIDATE(id) VariantUtilityFunctions::is_instance_valid(id)
+  #define INSTANCE_VALIDATE(o) (o.get_validated_object() != nullptr)
   #define REGISTRATION_METHOD _bind_methods
   #define RANDOM_BYTES(n) Crypto::create()->generate_random_bytes(n)
 #else
@@ -34,7 +34,7 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
   #define PRINT_ERROR(message) _err_print_error(__FUNCTION__, __FILE__, __LINE__, "Godot Wasm: " + String(message))
   #define godot_error Error
   #define INSTANCE_FROM_ID(id) ObjectDB::get_instance(id)
-  #define INSTANCE_VALIDATE(id) UtilityFunctions::is_instance_valid(id)
+  #define INSTANCE_VALIDATE(o) (o.get_validated_object() != nullptr)
   #define REGISTRATION_METHOD _bind_methods
   #define RANDOM_BYTES(n) [n]()->PackedByteArray{Ref<Crypto> c;c.instantiate();return c->generate_random_bytes(n);}()
 #endif
