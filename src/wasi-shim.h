@@ -2,7 +2,11 @@
 #define WASI_SHIM_H
 
 #include <functional>
-#include <wasm.h>
+#if defined(WASM_RUNTIME_wamr)
+#include "wasm_c_api.h"
+#else
+#include "wasm.h"
+#endif
 #include "defs.h"
 
 namespace godot {

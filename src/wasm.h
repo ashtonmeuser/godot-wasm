@@ -2,7 +2,11 @@
 #define GODOT_WASM_H
 
 #include <map>
+#if defined(WASM_RUNTIME_wamr)
+#include "wasm_c_api.h"
+#else
 #include <wasm.h>
+#endif
 #include "defs.h"
 #include "wasm-memory.h"
 
