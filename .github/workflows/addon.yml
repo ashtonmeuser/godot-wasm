@@ -45,6 +45,7 @@ jobs:
           platform: ${{ matrix.platform }}
           target: ${{ env.TARGET }}
           cache-suffix: ${{ env.GODOT_REF }}
+          scons-flags: "wasm_runtime=wasmer"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
