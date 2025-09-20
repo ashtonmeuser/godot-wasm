@@ -1,4 +1,4 @@
-#include <wasm.h>
+#include "wasm.h"
 #include "wasm-memory.h"
 #include "store.h"
 
@@ -88,8 +88,9 @@ namespace godot {
 
   godot_error WasmMemory::INTERFACE_GET_DATA {
     FAIL_IF(memory == NULL, "Invalid memory", ERR_INVALID_DATA);
-    byte_t* data = wasm_memory_data(memory) + pointer;
-    memcpy(buffer, data, bytes);
+    byte_t* data = wasm_memory_data(memory);
+    FAIL_IF(data == NULL, "Invalid memory state", ERR_INVALID_DATA);
+    memcpy(buffer, data  + pointer, bytes);
     pointer += bytes;
     #ifndef GODOT_MODULE
       *received = bytes;
@@ -109,8 +110,9 @@ namespace godot {
   godot_error WasmMemory::INTERFACE_PUT_DATA {
     FAIL_IF(memory == NULL, "Invalid memory", ERR_INVALID_DATA);
     if (bytes <= 0) return OK;
-    byte_t* data = wasm_memory_data(memory) + pointer;
-    memcpy(data, buffer, bytes);
+    byte_t* data = wasm_memory_data(memory);
+    FAIL_IF(data == NULL, "Invalid memory state", ERR_INVALID_DATA);
+    memcpy(data + pointer, buffer, bytes);
     pointer += bytes;
     #ifndef GODOT_MODULE
       *sent = bytes;

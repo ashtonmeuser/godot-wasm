@@ -455,12 +455,12 @@ namespace godot {
     }
     wasm_val_vec_t f_args;
     DEFER(wasm_val_vec_delete(&f_args));
-    wasm_val_vec_new(&f_args,  args_vec.size(), args_vec.data());
+    wasm_val_vec_new(&f_args, args_vec.size(), args_vec.data());
 
     // Construct return values
     wasm_val_vec_t f_results;
     DEFER(wasm_val_vec_delete(&f_results));
-    wasm_val_vec_new_uninitialized(&f_results,  context.return_count);
+    wasm_val_vec_new_uninitialized(&f_results, context.return_count);
 
     // Call function
     FAIL_IF(wasm_func_call(func, &f_args, &f_results), "Failed calling function " + name, NULL_VARIANT);

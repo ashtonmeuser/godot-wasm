@@ -5,7 +5,7 @@ from utils import download_wasmer, download_wasmtime, WASMER_VER_DEFAULT, WASMTI
 opts = Variables([], ARGUMENTS)
 
 # Define options
-opts.Add(EnumVariable("wasm_runtime", "Wasm runtime used", "wasmtime", ["wasmer", "wasmtime"]))
+opts.Add(EnumVariable("wasm_runtime", "Wasm runtime used", "wasmtime", ["wasmer", "wasmtime", "wamr"]))
 opts.Add(BoolVariable("download_runtime", "(Re)download runtime library", "no"))
 opts.Add("runtime_version", "Runtime library version", None)
 
@@ -40,21 +40,26 @@ if env["platform"] == "windows":
 # Defines for GDExtension specific API
 env.Append(CPPDEFINES=["GDEXTENSION", "LIBWASM_STATIC"])
 
-# Explicit static libraries
-runtime_lib = env.File(
-    "{runtime}/lib/{prefix}{runtime}{suffix}".format(
-        runtime=env["wasm_runtime"],
-        prefix=env["LIBPREFIX"],
-        suffix=env.get("LIBRUNTIMESUFFIX", env["LIBSUFFIX"]),
-    )
-)
-
-# CPP includes and libraries
-env.Append(CPPPATH=[".", "{}/include".format(env["wasm_runtime"])])
-env.Append(LIBS=[runtime_lib])
+env.Append(CPPDEFINES=["WASM_RUNTIME_" + env["wasm_runtime"]])
 
 # Godot Wasm sources
 source = ["register_types.cpp", env.Glob("src/*.cpp")]
+
+# Explicit static libraries
+if env["wasm_runtime"] != "wamr":
+    runtime_lib = env.File(
+        "{runtime}/lib/{prefix}{runtime}{suffix}".format(
+        runtime=env["wasm_runtime"],
+        prefix=env["LIBPREFIX"],
+        suffix=env.get("LIBRUNTIMESUFFIX", env["LIBSUFFIX"]),
+        )
+    )
+    env.Append(LIBS=[runtime_lib])
+else:
+    source += [env.Glob("wamr/src/*.c"), "wamr/stub.cpp"]
+
+# CPP includes and libraries
+env.Append(CPPPATH=[".", "{}/include".format(env["wasm_runtime"])])
 
 # Builders
 library = env.SharedLibrary(target="addons/godot-wasm/bin/{}/godot-wasm".format(env["platform"]), source=source)

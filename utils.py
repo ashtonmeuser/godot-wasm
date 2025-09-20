@@ -10,7 +10,6 @@ WASMER_VER_DEFAULT = "v6.0.1"
 WASMTIME_BASE_URL = "https://github.com/bytecodealliance/wasmtime/releases/download/{0}/wasmtime-{0}-{1}-c-api.{2}"
 WASMTIME_VER_DEFAULT = "v36.0.2"
 
-
 def _validate_version(v):
     """Validate semver string"""
     if not re.fullmatch(r"v\d+\.\d+\.\d+(-.+)?", v):
