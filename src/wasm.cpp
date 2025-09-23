@@ -490,8 +490,10 @@ namespace godot {
         } case WASM_EXTERN_MEMORY:
           memory_context = new godot_wasm::ContextMemory(i, true);
           break;
-        default: FAIL("Import type not implemented", ERR_INVALID_DATA);
-      }
+        default:
+          WARN_PRINT(vformat("Import type for %s not implemented", key));
+          break;
+		}
     }
 
     // Module exports
@@ -513,7 +515,9 @@ namespace godot {
         case WASM_EXTERN_MEMORY:
           if (memory_context == NULL) memory_context = new godot_wasm::ContextMemory(i, false); // Favour import memory
           break;
-        default: FAIL("Export type not implemented", ERR_INVALID_DATA);
+        default:
+          WARN_PRINT(vformat("Import type for %s not implemented", key));
+          break;
       }
     }
 
