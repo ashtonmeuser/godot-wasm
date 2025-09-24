@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include "wasm.h"
+#include "modules/wasm/src/embind.h"
 #include "wasi-shim.h"
 #include "defer.h"
 #include "store.h"
@@ -324,11 +325,16 @@ namespace godot {
     const Dictionary& functions = dict_safe_get(import_map, "functions", Dictionary());
     for (const auto &it: import_funcs) {
       if (!functions.keys().has(it.first)) {
-        // Attempt to use default WASI import
-        auto callback = godot_wasm::get_wasi_callback(STORE, this, it.first);
-        FAIL_IF(callback == NULL, "Missing import function " + it.first, ERR_CANT_CREATE);
-        extern_map[it.second.index] = wasm_func_as_extern(callback);
-        continue;
+		// Attempt to use default WASI import
+		wasm_func_t *callback;
+
+		callback = godot_wasm::get_wasi_callback(STORE, this, it.first);
+		if (callback == NULL)
+			callback = godot_wasm::get_embind_callback(STORE, this, it.first);
+
+		FAIL_IF(callback == NULL , "Missing import function " + it.first, ERR_CANT_CREATE);
+		extern_map[it.second.index] = wasm_func_as_extern(callback);
+		continue;
       }
       const Array& import = dict_safe_get(functions, it.first, Array());
       FAIL_IF(import.size() != 2, "Invalid import function " + it.first, ERR_CANT_CREATE);
