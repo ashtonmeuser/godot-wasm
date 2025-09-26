@@ -121,12 +121,12 @@ namespace godot {
         if ((size_t)array.size() != results->size) return ERR_PARAMETER_RANGE_ERROR;
         for (uint16_t i = 0; i < results->size; i++) {
           results->data[i] = encode_variant(array[i], context->results[i]);
-          if (results->data[i].kind == WASM_EXTERNREF) return ERR_INVALID_DATA;
+          if (wasm_valkind_is_ref(results->data[i].kind)) return ERR_INVALID_DATA;
         }
         return OK;
       } else if (results->size == 1) {
         results->data[0] = encode_variant(variant, context->results[0]);
-        return results->data[0].kind == WASM_EXTERNREF ? ERR_INVALID_DATA : OK;
+        return wasm_valkind_is_ref(results->data[0].kind) ? ERR_INVALID_DATA : OK;
       } else return ERR_INVALID_DATA;
     }
 
