@@ -202,6 +202,9 @@ wasm_trap_t *wasi_clock_time_get(void *env, const wasm_val_vec_t *args, wasm_val
 	return godot_wasm::wasi_result(results);
 }
 
+wasm_trap_t *__fd_close(uint fd) {}
+wasm_trap_t *__fd_seek(uint fd, uint offset, uint whence, uint newOffset) {}
+
 std::map<std::string, godot_wasm::callback_signature> signatures{
 	{ "wasi_snapshot_preview1.fd_write", { { WASM_I32, WASM_I32, WASM_I32, WASM_I32 }, { WASM_I32 }, wasi_fd_write } },
 	{ "wasi_snapshot_preview1.proc_exit", { { WASM_I32 }, {}, wasi_proc_exit } },
