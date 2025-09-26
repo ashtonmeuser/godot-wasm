@@ -31,10 +31,14 @@ func expect_log(s: String):
 		print("Export build skipping expect log: %s" % s)
 		return
 	_log_file.seek(_log_file.get_position()) # HACK: Not sure why this works
-	var line = _log_file.get_line()
-	var regex: RegEx = RegEx.new()
-	if regex.compile("^%s$" % s): _fail("Invalid regex: %s" % s)
-	if regex.search(line) == null: _fail("Expect log: %s != %s" % [line, s])
+	var lines = ""
+	while !_log_file.eof_reached():
+		var line = _log_file.get_line()
+		var regex: RegEx = RegEx.new()
+		if regex.compile("^%s$" % s): _fail("Invalid regex: %s" % s)
+		if regex.search(line) != null: return
+		lines += line
+	_fail("Expect log: %s != %s" % [lines, s])
 
 func expect_empty():
 	expect_log("")
