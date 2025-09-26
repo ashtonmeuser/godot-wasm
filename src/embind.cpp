@@ -27,12 +27,13 @@ String read_null_terminated_string(WasmMemory *memory, int32_t ptr) {
 	memory->seek(ptr);
 	return memory->get_string(i - ptr);
 }
-
+// nameptr, argCount, rawArgTypesAddr, signature, rawInvoker, fn, isAsync, isNonnullReturn
 wasm_trap_t *__register_function(void *env, const wasm_val_vec_t *args, wasm_val_vec_t *results) {
 	FAIL_IF(args->size != 8, "Invalid arguments args_get", godot_wasm::wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
 	auto wasm = (Wasm *)env;
 	auto memory = wasm->get_memory().ptr();
 	auto name = read_null_terminated_string(memory, args->data[0].of.i32);
+	auto arg_count = args->data[1].of.i32;
 	if (memory == NULL) {
 		return godot_wasm::wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
 	}
