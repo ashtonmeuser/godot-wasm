@@ -491,12 +491,10 @@ namespace godot {
           memory_context = new godot_wasm::ContextMemory(i, true);
           break;
         case WASM_EXTERN_TABLE:
-          WARN_PRINT(vformat("Import type 'WASM_EXTERN_TABLE' for %s not implemented", key));
+          WARN_PRINT("Tables not implemented for import " + key);
           break;
-        default:
-          WARN_PRINT(vformat("Import type for %s not implemented", key));
-          break;
-		}
+        default: WARN_PRINT("Type not implemented for import " + key);
+      }
     }
 
     // Module exports
@@ -519,11 +517,9 @@ namespace godot {
           if (memory_context == NULL) memory_context = new godot_wasm::ContextMemory(i, false); // Favour import memory
           break;
         case WASM_EXTERN_TABLE:
-          WARN_PRINT(vformat("Export type 'WASM_EXTERN_TABLE' for %s not implemented", key));
+          WARN_PRINT("Tables not implemented for export " + key);
           break;
-        default:
-          WARN_PRINT(vformat("Export type for %s not implemented", key));
-          break;
+        default: WARN_PRINT("Type not implemented for export " + key);
       }
     }
 
