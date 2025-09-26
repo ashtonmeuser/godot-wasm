@@ -301,7 +301,7 @@ namespace godot {
     // Load binary
     wasm_byte_vec_t wasm_bytes;
     DEFER(wasm_byte_vec_delete(&wasm_bytes));
-    wasm_byte_vec_new(&wasm_bytes, bytecode.size(), (const wasm_byte_t *)bytecode.ptr());
+    wasm_byte_vec_new(&wasm_bytes, bytecode.size(), (const wasm_byte_t *)BYTE_ARRAY_POINTER(bytecode));
 
     // Validate binary
     FAIL_IF(!wasm_module_validate(STORE, &wasm_bytes), "Invalid binary", ERR_INVALID_DATA);
