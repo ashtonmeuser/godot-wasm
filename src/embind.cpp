@@ -67,8 +67,6 @@ wasm_trap_t *__register_emval(uint rawType) {}
 wasm_trap_t *__register_std_wstring(uint rawType, uint charSize, uint name) {}
 wasm_trap_t *__register_std_string(uint rawType, uint charSize, uint name) {}
 wasm_trap_t *__emscripten_resize_heap(uint requestedSize) {}
-wasm_trap_t *__fd_close(uint fd) {}
-wasm_trap_t *__fd_seek(uint fd, uint offset, uint whence, uint newOffset) {}
 
 std::map<std::string, callback_signature> embind_sig{
 	{ "env._embind_register_function", { { WASM_I32, WASM_I32, WASM_I32, WASM_I32, WASM_I32, WASM_I32, WASM_I32, WASM_I32 }, {}, __register_function } },

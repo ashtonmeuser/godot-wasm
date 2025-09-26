@@ -44,20 +44,11 @@ struct ContextFuncExport : public ContextExtern {
   }
 };
 
-<<<<<<< HEAD
     struct ContextMemory: public ContextExtern {
       bool import; // Import; not export
       ContextMemory(uint16_t i, bool import): ContextExtern(i), import(import) {}
     };
   }
-=======
-struct ContextMemory : public ContextExtern {
-  bool import; // Import; not export
-  ContextMemory(uint16_t i, bool import) :
-      ContextExtern(i), import(import) {}
-};
-} //namespace godot_wasm
->>>>>>> 00d7001 (fix identation)
 
 namespace {
 template <typename T>
