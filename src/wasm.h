@@ -34,7 +34,8 @@ namespace godot {
       static void REGISTRATION_METHOD();
       Wasm();
       ~Wasm();
-      void _init();
+	  void _init();
+
       void exit(int32_t code);
       godot_error compile(PackedByteArray bytecode);
       godot_error instantiate(const Dictionary import_map);
