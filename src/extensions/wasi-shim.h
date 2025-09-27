@@ -3,7 +3,7 @@
 
 #include <functional>
 #include <wasm.h>
-#include "defs.h"
+#include "../defs.h"
 
 namespace godot {
   class Wasm; // Forward declare to avoid circular dependency

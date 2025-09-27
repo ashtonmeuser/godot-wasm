@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 #include "wasm.h"
-#include "wasi-shim.h"
+#include "extensions/wasi-shim.h"
 #include "defer.h"
 #include "store.h"
 

@@ -2,9 +2,9 @@
 #include <vector>
 #include <map>
 #include "wasi-shim.h"
-#include "wasm.h"
-#include "defer.h"
-#include "string-container.h"
+#include "../wasm.h"
+#include "../defer.h"
+#include "../string-container.h"
 
 // See https://github.com/WebAssembly/wasi-libc/blob/main/libc-bottom-half/headers/public/wasi/api.h
 #define __WASI_CLOCKID_REALTIME (UINT32_C(0)) // The clock measuring real time
