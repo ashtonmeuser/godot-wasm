@@ -1,17 +1,9 @@
 #ifndef WASI_SHIM_H
 #define WASI_SHIM_H
 
-#include "defs.h"
-#include <wasm.h>
 #include <functional>
-
-// See https://github.com/WebAssembly/wasi-libc/blob/main/libc-bottom-half/headers/public/wasi/api.h
-#define __WASI_CLOCKID_REALTIME  (UINT32_C(0)) // The clock measuring real time
-#define __WASI_CLOCKID_MONOTONIC (UINT32_C(1)) // The store-wide monotonic clock
-#define __WASI_ERRNO_SUCCESS     (UINT16_C(0)) // No error occurred
-#define __WASI_ERRNO_ACCES       (UINT16_C(2)) // [sic] Permission denied
-#define __WASI_ERRNO_INVAL       (UINT16_C(28)) // Invalid argument
-#define __WASI_ERRNO_IO          (UINT16_C(29)) // I/O error
+#include <wasm.h>
+#include "../defs.h"
 
 namespace godot {
   class Wasm; // Forward declare to avoid circular dependency
