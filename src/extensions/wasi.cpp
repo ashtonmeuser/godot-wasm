@@ -1,4 +1,7 @@
-#include "wasi-shim.h"
+#include <string>
+#include <vector>
+#include <map>
+#include "wasi.h"
 #include "../wasm.h"
 #include "../defer.h"
 #include "../string-container.h"
