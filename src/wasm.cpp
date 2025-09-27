@@ -3,7 +3,6 @@
 #include "wasm.h"
 #include "defer.h"
 #include "store.h"
-#include "wasi-shim.h"
 #include <string>
 #include <vector>
 #include "wasm.h"
