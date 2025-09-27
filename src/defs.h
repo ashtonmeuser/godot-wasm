@@ -48,6 +48,7 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
 #define FAIL_IF(cond, message, ret) if (unlikely(cond)) FAIL(message, ret)
 #define INSTANTIATE_REF(ref) ref.instance()
 #define BYTE_ARRAY_POINTER(array) array.read().ptr()
+#define PACKED_ARRAY_HAS(array, value) array.has(value)
 #define CMDLINE_ARGS PoolStringArray() // User CLI args unsupported in Godot 3
 #define TIME_REALTIME OS::get_singleton()->get_system_time_msecs() * 1000000
 #define TIME_MONOTONIC OS::get_singleton()->get_ticks_usec() * 1000

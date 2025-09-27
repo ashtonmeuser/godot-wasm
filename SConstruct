@@ -85,7 +85,7 @@ env.Append(
 env.Append(LIBS=[cpp_lib, runtime_lib])
 
 # Godot Wasm sources
-source = [env.Glob("src/*.cpp")]
+source = [env.Glob("src/*.cpp"), env.Glob("src/extensions/*.cpp")]
 
 # Builders
 library = env.SharedLibrary(target="addons/godot-wasm/bin/{}/godot-wasm".format(env["platform"]), source=source)
