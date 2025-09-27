@@ -1,5 +1,5 @@
-#ifndef WASI_SHIM_H
-#define WASI_SHIM_H
+#ifndef WASI_EXTENSION_H
+#define WASI_EXTENSION_H
 
 #include <functional>
 #include <wasm.h>
