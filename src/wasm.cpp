@@ -1,6 +1,7 @@
+#include <string>
+#include <vector>
 #include "wasm.h"
 #include "defer.h"
-#include "modules/wasm/src/embind.h"
 #include "store.h"
 #include "wasi-shim.h"
 #include <string>
@@ -11,11 +12,11 @@
 #include "store.h"
 
 namespace godot {
-namespace godot_wasm {
-struct ContextExtern {
-  uint16_t index; // Index within module imports/exports
-  ContextExtern(uint16_t i) { index = i; }
-};
+  namespace godot_wasm {
+    struct ContextExtern {
+      uint16_t index; // Index within module imports/exports
+      ContextExtern(uint16_t i) { index = i; }
+    };
 
 struct ContextFuncImport : public ContextExtern {
   ObjectID target; // The ID of the object on which to invoke callback method
@@ -92,49 +93,48 @@ Variant decode_variant(wasm_val_t value) {
   }
 }
 
-wasm_val_t encode_variant(Variant variant, wasm_valkind_t kind) {
-  wasm_val_t value;
-  value.kind = kind;
-  switch (variant.get_type()) {
-    case Variant::INT:
-      switch (kind) {
-        case WASM_I32:
-          value.of.i32 = (int32_t)variant;
-          return value;
-        case WASM_I64:
-          value.of.i64 = (int64_t)variant;
-          return value;
+    wasm_val_t encode_variant(Variant variant, wasm_valkind_t kind) {
+      wasm_val_t value;
+      value.kind = kind;
+      switch (variant.get_type()) {
+        case Variant::INT:
+          switch (kind) {
+            case WASM_I32:
+              value.of.i32 = (int32_t)variant;
+              return value;
+            case WASM_I64:
+              value.of.i64 = (int64_t)variant;
+              return value;
+            default:
+              return error_value("Invalid target type for integer variant");
+          }
+        case Variant::FLOAT:
+          switch (kind) {
+            case WASM_F32:
+              value.of.f32 = (float32_t)variant;
+              return value;
+            case WASM_F64:
+              value.of.f64 = (float64_t)variant;
+              return value;
+            default:
+              return error_value("Invalid target type for float variant");
+          }
         default:
-          return error_value("Invalid target type for integer variant");
+          return error_value("Unsupported Godot variant type");
       }
-    case Variant::FLOAT:
-      switch (kind) {
-        case WASM_F32:
-          value.of.f32 = (float32_t)variant;
-          return value;
-        case WASM_F64:
-          value.of.f64 = (float64_t)variant;
-          return value;
-        default:
-          return error_value("Invalid target type for float variant");
-      }
-    default:
-      return error_value("Unsupported Godot variant type");
-  }
-}
+    }
 
-String decode_name(const wasm_name_t *name) {
-  return String(std::string(name->data, name->size).c_str());
-}
+    String decode_name(const wasm_name_t* name) {
+      return String(std::string(name->data, name->size).c_str());
+    }
 
-inline Variant dict_safe_get(const Dictionary &d, String k, Variant e) {
-  return d.has(k) && d[k].get_type() == e.get_type() ? d[k] : e;
-}
+    inline Variant dict_safe_get(const Dictionary &d, String k, Variant e) {
+      return d.has(k) && d[k].get_type() == e.get_type() ? d[k] : e;
+    }
 
-template <typename T>
-inline T *dict_safe_get(const Dictionary &d, String k) {
-  return d.has(k) && d[k].get_type() == Variant::OBJECT ? Object::cast_to<T>(d[k]) : NULL;
-}
+    template <typename T> inline T* dict_safe_get(const Dictionary &d, String k) {
+      return d.has(k) && d[k].get_type() == Variant::OBJECT ? Object::cast_to<T>(d[k]) : NULL;
+    }
 
     godot_error extract_results(Variant variant, const godot_wasm::ContextFuncImport* context, wasm_val_vec_t* results) {
       FAIL_IF(results->size != context->results.size(), "Incompatible return value(s)", ERR_INVALID_DATA);
@@ -153,51 +153,46 @@ inline T *dict_safe_get(const Dictionary &d, String k) {
       } else return ERR_INVALID_DATA;
     }
 
-Variant::Type get_value_type(const wasm_valkind_t &kind) {
-  switch (kind) {
-    case WASM_I32:
-    case WASM_I64:
-      return Variant::INT;
-    case WASM_F32:
-    case WASM_F64:
-      return Variant::FLOAT;
-    default:
-      FAIL("Unsupported value kind", Variant::NIL);
-  }
-}
+    Variant::Type get_value_type(const wasm_valkind_t &kind) {
+      switch (kind) {
+        case WASM_I32:
+        case WASM_I64: return Variant::INT;
+        case WASM_F32:
+        case WASM_F64: return Variant::FLOAT;
+        default: FAIL("Unsupported value kind", Variant::NIL);
+      }
+    }
 
-wasm_externtype_t *get_extern_type(const wasm_module_t *module, uint16_t index, bool import) {
-  if (import) {
-    wasm_importtype_vec_t imports;
-    DEFER(wasm_importtype_vec_delete(&imports));
-    wasm_module_imports(module, &imports);
-    return wasm_externtype_copy((wasm_externtype_t *)wasm_importtype_type(imports.data[index]));
-  } else {
-    wasm_exporttype_vec_t exports;
-    DEFER(wasm_exporttype_vec_delete(&exports));
-    wasm_module_exports(module, &exports);
-    return wasm_externtype_copy((wasm_externtype_t *)wasm_exporttype_type(exports.data[index]));
-  }
-}
+    wasm_externtype_t* get_extern_type(const wasm_module_t* module, uint16_t index, bool import) {
+      if (import) {
+        wasm_importtype_vec_t imports;
+        DEFER(wasm_importtype_vec_delete(&imports));
+        wasm_module_imports(module, &imports);
+        return wasm_externtype_copy((wasm_externtype_t*)wasm_importtype_type(imports.data[index]));
+      } else {
+        wasm_exporttype_vec_t exports;
+        DEFER(wasm_exporttype_vec_delete(&exports));
+        wasm_module_exports(module, &exports);
+        return wasm_externtype_copy((wasm_externtype_t*)wasm_exporttype_type(exports.data[index]));
+      }
+    }
 
-Dictionary get_memory_limits(const wasm_module_t *module, const godot_wasm::ContextMemory *context) {
-  Dictionary dict;
-  if (context == NULL) {
-    return dict;
-  }
-  wasm_externtype_t *type = get_extern_type(module, context->index, context->import);
-  DEFER(wasm_externtype_delete(type));
-  wasm_memorytype_t *memory_type = wasm_externtype_as_memorytype(type);
-  auto limits = wasm_memorytype_limits(memory_type);
-  dict["min"] = limits->min * PAGE_SIZE;
-  dict["max"] = limits->max * PAGE_SIZE;
-  return dict;
-}
+    Dictionary get_memory_limits(const wasm_module_t* module, const godot_wasm::ContextMemory* context) {
+      Dictionary dict;
+      if (context == NULL) return dict;
+      wasm_externtype_t* type = get_extern_type(module, context->index, context->import);
+      DEFER(wasm_externtype_delete(type));
+      wasm_memorytype_t* memory_type = wasm_externtype_as_memorytype(type);
+      auto limits = wasm_memorytype_limits(memory_type);
+      dict["min"] = limits->min * PAGE_SIZE;
+      dict["max"] = limits->max * PAGE_SIZE;
+      return dict;
+    }
 
-Array get_extern_signature(const wasm_module_t *module, uint16_t index, bool import) {
-  // Grab the extern from module imports or exports
-  wasm_externtype_t *type = get_extern_type(module, index, import);
-  DEFER(wasm_externtype_delete(type));
+    Array get_extern_signature(const wasm_module_t* module, uint16_t index, bool import) {
+      // Grab the extern from module imports or exports
+      wasm_externtype_t* type = get_extern_type(module, index, import);
+      DEFER(wasm_externtype_delete(type));
 
   // Generate a signature for extern
   switch (wasm_externtype_kind(type)) {
@@ -294,11 +289,11 @@ Wasm::~Wasm() {
 
   void Wasm::_init() {}
 
-void Wasm::exit(int32_t code) {
-  reset_instance(); // Reset instance state
-  code ? PRINT_ERROR("Module exited with error " + String::num_int64(code)) : PRINT("Module exited successfully");
-  // TODO: Emit signal
-}
+  void Wasm::exit(int32_t code) {
+    reset_instance(); // Reset instance state
+    code ? PRINT_ERROR("Module exited with error " + String::num_int64(code)) : PRINT("Module exited successfully");
+    // TODO: Emit signal
+  }
 
   void Wasm::reset_instance() {
     unset(instance, wasm_instance_delete);
@@ -307,45 +302,58 @@ void Wasm::exit(int32_t code) {
     import_funcs.clear();
     export_globals.clear();
     export_funcs.clear();
+    permissions.clear();
+    permissions["print"] = true;
+    permissions["time"] = true;
+    permissions["random"] = true;
+    permissions["args"] = true;
+    permissions["exit"] = true;
   }
 
-Ref<WasmMemory> Wasm::get_memory() const {
-  return memory;
-}
+  Ref<WasmMemory> Wasm::get_memory() const {
+    return memory;
+  };
 
-  void Wasm::set_extensions(const PackedStringArray &extension_names) {
-    extensions = extension_names;
+  void Wasm::set_permissions(const Dictionary &update) {
+    for (auto i = 0; i < permissions.keys().size(); i++) {
+      Variant key = permissions.keys()[i];
+      permissions[key] = dict_safe_get(update, key, permissions[key]);
+    }
   }
 
-  PackedStringArray Wasm::get_extensions() const {
-    return extensions;
+  Dictionary Wasm::get_permissions() const {
+    return permissions;
   }
 
-godot_error Wasm::compile(PackedByteArray bytecode) {
-  reset_instance(); // Reset instance
-  unset(module, wasm_module_delete); // Reset module
+  bool Wasm::has_permission(String permission) const {
+    return dict_safe_get(permissions, permission, false);
+  }
+
+  godot_error Wasm::compile(PackedByteArray bytecode) {
+    reset_instance(); // Reset instance
+    unset(module, wasm_module_delete); // Reset module
 
     // Load binary
     wasm_byte_vec_t wasm_bytes;
     DEFER(wasm_byte_vec_delete(&wasm_bytes));
     wasm_byte_vec_new(&wasm_bytes, bytecode.size(), (const wasm_byte_t*)BYTE_ARRAY_POINTER(bytecode));
 
-  // Validate binary
-  FAIL_IF(!wasm_module_validate(STORE, &wasm_bytes), "Invalid binary", ERR_INVALID_DATA);
+    // Validate binary
+    FAIL_IF(!wasm_module_validate(STORE, &wasm_bytes), "Invalid binary", ERR_INVALID_DATA);
 
-  // Compile
-  module = wasm_module_new(STORE, &wasm_bytes);
-  FAIL_IF(module == NULL, "Compilation failed", ERR_COMPILATION_FAILED);
+    // Compile
+    module = wasm_module_new(STORE, &wasm_bytes);
+    FAIL_IF(module == NULL, "Compilation failed", ERR_COMPILATION_FAILED);
 
-  // Map names to export indices
-  FAIL_IF(map_names(), "Failed to parse module imports or exports", ERR_COMPILATION_FAILED);
+    // Map names to export indices
+    FAIL_IF(map_names(), "Failed to parse module imports or exports", ERR_COMPILATION_FAILED);
 
-  return OK;
-}
+    return OK;
+  }
 
-godot_error Wasm::instantiate(const Dictionary import_map) {
-  // Prepare module externs
-  std::map<uint16_t, wasm_extern_t *> extern_map;
+  godot_error Wasm::instantiate(const Dictionary import_map) {
+    // Prepare module externs
+    std::map<uint16_t, wasm_extern_t*> extern_map;
 
     // Construct import functions
     const Dictionary& functions = dict_safe_get(import_map, "functions", Dictionary());
@@ -546,13 +554,15 @@ Variant Wasm::function(String name, Array args) const {
           const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
           import_funcs.emplace(key, godot_wasm::ContextFuncImport(i, func_type));
           break;
-        } case WASM_EXTERN_MEMORY:
+        }
+        case WASM_EXTERN_MEMORY:
           memory_context = new godot_wasm::ContextMemory(i, true);
           break;
         case WASM_EXTERN_TABLE:
           WARN_PRINT("Tables not implemented for import " + key);
           break;
-        default: WARN_PRINT("Type not implemented for import " + key);
+        default:
+          WARN_PRINT("Type not implemented for import " + key);
       }
     }
 
@@ -569,7 +579,8 @@ Variant Wasm::function(String name, Array args) const {
           const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
           export_funcs.emplace(key, godot_wasm::ContextFuncExport(i, func_type));
           break;
-        } case WASM_EXTERN_GLOBAL:
+        }
+        case WASM_EXTERN_GLOBAL:
           export_globals.emplace(key, godot_wasm::ContextExtern(i));
           break;
         case WASM_EXTERN_MEMORY:
@@ -582,15 +593,15 @@ Variant Wasm::function(String name, Array args) const {
       }
     }
 
-  return OK;
-}
+    return OK;
+  }
 
-wasm_func_t *Wasm::create_callback(godot_wasm::ContextFuncImport *context) {
-  wasm_importtype_vec_t imports;
-  DEFER(wasm_importtype_vec_delete(&imports));
-  wasm_module_imports(module, &imports);
-  const wasm_externtype_t *type = wasm_importtype_type(imports.data[context->index]);
-  const wasm_functype_t *func_type = wasm_externtype_as_functype((wasm_externtype_t *)type);
-  return wasm_func_new_with_env(STORE, func_type, callback_wrapper, context, NULL);
-}
+  wasm_func_t* Wasm::create_callback(godot_wasm::ContextFuncImport* context) {
+    wasm_importtype_vec_t imports;
+    DEFER(wasm_importtype_vec_delete(&imports));
+    wasm_module_imports(module, &imports);
+    const wasm_externtype_t* type = wasm_importtype_type(imports.data[context->index]);
+    const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
+    return wasm_func_new_with_env(STORE, func_type, callback_wrapper, context, NULL);
+  }
 } //namespace godot

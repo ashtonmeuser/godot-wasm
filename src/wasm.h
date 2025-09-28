@@ -12,7 +12,7 @@ namespace godot {
     struct ContextFuncImport;
     struct ContextFuncExport;
     struct ContextMemory;
-  }
+  } //namespace godot_wasm
 
   class Wasm: public RefCounted {
     GDCLASS(Wasm, RefCounted);
@@ -30,11 +30,11 @@ namespace godot {
       godot_error map_names();
       wasm_func_t* create_callback(godot_wasm::ContextFuncImport* context);
 
-    public:
-      static void REGISTRATION_METHOD();
-      Wasm();
-      ~Wasm();
-	  void _init();
+  public:
+    static void REGISTRATION_METHOD();
+    Wasm();
+    ~Wasm();
+    void _init();
 
       void exit(int32_t code);
       godot_error compile(PackedByteArray bytecode);
@@ -47,6 +47,6 @@ namespace godot {
       void set_extensions(const PackedStringArray &extension_names);
       PackedStringArray get_extensions() const;
   };
-}
+} //namespace godot
 
 #endif
