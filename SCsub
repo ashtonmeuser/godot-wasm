@@ -1,13 +1,20 @@
 from utils import download_wasmer, download_wasmtime, WASMER_VER_DEFAULT, WASMTIME_VER_DEFAULT
 
+# Import env and create module-specific clone
+Import("env")
+
+default_runtime = "wasmtime"
+if env["platform"] in ["web"]:
+    default_runtime = "wamr"
+
 opts = Variables([], ARGUMENTS)
 
-opts.Add(EnumVariable("wasm_runtime", "Wasm runtime used", "wasmtime", ["wasmer", "wasmtime"]))
+opts.Add(EnumVariable("wasm_runtime", "Wasm runtime used", default_runtime, ["wasmer", "wasmtime", "wamr"]))
 opts.Add(BoolVariable("download_runtime", "(Re)download runtime library", "no"))
 opts.Add("runtime_version", "Runtime library version", None)
 
-# Import env and create module-specific clone
-Import("env")
+
+
 module_env = env.Clone()
 opts.Update(module_env)
 
@@ -33,21 +40,29 @@ elif env["platform"] == "windows":
         env.Append(LINKFLAGS=["bcrypt.lib", "userenv.lib", "ws2_32.lib", "advapi32.lib", "ntdll.lib"])
 
 # Explicit static libraries
-runtime_lib = env.File(
-    "{runtime}/lib/{prefix}{runtime}{suffix}".format(
-        runtime=module_env["wasm_runtime"],
-        prefix=env["LIBPREFIX"],
-        suffix=env.get("LIBRUNTIMESUFFIX", env["LIBSUFFIX"]),
+if module_env["wasm_runtime"] != "wamr":
+    runtime_lib = env.File(
+        "{runtime}/lib/{prefix}{runtime}{suffix}".format(
+            runtime=module_env["wasm_runtime"],
+            prefix=env["LIBPREFIX"],
+            suffix=env.get("LIBRUNTIMESUFFIX", env["LIBSUFFIX"]),
+        )
     )
-)
+    env.Append(LIBS=[runtime_lib])
+else:
+    module_env.add_source_files(
+        env.modules_sources, [env.Glob("wamr/src/*.c"), "wamr/stub.cpp"]
+    )
 
 # Linked libraries (global env) and includes (cloned env)
-env.Append(LIBPATH=[env.Dir("{}/lib".format(module_env["wasm_runtime"])).abspath])
-env.Append(LIBS=[runtime_lib])
+if module_env["wasm_runtime"] != "wamr":
+    env.Append(LIBPATH=[env.Dir("{}/lib".format(module_env["wasm_runtime"])).abspath])
+
 module_env.Append(CPPPATH=[env.Dir("{}/include".format(module_env["wasm_runtime"])).abspath])
 
 # Defines for module agnosticism
 module_env.Append(CPPDEFINES=["GODOT_MODULE", "LIBWASM_STATIC"])
+module_env.Append(CPPDEFINES=["WASM_RUNTIME_" + module_env["wasm_runtime"]])
 
 # Module sources
 module_env.add_source_files(
