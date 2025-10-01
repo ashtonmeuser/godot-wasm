@@ -305,31 +305,18 @@ Wasm::~Wasm() {
     import_funcs.clear();
     export_globals.clear();
     export_funcs.clear();
-    permissions.clear();
-    permissions["print"] = true;
-    permissions["time"] = true;
-    permissions["random"] = true;
-    permissions["args"] = true;
-    permissions["exit"] = true;
   }
 
   Ref<WasmMemory> Wasm::get_memory() const {
     return memory;
   };
 
-  void Wasm::set_permissions(const Dictionary &update) {
-    for (auto i = 0; i < permissions.keys().size(); i++) {
-      Variant key = permissions.keys()[i];
-      permissions[key] = dict_safe_get(update, key, permissions[key]);
-    }
+  void Wasm::set_extensions(const PackedStringArray &extension_names) {
+    extensions = extension_names;
   }
 
-  Dictionary Wasm::get_permissions() const {
-    return permissions;
-  }
-
-  bool Wasm::has_permission(String permission) const {
-    return dict_safe_get(permissions, permission, false);
+  PackedStringArray Wasm::get_extensions() const {
+    return extensions;
   }
 
   godot_error Wasm::compile(PackedByteArray bytecode) {
@@ -428,6 +415,9 @@ Wasm::~Wasm() {
   if (export_funcs.count("_initialize")) {
     function("_initialize", Array());
   }
+
+    // Clean up allocated extensions
+    for (auto* extension: enabled_extensions) delete extension;
 
     // Clean up allocated extensions
     for (auto* extension: enabled_extensions) delete extension;
