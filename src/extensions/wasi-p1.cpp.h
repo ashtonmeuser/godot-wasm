@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+<<<<<<< HEAD:src/extensions/wasi-p1.cpp
 <<<<<<<< HEAD:src/extensions/wasi-p1.h
 #ifndef WASI_PREVIEW_1_EXTENSION_H
 #define WASI_PREVIEW_1_EXTENSION_H
@@ -7,12 +7,15 @@
 #include <vector>
 #include <map>
 #include "extension.h"
-========
+=======
+#ifndef WASI_PREVIEW_1_EXTENSION_H
+#define WASI_PREVIEW_1_EXTENSION_H
+
+>>>>>>> 13bfffb (WIP: Header-only WASI Preview 1 extension):src/extensions/wasi-p1.cpp.h
 #include <string>
 #include <vector>
 #include <map>
-#include "wasi.h"
->>>>>>>> f5c6ed8 (Rename):src/extensions/wasi.cpp
+#include "extension.h"
 #include "../wasm.h"
 #include "../defer.h"
 #include "../string-container.h"
@@ -107,6 +110,10 @@ namespace godot {
     // WASI proc_exit: [I32] -> []
     wasm_trap_t* wasi_proc_exit(Wasm* wasm, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 1 || results->size != 0, "Invalid arguments proc_exit", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
+<<<<<<< HEAD:src/extensions/wasi.cpp
+=======
+      if (!wasm->has_permission("exit")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
+>>>>>>> 73dfb48 (Extension base class):src/extensions/wasi-p1.cpp
       wasm->exit(args->data[0].of.i32);
       return NULL;
     }
@@ -193,6 +200,8 @@ namespace godot {
   }
 
   namespace godot_wasm {
+<<<<<<< HEAD:src/extensions/wasi-p1.cpp
+<<<<<<< HEAD:src/extensions/wasi.cpp
     class WasiPreview1Extension: public Extension {
       public:
         WasiPreview1Extension(Wasm* wasm): Extension(wasm) {
@@ -230,19 +239,86 @@ namespace godot {
             wasi_clock_time_get);
         }
 =======
-#ifndef WASI_PREVIEW_1_EXTENSION_H
-#define WASI_PREVIEW_1_EXTENSION_H
-
-#include "extension.h"
-
-namespace godot {
-  namespace godot_wasm {
     class WasiPreview1Extension: public Extension {
       public:
-        WasiPreview1Extension(Wasm* wasm);
->>>>>>> 73dfb48 (Extension base class)
+        WasiPreview1Extension(Wasm* wasm): Extension("wasi_preview1", wasm) {
+        register_callback("wasi_snapshot_preview1.fd_write",
+          {WASM_I32, WASM_I32, WASM_I32, WASM_I32},
+          {WASM_I32},
+          wasi_fd_write);
+        register_callback("wasi_snapshot_preview1.proc_exit",
+          {WASM_I32},
+          {},
+          wasi_proc_exit);
+        register_callback("wasi_snapshot_preview1.args_sizes_get",
+          {WASM_I32, WASM_I32},
+          {WASM_I32},
+          wasi_args_sizes_get);
+        register_callback("wasi_snapshot_preview1.args_get",
+          {WASM_I32, WASM_I32},
+          {WASM_I32},
+          wasi_args_get);
+        register_callback("wasi_snapshot_preview1.environ_sizes_get",
+          {WASM_I32, WASM_I32},
+          {WASM_I32},
+          wasi_environ_sizes_get);
+        register_callback("wasi_snapshot_preview1.environ_get",
+          {WASM_I32, WASM_I32},
+          {WASM_I32},
+          wasi_environ_get);
+        register_callback("wasi_snapshot_preview1.random_get",
+          {WASM_I32, WASM_I32},
+          {WASM_I32},
+          wasi_random_get);
+        register_callback("wasi_snapshot_preview1.clock_time_get",
+          {WASM_I32, WASM_I64, WASM_I32},
+          {WASM_I32},
+          wasi_clock_time_get);
+      }
+>>>>>>> 13bfffb (WIP: Header-only WASI Preview 1 extension):src/extensions/wasi-p1.cpp.h
     };
   }
 }
 
 #endif
+<<<<<<< HEAD:src/extensions/wasi-p1.cpp
+=======
+    WasiPreview1Extension::WasiPreview1Extension(Wasm* wasm): Extension("wasi_preview1", wasm) {
+      register_callback("wasi_snapshot_preview1.fd_write",
+        {WASM_I32, WASM_I32, WASM_I32, WASM_I32},
+        {WASM_I32},
+        wasi_fd_write);
+      register_callback("wasi_snapshot_preview1.proc_exit",
+        {WASM_I32},
+        {},
+        wasi_proc_exit);
+      register_callback("wasi_snapshot_preview1.args_sizes_get",
+        {WASM_I32, WASM_I32},
+        {WASM_I32},
+        wasi_args_sizes_get);
+      register_callback("wasi_snapshot_preview1.args_get",
+        {WASM_I32, WASM_I32},
+        {WASM_I32},
+        wasi_args_get);
+      register_callback("wasi_snapshot_preview1.environ_sizes_get",
+        {WASM_I32, WASM_I32},
+        {WASM_I32},
+        wasi_environ_sizes_get);
+      register_callback("wasi_snapshot_preview1.environ_get",
+        {WASM_I32, WASM_I32},
+        {WASM_I32},
+        wasi_environ_get);
+      register_callback("wasi_snapshot_preview1.random_get",
+        {WASM_I32, WASM_I32},
+        {WASM_I32},
+        wasi_random_get);
+      register_callback("wasi_snapshot_preview1.clock_time_get",
+        {WASM_I32, WASM_I64, WASM_I32},
+        {WASM_I32},
+        wasi_clock_time_get);
+    }
+  } //namespace godot_wasm
+} //namespace godot
+>>>>>>> 73dfb48 (Extension base class):src/extensions/wasi-p1.cpp
+=======
+>>>>>>> 13bfffb (WIP: Header-only WASI Preview 1 extension):src/extensions/wasi-p1.cpp.h
