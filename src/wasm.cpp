@@ -1,6 +1,10 @@
 #include <string>
 #include <vector>
 #include "wasm.h"
+<<<<<<< HEAD
+=======
+#include "extensions/wasi-p1.h"
+>>>>>>> 73dfb48 (Extension base class)
 #include "defer.h"
 #include "store.h"
 #include <string>

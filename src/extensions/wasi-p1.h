@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/extensions/wasi-p1.h
 #ifndef WASI_PREVIEW_1_EXTENSION_H
 #define WASI_PREVIEW_1_EXTENSION_H
@@ -228,6 +229,18 @@ namespace godot {
             {WASM_I32},
             wasi_clock_time_get);
         }
+=======
+#ifndef WASI_PREVIEW_1_EXTENSION_H
+#define WASI_PREVIEW_1_EXTENSION_H
+
+#include "extension.h"
+
+namespace godot {
+  namespace godot_wasm {
+    class WasiPreview1Extension: public Extension {
+      public:
+        WasiPreview1Extension(Wasm* wasm);
+>>>>>>> 73dfb48 (Extension base class)
     };
   }
 }
