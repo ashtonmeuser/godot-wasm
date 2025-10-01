@@ -1,7 +1,10 @@
+#ifndef WASI_PREVIEW_1_EXTENSION_H
+#define WASI_PREVIEW_1_EXTENSION_H
+
 #include <string>
 #include <vector>
 #include <map>
-#include "wasi-p1.h"
+#include "extension.h"
 #include "../wasm.h"
 #include "../defer.h"
 #include "../string-container.h"
@@ -189,39 +192,44 @@ namespace godot {
   }
 
   namespace godot_wasm {
-    WasiPreview1Extension::WasiPreview1Extension(Wasm* wasm): Extension("wasi_preview1", wasm) {
-      register_callback("wasi_snapshot_preview1.fd_write",
-        {WASM_I32, WASM_I32, WASM_I32, WASM_I32},
-        {WASM_I32},
-        wasi_fd_write);
-      register_callback("wasi_snapshot_preview1.proc_exit",
-        {WASM_I32},
-        {},
-        wasi_proc_exit);
-      register_callback("wasi_snapshot_preview1.args_sizes_get",
-        {WASM_I32, WASM_I32},
-        {WASM_I32},
-        wasi_args_sizes_get);
-      register_callback("wasi_snapshot_preview1.args_get",
-        {WASM_I32, WASM_I32},
-        {WASM_I32},
-        wasi_args_get);
-      register_callback("wasi_snapshot_preview1.environ_sizes_get",
-        {WASM_I32, WASM_I32},
-        {WASM_I32},
-        wasi_environ_sizes_get);
-      register_callback("wasi_snapshot_preview1.environ_get",
-        {WASM_I32, WASM_I32},
-        {WASM_I32},
-        wasi_environ_get);
-      register_callback("wasi_snapshot_preview1.random_get",
-        {WASM_I32, WASM_I32},
-        {WASM_I32},
-        wasi_random_get);
-      register_callback("wasi_snapshot_preview1.clock_time_get",
-        {WASM_I32, WASM_I64, WASM_I32},
-        {WASM_I32},
-        wasi_clock_time_get);
-    }
+    class WasiPreview1Extension: public Extension {
+      public:
+        WasiPreview1Extension(Wasm* wasm): Extension("wasi_preview1", wasm) {
+        register_callback("wasi_snapshot_preview1.fd_write",
+          {WASM_I32, WASM_I32, WASM_I32, WASM_I32},
+          {WASM_I32},
+          wasi_fd_write);
+        register_callback("wasi_snapshot_preview1.proc_exit",
+          {WASM_I32},
+          {},
+          wasi_proc_exit);
+        register_callback("wasi_snapshot_preview1.args_sizes_get",
+          {WASM_I32, WASM_I32},
+          {WASM_I32},
+          wasi_args_sizes_get);
+        register_callback("wasi_snapshot_preview1.args_get",
+          {WASM_I32, WASM_I32},
+          {WASM_I32},
+          wasi_args_get);
+        register_callback("wasi_snapshot_preview1.environ_sizes_get",
+          {WASM_I32, WASM_I32},
+          {WASM_I32},
+          wasi_environ_sizes_get);
+        register_callback("wasi_snapshot_preview1.environ_get",
+          {WASM_I32, WASM_I32},
+          {WASM_I32},
+          wasi_environ_get);
+        register_callback("wasi_snapshot_preview1.random_get",
+          {WASM_I32, WASM_I32},
+          {WASM_I32},
+          wasi_random_get);
+        register_callback("wasi_snapshot_preview1.clock_time_get",
+          {WASM_I32, WASM_I64, WASM_I32},
+          {WASM_I32},
+          wasi_clock_time_get);
+      }
+    };
   }
 }
+
+#endif
