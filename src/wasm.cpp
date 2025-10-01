@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 #include "wasm.h"
-#include "extensions/wasi.h"
+#include "extensions/wasi-p1.h"
 #include "defer.h"
 #include "store.h"
 #include "embind.h"
@@ -329,15 +329,20 @@ namespace godot {
     std::map<uint16_t, wasm_extern_t*> extern_map;
 
     // Construct import functions
-    const Dictionary &functions = dict_safe_get(import_map, "functions", Dictionary());
+    const Dictionary& functions = dict_safe_get(import_map, "functions", Dictionary());
+
+    // Instantiate extensions to provide default imports
+    godot_wasm::WasiPreview1Extension wasi_extension(this);
+    std::vector<godot_wasm::Extension*> extensions = { &wasi_extension };
+
     for (const auto &it: import_funcs) {
       if (!functions.keys().has(it.first)) {
-        // Attempt to use default WASI import
-        wasm_func_t* callback;
-        callback = godot_wasm::get_wasi_callback(STORE, this, it.first);
-        if (callback == NULL)
-          callback = godot_wasm::get_embind_callback(STORE, this, it.first);
-
+        // Import not explicitly provided; query extensions for import
+        wasm_func_t* callback = NULL;
+        for (auto &extension: extensions) {
+          callback = extension->get_callback(it.first);
+          if (callback) break;
+        }
         FAIL_IF(callback == NULL, "Missing import function " + it.first, ERR_CANT_CREATE);
         extern_map[it.second.index] = wasm_func_as_extern(callback);
         continue;
