@@ -55,9 +55,8 @@ namespace godot {
         }
 
       public:
-        const String name; // Name of the extension
-
-        Extension(const String& extension_name, Wasm* wasm_instance): name(extension_name), wasm(wasm_instance) {}
+        Extension(Wasm* wasm_instance): wasm(wasm_instance) {}
+        virtual ~Extension() {}
 
         virtual wasm_func_t* get_callback(const String &name) final {
           std::string key = std::string(name.utf8().get_data());

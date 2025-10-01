@@ -13,7 +13,6 @@
 #define __WASI_CLOCKID_REALTIME (UINT32_C(0)) // The clock measuring real time
 #define __WASI_CLOCKID_MONOTONIC (UINT32_C(1)) // The store-wide monotonic clock
 #define __WASI_ERRNO_SUCCESS (UINT16_C(0)) // No error occurred
-#define __WASI_ERRNO_ACCES (UINT16_C(2)) // [sic] Permission denied
 #define __WASI_ERRNO_INVAL (UINT16_C(28)) // Invalid argument
 #define __WASI_ERRNO_IO (UINT16_C(29)) // I/O error
 
@@ -80,7 +79,6 @@ namespace godot {
       FAIL_IF(args->size != 4 || results->size != 1, "Invalid arguments fd_write", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
-      if (!wasm->has_permission("print")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
       int32_t fd = args->data[0].of.i32;
       int32_t offset_iov = args->data[1].of.i32;
@@ -101,7 +99,6 @@ namespace godot {
     // WASI proc_exit: [I32] -> []
     wasm_trap_t* wasi_proc_exit(Wasm* wasm, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 1 || results->size != 0, "Invalid arguments proc_exit", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
-      if (!wasm->has_permission("exit")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       wasm->exit(args->data[0].of.i32);
       return NULL;
     }
@@ -111,7 +108,6 @@ namespace godot {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
-      if (!wasm->has_permission("args")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
       int32_t offset_count = args->data[0].of.i32;
       int32_t offset_length = args->data[1].of.i32;
@@ -126,7 +122,6 @@ namespace godot {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments args_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
-      if (!wasm->has_permission("args")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
       int32_t offset_environ = args->data[0].of.i32;
       int32_t offset_buffer = args->data[1].of.i32;
@@ -166,7 +161,6 @@ namespace godot {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments random_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
-      if (!wasm->has_permission("random")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
       int32_t offset = args->data[0].of.i32;
       int32_t length = args->data[1].of.i32;
@@ -180,7 +174,6 @@ namespace godot {
       FAIL_IF(args->size != 3 || results->size != 1, "Invalid arguments clock_time_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
       if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
-      if (!wasm->has_permission("time")) return wasi_result(results, __WASI_ERRNO_ACCES, "Not permitted\0");
       byte_t* data = wasm_memory_data(memory);
       int32_t clock_id = args->data[0].of.i32;
       int32_t offset = args->data[2].of.i32;
@@ -194,40 +187,40 @@ namespace godot {
   namespace godot_wasm {
     class WasiPreview1Extension: public Extension {
       public:
-        WasiPreview1Extension(Wasm* wasm): Extension("wasi_preview1", wasm) {
-        register_callback("wasi_snapshot_preview1.fd_write",
-          {WASM_I32, WASM_I32, WASM_I32, WASM_I32},
-          {WASM_I32},
-          wasi_fd_write);
-        register_callback("wasi_snapshot_preview1.proc_exit",
-          {WASM_I32},
-          {},
-          wasi_proc_exit);
-        register_callback("wasi_snapshot_preview1.args_sizes_get",
-          {WASM_I32, WASM_I32},
-          {WASM_I32},
-          wasi_args_sizes_get);
-        register_callback("wasi_snapshot_preview1.args_get",
-          {WASM_I32, WASM_I32},
-          {WASM_I32},
-          wasi_args_get);
-        register_callback("wasi_snapshot_preview1.environ_sizes_get",
-          {WASM_I32, WASM_I32},
-          {WASM_I32},
-          wasi_environ_sizes_get);
-        register_callback("wasi_snapshot_preview1.environ_get",
-          {WASM_I32, WASM_I32},
-          {WASM_I32},
-          wasi_environ_get);
-        register_callback("wasi_snapshot_preview1.random_get",
-          {WASM_I32, WASM_I32},
-          {WASM_I32},
-          wasi_random_get);
-        register_callback("wasi_snapshot_preview1.clock_time_get",
-          {WASM_I32, WASM_I64, WASM_I32},
-          {WASM_I32},
-          wasi_clock_time_get);
-      }
+        WasiPreview1Extension(Wasm* wasm): Extension(wasm) {
+          register_callback("wasi_snapshot_preview1.fd_write",
+            {WASM_I32, WASM_I32, WASM_I32, WASM_I32},
+            {WASM_I32},
+            wasi_fd_write);
+          register_callback("wasi_snapshot_preview1.proc_exit",
+            {WASM_I32},
+            {},
+            wasi_proc_exit);
+          register_callback("wasi_snapshot_preview1.args_sizes_get",
+            {WASM_I32, WASM_I32},
+            {WASM_I32},
+            wasi_args_sizes_get);
+          register_callback("wasi_snapshot_preview1.args_get",
+            {WASM_I32, WASM_I32},
+            {WASM_I32},
+            wasi_args_get);
+          register_callback("wasi_snapshot_preview1.environ_sizes_get",
+            {WASM_I32, WASM_I32},
+            {WASM_I32},
+            wasi_environ_sizes_get);
+          register_callback("wasi_snapshot_preview1.environ_get",
+            {WASM_I32, WASM_I32},
+            {WASM_I32},
+            wasi_environ_get);
+          register_callback("wasi_snapshot_preview1.random_get",
+            {WASM_I32, WASM_I32},
+            {WASM_I32},
+            wasi_random_get);
+          register_callback("wasi_snapshot_preview1.clock_time_get",
+            {WASM_I32, WASM_I64, WASM_I32},
+            {WASM_I32},
+            wasi_clock_time_get);
+        }
     };
   }
 }
