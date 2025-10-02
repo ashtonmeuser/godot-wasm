@@ -1,5 +1,8 @@
 #include <cstdint>
+#include <functional>
+#include <map>
 #include <string>
+#include <sys/types.h>
 #include "./embind.h"
 #include "core/string/ustring.h"
 #include "modules/wasm/src/defs.h"
@@ -9,30 +12,70 @@
 
 namespace godot {
   namespace {
-    typedef std::tuple<const std::vector<wasm_valkind_enum>, const std::vector<wasm_valkind_enum>, const wasm_func_callback_with_env_t> callback_signature;
+    struct CustomType {
+      bool is_void;
+      String name;
+      int arg_parse_advance;
+      std::function<uint32_t(bool)> from_wire_type;
+      std::function<uint32_t(bool)> to_wire_type;
+    };
+    std::map<uint32_t, CustomType> types;
+
+    void register_type(uint32_t raw_type, CustomType custom_type) {
+      types[raw_type] = custom_type;
+    }
+
+    typedef std::tuple<
+            const std::vector<wasm_valkind_enum>,
+            const std::vector<wasm_valkind_enum>,
+            const wasm_func_callback_with_env_t>
+            callback_signature;
 
     String read_null_terminated_string(WasmMemory* memory, int32_t ptr) {
-      auto i = ptr;
-      while (true) {
-        memory->seek(i);
-        auto curr_char = (char)memory->get_8();
+      auto curr_pos = ptr;
+      char curr_char;
+      do {
+        memory->seek(curr_pos);
+        curr_char = memory->get_8();
 
-        if (!curr_char) break;
-        i++;
-      }
+        curr_pos++;
+      } while (curr_char);
+
       memory->seek(ptr);
-      return memory->get_string(i - ptr);
+      return memory->get_string(curr_pos - ptr);
     }
+
     // nameptr, argCount, rawArgTypesAddr, signature, rawInvoker, fn, isAsync, isNonnullReturn
     wasm_trap_t* __register_function(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 8, "Invalid arguments args_get", godot_wasm::wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       auto wasm = (Wasm*)env;
       auto memory = wasm->get_memory().ptr();
+
       auto name = read_null_terminated_string(memory, args->data[0].of.i32);
       auto arg_count = args->data[1].of.i32;
-      if (memory == NULL) {
-        return godot_wasm::wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
+      auto types = args->data[2].of.i32;
+      auto signature = args->data[3].of.i32;
+      auto invoker = args->data[4].of.i32;
+      auto function = args->data[5].of.i32;
+      auto is_async = !!args->data[6].of.i32;
+      auto is_non_null_return = !!args->data[7].of.i32;
+
+      if (!is_non_null_return) arg_count--;
+
+      /*
+        for i=1,argCount do
+            local rawType = buffer.readi32(memory.data, rawArgTypesAddr + i*4)
+            local typeInfo = types[rawType]
+            args[i] = rawType
+        end
+    */
+      for (auto i = 0; i < arg_count; i++) {
+        memory->seek(types + i * 4);
+        auto curr_type = memory->get_8();
       }
+
+      auto out = read_null_terminated_string(memory, types);
+      if (memory == NULL) return godot_wasm::wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
 
       return godot_wasm::wasi_result(results);
     }
@@ -42,7 +85,23 @@ namespace godot {
       FAIL_IF(args->size != 4, "Invalid arguments args_get", godot_wasm::wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       auto wasm = (Wasm*)env;
       auto memory = wasm->get_memory().ptr();
+      auto raw_type = args->data[1].of.i32;
       auto name = read_null_terminated_string(memory, args->data[1].of.i32);
+
+      auto true_value = args->data[2].of.i32;
+      auto false_value = args->data[3].of.i32;
+
+      CustomType curr_type;
+      curr_type.name = name;
+      curr_type.is_void = false;
+      curr_type.arg_parse_advance = 8;
+      curr_type.from_wire_type = [](bool wt) { return wt; };
+      curr_type.to_wire_type = [true_value, false_value](bool wt) {
+        if (wt) return true_value;
+        return false_value;
+      };
+
+      register_type(raw_type, curr_type);
       return godot_wasm::wasi_result(results);
     }
 

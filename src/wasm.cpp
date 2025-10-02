@@ -546,9 +546,12 @@ Variant Wasm::function(String name, Array args) const {
     DEFER(wasm_importtype_vec_delete(&imports));
     wasm_module_imports(module, &imports);
     for (uint16_t i = 0; i < imports.size; i++) {
-      const wasm_externtype_t* type = wasm_importtype_type(imports.data[i]);
+      auto curr_data = imports.data[i];
+
+      const wasm_externtype_t* type = wasm_importtype_type(curr_data);
       const wasm_externkind_t kind = wasm_externtype_kind(type);
-      const String key = decode_name(wasm_importtype_module(imports.data[i])) + "." + decode_name(wasm_importtype_name(imports.data[i]));
+      const String key = decode_name(wasm_importtype_module(curr_data)) + "." + decode_name(wasm_importtype_name(imports.data[i]));
+
       switch (kind) {
         case WASM_EXTERN_FUNC: {
           const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
@@ -571,9 +574,12 @@ Variant Wasm::function(String name, Array args) const {
     DEFER(wasm_exporttype_vec_delete(&exports));
     wasm_module_exports(module, &exports);
     for (uint16_t i = 0; i < exports.size; i++) {
-      const wasm_externtype_t* type = wasm_exporttype_type(exports.data[i]);
+      auto curr_data = exports.data[i];
+
+      const wasm_externtype_t* type = wasm_exporttype_type(curr_data);
       const wasm_externkind_t kind = wasm_externtype_kind(type);
-      const String key = decode_name(wasm_exporttype_name(exports.data[i]));
+      const String key = decode_name(wasm_exporttype_name(curr_data));
+
       switch (kind) {
         case WASM_EXTERN_FUNC: {
           const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
