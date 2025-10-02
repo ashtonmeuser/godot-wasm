@@ -35,7 +35,7 @@ namespace godot {
 
     struct ContextMemory: public ContextExtern {
       bool import; // Import; not export
-      ContextMemory(uint16_t i, bool import): ContextExtern(i), import(import) { }
+      ContextMemory(uint16_t i, bool import): ContextExtern(i), import(import) {}
     };
   }
 
@@ -251,7 +251,7 @@ namespace godot {
     unset(module, wasm_module_delete);
   }
 
-  void Wasm::_init() { }
+  void Wasm::_init() {}
 
   void Wasm::exit(int32_t code) {
     reset_instance(); // Reset instance state
@@ -287,7 +287,7 @@ namespace godot {
     // Load binary
     wasm_byte_vec_t wasm_bytes;
     DEFER(wasm_byte_vec_delete(&wasm_bytes));
-    wasm_byte_vec_new(&wasm_bytes, bytecode.size(), (const wasm_byte_t *)BYTE_ARRAY_POINTER(bytecode));
+    wasm_byte_vec_new(&wasm_bytes, bytecode.size(), (const wasm_byte_t*)BYTE_ARRAY_POINTER(bytecode));
 
     // Validate binary
     FAIL_IF(!wasm_module_validate(STORE, &wasm_bytes), "Invalid binary", ERR_INVALID_DATA);
