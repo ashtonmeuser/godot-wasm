@@ -69,5 +69,8 @@
 		<member name="memory" type="WasmMemory" setter="" getter="get_memory">
 			A [StreamPeer] interface for interacting with the memory of an instantiated Wasm module.
 		</member>
+		<member name="extensions" type="PackedStringArray" setter="set_extensions" getter="get_extensions">
+			An array of strings listing enabled extensions that satisfy Wasm module imports.
+		</member>
 	</members>
 </class>

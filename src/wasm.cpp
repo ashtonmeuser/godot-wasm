@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 #include "wasm.h"
-#include "wasi-shim.h"
+#include "extensions/wasi-p1.h"
 #include "defer.h"
 #include "store.h"
 
@@ -35,7 +35,7 @@ namespace godot {
 
     struct ContextMemory: public ContextExtern {
       bool import; // Import; not export
-      ContextMemory(uint16_t i, bool import): ContextExtern(i), import(import) { }
+      ContextMemory(uint16_t i, bool import): ContextExtern(i), import(import) {}
     };
   }
 
@@ -221,9 +221,8 @@ namespace godot {
       register_method("inspect", &Wasm::inspect);
       register_method("global", &Wasm::global);
       register_method("function", &Wasm::function);
-      register_method("has_permission", &Wasm::has_permission);
       register_property<Wasm, Ref<WasmMemory>>("memory", &Wasm::memory, NULL);
-      register_property<Wasm, Dictionary>("permissions", &Wasm::permissions, Dictionary());
+      register_property<Wasm, PackedStringArray>("extensions", &Wasm::extensions, PackedStringArray());
     #else
       ClassDB::bind_method(D_METHOD("compile", "bytecode"), &Wasm::compile);
       ClassDB::bind_method(D_METHOD("instantiate", "import_map"), &Wasm::instantiate);
@@ -231,11 +230,10 @@ namespace godot {
       ClassDB::bind_method(D_METHOD("inspect"), &Wasm::inspect);
       ClassDB::bind_method(D_METHOD("global", "name"), &Wasm::global);
       ClassDB::bind_method(D_METHOD("function", "name", "args"), &Wasm::function, DEFVAL(Array()));
-      ClassDB::bind_method(D_METHOD("set_permissions"), &Wasm::set_permissions);
-      ClassDB::bind_method(D_METHOD("get_permissions"), &Wasm::get_permissions);
-      ClassDB::bind_method(D_METHOD("has_permission", "permission"), &Wasm::has_permission);
+      ClassDB::bind_method(D_METHOD("set_extensions"), &Wasm::set_extensions);
+      ClassDB::bind_method(D_METHOD("get_extensions"), &Wasm::get_extensions);
       ClassDB::bind_method(D_METHOD("get_memory"), &Wasm::get_memory);
-      ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "permissions"), "set_permissions", "get_permissions");
+      ADD_PROPERTY(PropertyInfo(Variant::PACKED_STRING_ARRAY, "extensions"), "set_extensions", "get_extensions");
       ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "memory"), "", "get_memory");
     #endif
   }
@@ -245,6 +243,7 @@ namespace godot {
     instance = NULL;
     memory_context = NULL;
     reset_instance(); // Set initial state
+    extensions.append("wasi_preview1"); // Default enabled extensions
   }
 
   Wasm::~Wasm() {
@@ -252,7 +251,7 @@ namespace godot {
     unset(module, wasm_module_delete);
   }
 
-  void Wasm::_init() { }
+  void Wasm::_init() {}
 
   void Wasm::exit(int32_t code) {
     reset_instance(); // Reset instance state
@@ -267,31 +266,18 @@ namespace godot {
     import_funcs.clear();
     export_globals.clear();
     export_funcs.clear();
-    permissions.clear();
-    permissions["print"] = true;
-    permissions["time"] = true;
-    permissions["random"] = true;
-    permissions["args"] = true;
-    permissions["exit"] = true;
   }
 
   Ref<WasmMemory> Wasm::get_memory() const {
     return memory;
   };
 
-  void Wasm::set_permissions(const Dictionary &update) {
-    for (auto i = 0; i < permissions.keys().size(); i++) {
-      Variant key = permissions.keys()[i];
-      permissions[key] = dict_safe_get(update, key, permissions[key]);
-    }
+  void Wasm::set_extensions(const PackedStringArray &extension_names) {
+    extensions = extension_names;
   }
 
-  Dictionary Wasm::get_permissions() const {
-    return permissions;
-  }
-
-  bool Wasm::has_permission(String permission) const {
-    return dict_safe_get(permissions, permission, false);
+  PackedStringArray Wasm::get_extensions() const {
+    return extensions;
   }
 
   godot_error Wasm::compile(PackedByteArray bytecode) {
@@ -301,7 +287,7 @@ namespace godot {
     // Load binary
     wasm_byte_vec_t wasm_bytes;
     DEFER(wasm_byte_vec_delete(&wasm_bytes));
-    wasm_byte_vec_new(&wasm_bytes, bytecode.size(), (const wasm_byte_t *)BYTE_ARRAY_POINTER(bytecode));
+    wasm_byte_vec_new(&wasm_bytes, bytecode.size(), (const wasm_byte_t*)BYTE_ARRAY_POINTER(bytecode));
 
     // Validate binary
     FAIL_IF(!wasm_module_validate(STORE, &wasm_bytes), "Invalid binary", ERR_INVALID_DATA);
@@ -322,10 +308,19 @@ namespace godot {
 
     // Construct import functions
     const Dictionary& functions = dict_safe_get(import_map, "functions", Dictionary());
+
+    // Instantiate enabled extensions to provide default/fallback imports
+    std::vector<godot_wasm::Extension*> enabled_extensions;
+    if (PACKED_ARRAY_HAS(extensions, "wasi_preview1")) enabled_extensions.push_back(new godot_wasm::WasiPreview1Extension(this));
+
     for (const auto &it: import_funcs) {
       if (!functions.keys().has(it.first)) {
-        // Attempt to use default WASI import
-        auto callback = godot_wasm::get_wasi_callback(STORE, this, it.first);
+        // Import not explicitly provided; query extensions for import
+        wasm_func_t* callback = NULL;
+        for (auto &extension: enabled_extensions) {
+          callback = extension->get_callback(it.first);
+          if (callback) break;
+        }
         FAIL_IF(callback == NULL, "Missing import function " + it.first, ERR_CANT_CREATE);
         extern_map[it.second.index] = wasm_func_as_extern(callback);
         continue;
@@ -377,6 +372,9 @@ namespace godot {
 
     // Call exported WASI initialize function
     if (export_funcs.count("_initialize")) function("_initialize", Array());
+
+    // Clean up allocated extensions
+    for (auto* extension: enabled_extensions) delete extension;
 
     return OK;
   }

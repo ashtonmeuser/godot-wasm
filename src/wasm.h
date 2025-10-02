@@ -14,14 +14,14 @@ namespace godot {
     struct ContextMemory;
   }
 
-  class Wasm : public RefCounted {
+  class Wasm: public RefCounted {
     GDCLASS(Wasm, RefCounted);
 
     private:
       wasm_module_t* module;
       wasm_instance_t* instance;
       godot_wasm::ContextMemory* memory_context;
-      Dictionary permissions;
+      PackedStringArray extensions;
       Ref<WasmMemory> memory;
       std::map<String, godot_wasm::ContextFuncImport> import_funcs;
       std::map<String, godot_wasm::ContextExtern> export_globals;
@@ -43,9 +43,8 @@ namespace godot {
       Variant function(String name, Array args) const;
       Variant global(String name) const;
       Ref<WasmMemory> get_memory() const;
-      void set_permissions(const Dictionary &update);
-      Dictionary get_permissions() const;
-      bool has_permission(String permission) const;
+      void set_extensions(const PackedStringArray &extension_names);
+      PackedStringArray get_extensions() const;
   };
 }
 
