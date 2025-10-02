@@ -93,7 +93,7 @@ namespace godot {
         written += iov.length;
       }
       memcpy(data + offset_written, &written, sizeof(int32_t));
-      return godot_wasm::wasi_result(results);
+      return wasi_result(results);
     }
 
     // WASI proc_exit: [I32] -> []
@@ -114,7 +114,7 @@ namespace godot {
       wasi_encoded_strings encoded = encode_args(CMDLINE_ARGS);
       memcpy(data + offset_count, &encoded.count, sizeof(int32_t));
       memcpy(data + offset_length, &encoded.length, sizeof(int32_t));
-      return godot_wasm::wasi_result(results);
+      return wasi_result(results);
     }
 
     // WASI args_get: [I32, I32] -> [I32]
@@ -133,21 +133,21 @@ namespace godot {
         offset_environ += sizeof(int32_t);
         offset_buffer += (int32_t)s.length();
       }
-      return godot_wasm::wasi_result(results);
+      return wasi_result(results);
     }
 
     // WASI environ_sizes_get: [I32, I32] -> [I32]
     wasm_trap_t* wasi_environ_sizes_get(Wasm* wasm, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       FAIL_IF(args->size != 2 || results->size != 1, "Invalid arguments environ_sizes_get", wasi_result(results, __WASI_ERRNO_INVAL, "Invalid arguments\0"));
       wasm_memory_t* memory = wasm->get_memory().ptr()->get_memory();
-      if (memory == NULL) return godot_wasm::wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
+      if (memory == NULL) return wasi_result(results, __WASI_ERRNO_IO, "Invalid memory\0");
       byte_t* data = wasm_memory_data(memory);
       int32_t offset_count = args->data[0].of.i32;
       int32_t offset_length = args->data[1].of.i32;
       int32_t zero = 0;
       memcpy(data + offset_count, &zero, sizeof(int32_t));
       memcpy(data + offset_length, &zero, sizeof(int32_t));
-      return godot_wasm::wasi_result(results);
+      return wasi_result(results);
     }
 
     // WASI environ_get: [I32, I32] -> [I32]
@@ -166,7 +166,7 @@ namespace godot {
       int32_t length = args->data[1].of.i32;
       PackedByteArray bytes = RANDOM_BYTES(length);
       memcpy(data + offset, BYTE_ARRAY_POINTER(bytes), length);
-      return godot_wasm::wasi_result(results);
+      return wasi_result(results);
     }
 
     // WASI clock_time_get: [I32, I64, I32] -> [I32]
@@ -179,7 +179,7 @@ namespace godot {
       int32_t offset = args->data[2].of.i32;
       int64_t t = clock_id == __WASI_CLOCKID_REALTIME ? TIME_REALTIME : TIME_MONOTONIC;
       memcpy(data + offset, &t, sizeof(t));
-      return godot_wasm::wasi_result(results);
+      return wasi_result(results);
     }
 
   }
