@@ -243,7 +243,7 @@ namespace godot {
     instance = NULL;
     memory_context = NULL;
     reset_instance(); // Set initial state
-    extensions = { "wasi_preview1" }; // Default enabled extensions
+    extensions.append("wasi_preview1"); // Default enabled extensions
   }
 
   Wasm::~Wasm() {
@@ -311,7 +311,7 @@ namespace godot {
 
     // Instantiate enabled extensions to provide default/fallback imports
     std::vector<godot_wasm::Extension*> enabled_extensions;
-    if (extensions.has("wasi_preview1")) enabled_extensions.push_back(new godot_wasm::WasiPreview1Extension(this));
+    if (PACKED_ARRAY_HAS(extensions, "wasi_preview1")) enabled_extensions.push_back(new godot_wasm::WasiPreview1Extension(this));
 
     for (const auto &it: import_funcs) {
       if (!functions.keys().has(it.first)) {
