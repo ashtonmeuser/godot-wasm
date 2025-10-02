@@ -1,16 +1,13 @@
 #include <string>
 #include <vector>
 #include "wasm.h"
-<<<<<<< HEAD
-=======
-#include "extensions/wasi-p1.h"
->>>>>>> 73dfb48 (Extension base class)
 #include "defer.h"
 #include "store.h"
 #include <string>
 #include <vector>
 #include "wasm.h"
 #include "extensions/wasi-p1.h"
+#include "extensions/embind.h"
 #include "defer.h"
 #include "store.h"
 
@@ -156,12 +153,10 @@ Variant decode_variant(wasm_val_t value) {
       } else return ERR_INVALID_DATA;
     }
 
-    Variant::Type get_value_type(const wasm_valkind_t &kind) {
+    Variant::Type get_value_type(const wasm_valkind_t& kind) {
       switch (kind) {
-        case WASM_I32:
-        case WASM_I64: return Variant::INT;
-        case WASM_F32:
-        case WASM_F64: return Variant::FLOAT;
+        case WASM_I32: case WASM_I64: return Variant::INT;
+        case WASM_F32: case WASM_F64: return Variant::FLOAT;
         default: FAIL("Unsupported value kind", Variant::NIL);
       }
     }
@@ -290,7 +285,7 @@ Wasm::~Wasm() {
   unset(module, wasm_module_delete);
 }
 
-  void Wasm::_init() {}
+  void Wasm::_init() { }
 
   void Wasm::exit(int32_t code) {
     reset_instance(); // Reset instance state
@@ -326,7 +321,7 @@ Wasm::~Wasm() {
     // Load binary
     wasm_byte_vec_t wasm_bytes;
     DEFER(wasm_byte_vec_delete(&wasm_bytes));
-    wasm_byte_vec_new(&wasm_bytes, bytecode.size(), (const wasm_byte_t*)BYTE_ARRAY_POINTER(bytecode));
+    wasm_byte_vec_new(&wasm_bytes, bytecode.size(), (const wasm_byte_t *)BYTE_ARRAY_POINTER(bytecode));
 
     // Validate binary
     FAIL_IF(!wasm_module_validate(STORE, &wasm_bytes), "Invalid binary", ERR_INVALID_DATA);
@@ -539,26 +534,21 @@ Variant Wasm::function(String name, Array args) const {
     DEFER(wasm_importtype_vec_delete(&imports));
     wasm_module_imports(module, &imports);
     for (uint16_t i = 0; i < imports.size; i++) {
-      auto curr_data = imports.data[i];
-
-      const wasm_externtype_t* type = wasm_importtype_type(curr_data);
+      const wasm_externtype_t* type = wasm_importtype_type(imports.data[i]);
       const wasm_externkind_t kind = wasm_externtype_kind(type);
-      const String key = decode_name(wasm_importtype_module(curr_data)) + "." + decode_name(wasm_importtype_name(imports.data[i]));
-
+      const String key = decode_name(wasm_importtype_module(imports.data[i])) + "." + decode_name(wasm_importtype_name(imports.data[i]));
       switch (kind) {
         case WASM_EXTERN_FUNC: {
           const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
           import_funcs.emplace(key, godot_wasm::ContextFuncImport(i, func_type));
           break;
-        }
-        case WASM_EXTERN_MEMORY:
+        } case WASM_EXTERN_MEMORY:
           memory_context = new godot_wasm::ContextMemory(i, true);
           break;
         case WASM_EXTERN_TABLE:
           WARN_PRINT("Tables not implemented for import " + key);
           break;
-        default:
-          WARN_PRINT("Type not implemented for import " + key);
+        default: WARN_PRINT("Type not implemented for import " + key);
       }
     }
 
@@ -567,19 +557,15 @@ Variant Wasm::function(String name, Array args) const {
     DEFER(wasm_exporttype_vec_delete(&exports));
     wasm_module_exports(module, &exports);
     for (uint16_t i = 0; i < exports.size; i++) {
-      auto curr_data = exports.data[i];
-
-      const wasm_externtype_t* type = wasm_exporttype_type(curr_data);
+      const wasm_externtype_t* type = wasm_exporttype_type(exports.data[i]);
       const wasm_externkind_t kind = wasm_externtype_kind(type);
-      const String key = decode_name(wasm_exporttype_name(curr_data));
-
+      const String key = decode_name(wasm_exporttype_name(exports.data[i]));
       switch (kind) {
         case WASM_EXTERN_FUNC: {
           const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
           export_funcs.emplace(key, godot_wasm::ContextFuncExport(i, func_type));
           break;
-        }
-        case WASM_EXTERN_GLOBAL:
+        } case WASM_EXTERN_GLOBAL:
           export_globals.emplace(key, godot_wasm::ContextExtern(i));
           break;
         case WASM_EXTERN_MEMORY:
@@ -603,4 +589,4 @@ Variant Wasm::function(String name, Array args) const {
     const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
     return wasm_func_new_with_env(STORE, func_type, callback_wrapper, context, NULL);
   }
-} //namespace godot
+}
