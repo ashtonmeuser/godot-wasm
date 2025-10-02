@@ -199,17 +199,27 @@ namespace godot {
       wasm_name_new_from_string_nt(&trap_message, message);
       return wasm_trap_new(NULL, &trap_message);
     }
-    wasm_func_t* wasi_callback(wasm_store_t* store, Wasm* wasm, callback_signature signature) {
+
+    /**
+	* Note: Caller is responsible for clearing function's return
+	*/
+    wasm_functype_t* create_functype(std::vector<wasm_valkind_enum> p_params, std::vector<wasm_valkind_enum> p_results) {
       auto p_types = new std::vector<wasm_valtype_t*>;
       auto r_types = new std::vector<wasm_valtype_t*>;
-      for (auto &it: std::get<0>(signature)) p_types->push_back(wasm_valtype_new(it));
-      for (auto &it: std::get<1>(signature)) r_types->push_back(wasm_valtype_new(it));
+      for (auto &it: p_params) p_types->push_back(wasm_valtype_new(it));
+      for (auto &it: p_results) r_types->push_back(wasm_valtype_new(it));
+
       wasm_valtype_vec_t params;
       wasm_valtype_vec_new(&params, p_types->size(), p_types->data());
 
       wasm_valtype_vec_t results;
       wasm_valtype_vec_new(&results, r_types->size(), r_types->data());
       wasm_functype_t* functype = wasm_functype_new(&params, &results);
+      return functype;
+    }
+
+    wasm_func_t* wasi_callback(wasm_store_t* store, Wasm* wasm, callback_signature signature) {
+      wasm_functype_t* functype = create_functype(std::get<0>(signature), std::get<1>(signature));
       DEFER(wasm_functype_delete(functype));
       return wasm_func_new_with_env(store, functype, std::get<2>(signature), wasm, NULL);
     }

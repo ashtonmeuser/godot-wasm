@@ -337,6 +337,7 @@ namespace godot {
         callback = godot_wasm::get_wasi_callback(STORE, this, it.first);
         if (callback == NULL)
           callback = godot_wasm::get_embind_callback(STORE, this, it.first);
+
         FAIL_IF(callback == NULL, "Missing import function " + it.first, ERR_CANT_CREATE);
         extern_map[it.second.index] = wasm_func_as_extern(callback);
         continue;
@@ -364,7 +365,9 @@ namespace godot {
 
     // Sort imports by index
     std::vector<wasm_extern_t*> extern_list;
-    for (auto &it: extern_map) extern_list.push_back(it.second); // Maps iterate over sorted keys
+
+    // Maps iterate over sorted keys
+    for (auto &it: extern_map) extern_list.push_back(it.second);
 
     wasm_extern_vec_t imports;
     DEFER(wasm_extern_vec_delete(&imports));
@@ -490,9 +493,12 @@ namespace godot {
     DEFER(wasm_importtype_vec_delete(&imports));
     wasm_module_imports(module, &imports);
     for (uint16_t i = 0; i < imports.size; i++) {
-      const wasm_externtype_t* type = wasm_importtype_type(imports.data[i]);
+      auto curr_data = imports.data[i];
+
+      const wasm_externtype_t* type = wasm_importtype_type(curr_data);
       const wasm_externkind_t kind = wasm_externtype_kind(type);
-      const String key = decode_name(wasm_importtype_module(imports.data[i])) + "." + decode_name(wasm_importtype_name(imports.data[i]));
+      const String key = decode_name(wasm_importtype_module(curr_data)) + "." + decode_name(wasm_importtype_name(imports.data[i]));
+
       switch (kind) {
         case WASM_EXTERN_FUNC: {
           const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
@@ -515,9 +521,12 @@ namespace godot {
     DEFER(wasm_exporttype_vec_delete(&exports));
     wasm_module_exports(module, &exports);
     for (uint16_t i = 0; i < exports.size; i++) {
-      const wasm_externtype_t* type = wasm_exporttype_type(exports.data[i]);
+      auto curr_data = exports.data[i];
+
+      const wasm_externtype_t* type = wasm_exporttype_type(curr_data);
       const wasm_externkind_t kind = wasm_externtype_kind(type);
-      const String key = decode_name(wasm_exporttype_name(exports.data[i]));
+      const String key = decode_name(wasm_exporttype_name(curr_data));
+
       switch (kind) {
         case WASM_EXTERN_FUNC: {
           const wasm_functype_t* func_type = wasm_externtype_as_functype((wasm_externtype_t*)type);
