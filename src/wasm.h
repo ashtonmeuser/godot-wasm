@@ -17,18 +17,17 @@ namespace godot {
   class Wasm: public RefCounted {
     GDCLASS(Wasm, RefCounted);
 
-    private:
-      wasm_module_t* module;
-      wasm_instance_t* instance;
-      godot_wasm::ContextMemory* memory_context;
-      PackedStringArray extensions;
-      Ref<WasmMemory> memory;
-      std::map<String, godot_wasm::ContextFuncImport> import_funcs;
-      std::map<String, godot_wasm::ContextExtern> export_globals;
-      std::map<String, godot_wasm::ContextFuncExport> export_funcs;
-      void reset_instance();
-      godot_error map_names();
-      wasm_func_t* create_callback(godot_wasm::ContextFuncImport* context);
+  private:
+    wasm_instance_t* instance;
+    godot_wasm::ContextMemory* memory_context;
+    PackedStringArray extensions;
+    Ref<WasmMemory> memory;
+    std::map<String, godot_wasm::ContextFuncImport> import_funcs;
+    std::map<String, godot_wasm::ContextExtern> export_globals;
+    std::map<String, godot_wasm::ContextFuncExport> export_funcs;
+    void reset_instance();
+    godot_error map_names();
+    wasm_func_t* create_callback(godot_wasm::ContextFuncImport* context);
 
   public:
     static void REGISTRATION_METHOD();
