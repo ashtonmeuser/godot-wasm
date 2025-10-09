@@ -51,5 +51,9 @@ module_env.Append(CPPDEFINES=["GODOT_MODULE", "LIBWASM_STATIC"])
 
 # Module sources
 module_env.add_source_files(
-    env.modules_sources, ["register_types.cpp", env.Glob("src/*.cpp", exclude="src/godot-library.cpp")]
+    env.modules_sources, [
+        "register_types.cpp",
+        env.Glob("src/*.cpp", exclude="src/godot-library.cpp"),
+        env.Glob("src/extensions/*.cpp")
+    ]
 )

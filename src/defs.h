@@ -42,6 +42,7 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
 #define FAIL_IF(cond, message, ret) if (unlikely(cond)) FAIL(message, ret)
 #define INSTANTIATE_REF(ref) ref.instantiate()
 #define BYTE_ARRAY_POINTER(array) array.ptr()
+#define PACKED_ARRAY_HAS(array, value) array.has(value)
 #define CMDLINE_ARGS OS::get_singleton()->get_cmdline_user_args()
 #define TIME_REALTIME Time::get_singleton()->get_unix_time_from_system() * 1000000000
 #define TIME_MONOTONIC Time::get_singleton()->get_ticks_usec() * 1000
