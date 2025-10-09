@@ -35,7 +35,7 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
   #define PRINT(message) Godot::print(String(message))
   #define PRINT_ERROR(message) Godot::print_error("Godot Wasm: " + String(message), __func__, __FILE__, __LINE__)
   #define ObjectID int64_t
-  #define INSTANCE_FROM_ID(id) godot::core_1_2_api->godot_instance_from_id(id) == nullptr ? nullptr : godot::detail::get_wrapper<Object>(godot::core_1_2_api->godot_instance_from_id(id))
+  #define INSTANCE_FROM_ID(id) godot::core_1_2_api->godot_instance_from_id((godot_int)id) == nullptr ? nullptr : godot::detail::get_wrapper<Object>(godot::core_1_2_api->godot_instance_from_id(id))
   #define INSTANCE_VALIDATE(id) godot::core_1_1_api->godot_is_instance_valid((godot_object*)id)
   #define GDCLASS GODOT_CLASS
   #define REGISTRATION_METHOD _register_methods
@@ -50,7 +50,7 @@ Useful for minimizing changes to implementation files between targets e.g. GDExt
 #define FAIL_IF(cond, message, ret) if (unlikely(cond)) FAIL(message, ret)
 #define INSTANTIATE_REF(ref) ref.instance()
 #define BYTE_ARRAY_POINTER(array) array.read().ptr()
-#define PACKED_ARRAY_HAS(array, value) ({ bool f = false; for (int i = 0; i < array.size(); i++) { if (array[i] == value) { f = true; break; } } f; })
+#define PACKED_ARRAY_HAS(array, value) [&]() { for (int i = 0; i < array.size(); i++) { if (array[i] == value) return true; } return false; }()
 #define CMDLINE_ARGS PoolStringArray() // User CLI args unsupported in Godot 3
 #define TIME_REALTIME OS::get_singleton()->get_system_time_msecs() * 1000000
 #define TIME_MONOTONIC OS::get_singleton()->get_ticks_usec() * 1000
