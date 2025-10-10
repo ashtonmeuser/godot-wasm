@@ -29,6 +29,7 @@ jobs:
           workflow: addon.yml
           commit: ${{ github.sha }}
           name: \w+-${{ matrix.runtime }}
+          name_is_regexp: true
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
 
       - name: DEBUG
