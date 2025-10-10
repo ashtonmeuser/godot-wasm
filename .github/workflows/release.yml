@@ -32,11 +32,6 @@ jobs:
           name_is_regexp: true
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}
 
-      - name: DEBUG
-        run: |
-          echo "Working directory structure:"
-          tree ${{ github.workspace }} || find ${{ github.workspace }}
-
       # Artifacts are placed in directories matching their names i.e. with runtime suffix
       - name: Strip Runtime Suffix
         run: |
@@ -50,11 +45,6 @@ jobs:
               fi
             fi
           done
-
-      - name: DEBUG
-        run: |
-          echo "Working directory structure:"
-          tree ${{ github.workspace }} || find ${{ github.workspace }}
 
       - name: Prepare Asset
         run: |
