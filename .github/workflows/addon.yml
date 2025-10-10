@@ -16,6 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: [linux, osx, windows]
+        runtime: [wasmtime, wasmer]
         include:
           - platform: linux
             os: ubuntu-latest
@@ -46,11 +47,12 @@ jobs:
           platform: ${{ matrix.platform }}
           target: ${{ env.TARGET }}
           cache-suffix: ${{ env.GODOT_REF }}
+          scons-flags: "wasm_runtime=${{ matrix.runtime }}"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}
+          name: ${{ matrix.platform }}-${{ matrix.runtime }}
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ matrix.platform }}
           if-no-files-found: error
 
@@ -61,6 +63,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: [linux, osx]
+        runtime: [wasmtime, wasmer]
         include:
           - platform: linux
             os: ubuntu-latest
@@ -81,7 +84,7 @@ jobs:
       - name: Download Addon
         uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.platform }}
+          name: ${{ matrix.platform }}-${{ matrix.runtime }}
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ matrix.platform }}
 
       - name: Run Tests
@@ -96,6 +99,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: [linux, osx]
+        runtime: [wasmtime, wasmer]
         include:
           - platform: linux
             os: ubuntu-latest
@@ -116,7 +120,7 @@ jobs:
       - name: Download Addon
         uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.platform }}
+          name: ${{ matrix.platform }}-${{ matrix.runtime }}
           path: ${{ github.workspace }}/${{ env.LIBRARY_PATH }}/${{ matrix.platform }}
 
       - name: Export Tests
