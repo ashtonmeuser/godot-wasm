@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <cstdint>
 #include <functional>
 #include <map>
@@ -15,19 +14,23 @@ namespace godot {
   namespace {
     struct CustomType {
       String name;
+      int raw_type;
       int arg_parse_advance = 8;
       bool is_void = false;
       bool is_enum = false;
       bool is_em_val = false;
 
-      std::function<uint32_t(uint32_t)> from_wire_type = [](uint32_t wt) { return wt; };
+      std::function<Variant(uint32_t)> from_wire_type = [](uint32_t wt) { return (Variant)wt; };
       std::function<uint32_t(bool, Variant)> to_wire_type;
     };
 
     struct CustomFunction {
+      String name;
       int32_t raw_invoker;
       int32_t fn;
-	}
+      std::map<int32_t, CustomType> args;
+      int32_t ret;
+    };
 
     std::map<uint32_t, CustomType> types;
     std::map<uint32_t, Variant> ids;
@@ -68,8 +71,6 @@ namespace godot {
       auto is_async = !!args->data[6].of.i32;
       auto is_non_null_return = !!args->data[7].of.i32;
 
-      if (!is_non_null_return) arg_count--;
-
       std::vector<CustomType> func_args;
 
       for (auto i = 0; i < arg_count; i++) {
@@ -93,6 +94,7 @@ namespace godot {
 
       CustomType curr_type{
         .name = name,
+        .raw_type = raw_type,
         .to_wire_type = [true_value, false_value](bool destructors, Variant wt) {
           if (wt) return true_value;
           return false_value; }
@@ -119,6 +121,7 @@ namespace godot {
 
       CustomType curr_type{
         .name = name,
+        .raw_type = raw_type,
         .to_wire_type = [](bool destructors, Variant wt) { return wt; }
       };
 
@@ -136,6 +139,7 @@ namespace godot {
 
       CustomType curr_type{
         .name = name,
+        .raw_type = raw_type,
         .to_wire_type = [](bool destructors, Variant wt) { return wt; }
       };
 
@@ -143,8 +147,10 @@ namespace godot {
       return NULL;
     }
     wasm_trap_t* register_emval(Wasm* wasm, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
+      auto raw_type = args->data[0].of.i32;
       CustomType curr_type{
         .name = "EmVal",
+        .raw_type = raw_type,
         .to_wire_type = [](bool destructors, Variant wt) {
           auto idx = ids.size();
           ids[idx] = wt;
@@ -152,23 +158,25 @@ namespace godot {
         }
       };
 
-      register_type(args->data[0].of.i32, curr_type);
+      register_type(raw_type, curr_type);
       return NULL;
     }
 
     wasm_trap_t* register_void(Wasm* wasm, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
       auto memory = wasm->get_memory().ptr();
       auto name = read_null_terminated_string(memory, args->data[1].of.i32);
+      auto raw_type = args->data[0].of.i32;
 
       CustomType curr_type{
         .name = name,
+        .raw_type = raw_type,
         .arg_parse_advance = 0,
         .is_void = true,
         .from_wire_type = [](Variant wt) { return NULL; },
         .to_wire_type = [](bool destructors, Variant wt) { return NULL; }
       };
 
-      register_type(args->data[0].of.i32, curr_type);
+      register_type(raw_type, curr_type);
       return NULL;
     }
 
