@@ -7,6 +7,7 @@
   <a href="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/addon.yml"><img src="https://github.com/ashtonmeuser/godot-wasm/actions/workflows/addon.yml/badge.svg" alt="Addon Status"></a>
   <a href="https://github.com/ashtonmeuser/godot-wasm/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ashtonmeuser/godot-wasm" alt="License"></a>
   <a href="https://github.com/ashtonmeuser/godot-wasm/releases/latest"><img src="https://img.shields.io/github/v/release/ashtonmeuser/godot-wasm" alt="Version"></a>
+  <a href="https://github.com/ashtonmeuser/godot-wasm/wiki"><img src="https://img.shields.io/badge/Wiki-000000?logo=github" alt="Wiki"></a>
 </p>
 
 > **Warning**
