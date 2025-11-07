@@ -12,6 +12,9 @@ namespace godot {
     struct ContextFuncImport;
     struct ContextFuncExport;
     struct ContextMemory;
+    struct ContextTableExport;
+
+    struct EmbindFunction;
   }
 
   class Wasm: public RefCounted {
@@ -19,18 +22,20 @@ namespace godot {
 
     private:
       wasm_module_t* module;
-      wasm_instance_t* instance;
       godot_wasm::ContextMemory* memory_context;
       PackedStringArray extensions;
       Ref<WasmMemory> memory;
       std::map<String, godot_wasm::ContextFuncImport> import_funcs;
       std::map<String, godot_wasm::ContextExtern> export_globals;
       std::map<String, godot_wasm::ContextFuncExport> export_funcs;
+      std::map<String, godot_wasm::EmbindFunction> embind_functions;
       void reset_instance();
       godot_error map_names();
       wasm_func_t* create_callback(godot_wasm::ContextFuncImport* context);
 
-    public:
+	public:
+      wasm_instance_t* instance;
+      std::map<String, godot_wasm::ContextTableExport> export_tables;
       static void REGISTRATION_METHOD();
       Wasm();
       ~Wasm();
@@ -39,8 +44,11 @@ namespace godot {
       godot_error compile(PackedByteArray bytecode);
       godot_error instantiate(const Dictionary import_map);
       godot_error load(PackedByteArray bytecode, const Dictionary import_map);
+      wasm_ref_t* get_from_table(String name, wasm_table_size_t index) const;
       Dictionary inspect() const;
       Variant function(String name, Array args) const;
+      Variant embind_function(String name, Array args) const;
+      void register_embind_function(godot_wasm::EmbindFunction);
       Variant global(String name) const;
       Ref<WasmMemory> get_memory() const;
       void set_extensions(const PackedStringArray &extension_names);

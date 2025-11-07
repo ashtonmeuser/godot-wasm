@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 #include <wasm.h>
-#include "../defs.h"
 #include "../defer.h"
 #include "../store.h"
+#include "core/string/ustring.h"
 
 namespace godot {
   class Wasm; // Forward declare to avoid circular dependency
