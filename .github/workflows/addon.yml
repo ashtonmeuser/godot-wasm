@@ -15,13 +15,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [linux, macos, windows]
-        runtime: [wasmtime, wasmer]
+        platform: [windows]
+        runtime: [wasmer]
+        runtime_version: [v6.1.0, v7.0.1]
         include:
-          - platform: linux
-            os: ubuntu-latest
-          - platform: macos
-            os: macos-latest
           - platform: windows
             os: windows-latest
     runs-on: ${{ matrix.os }}
@@ -46,7 +43,7 @@ jobs:
           platform: ${{ matrix.platform }}
           target: ${{ env.TARGET }}
           cache-suffix: ${{ env.GODOT_REF }}
-          scons-flags: "wasm_runtime=${{ matrix.runtime }}"
+          scons-flags: "wasm_runtime=${{ matrix.runtime }} runtime_version=${{ matrix.runtime_version }}"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
