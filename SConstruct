@@ -41,6 +41,11 @@ if env["platform"] == "windows":
 env.Append(CPPDEFINES=["GDEXTENSION", "LIBWASM_STATIC"])
 
 # Explicit static libraries
+print("{runtime}/lib/{prefix}{runtime}{suffix}".format(
+        runtime=env["wasm_runtime"],
+        prefix=env["LIBPREFIX"],
+        suffix=env.get("LIBRUNTIMESUFFIX", env["LIBSUFFIX"]),
+    ))
 runtime_lib = env.File(
     "{runtime}/lib/{prefix}{runtime}{suffix}".format(
         runtime=env["wasm_runtime"],
