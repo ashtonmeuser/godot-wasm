@@ -56,6 +56,11 @@ env.Append(LIBS=[runtime_lib])
 # Godot Wasm sources
 source = ["register_types.cpp", env.Glob("src/*.cpp"), env.Glob("src/extensions/*.cpp")]
 
+# Create compilation database via `scons db`
+env.Tool('compilation_db')
+db = env.CompilationDatabase()
+Alias("db", db)
+
 # Builders
 library = env.SharedLibrary(target="addons/godot-wasm/bin/{}/godot-wasm".format(env["platform"]), source=source)
 env.Help(opts.GenerateHelpText(env))

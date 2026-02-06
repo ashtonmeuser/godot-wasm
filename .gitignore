@@ -1,10 +1,15 @@
+# General
 .DS_Store
 .vscode/
+
+# SCons
 .sconsign.dblite
+
+# Runtime
 wasmer/
 wasmtime/
-addons.zip
-templates/
+
+# Build files
 *.os
 *.obj
 *.pdb
@@ -16,3 +21,7 @@ templates/
 *.exp
 *.lib
 __pycache__
+
+# Clangd
+.cache/
+compile_commands.json
