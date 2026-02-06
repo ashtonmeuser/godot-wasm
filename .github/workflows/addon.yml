@@ -17,7 +17,7 @@ jobs:
       matrix:
         platform: [windows]
         runtime: [wasmer]
-        runtime_version: [v6.1.0, v7.0.1]
+        runtime_version: [v6.1.0, v7.0.1, v7.0.0-alpha.1, v7.0.0-alpha.2, v7.0.0-rc.1, v7.0.0-rc.2, v7.0.0]
         include:
           - platform: windows
             os: windows-latest
