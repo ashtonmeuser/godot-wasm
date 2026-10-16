@@ -42,7 +42,7 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
           target: ${{ env.TARGET }}
-          cache-suffix: ${{ env.GODOT_REF }}
+          cache-suffix: ${{ env.GODOT_REF }}-${{ matrix.runtime }}
           scons-flags: "wasm_runtime=${{ matrix.runtime }} runtime_version=${{ matrix.runtime_version }}"
 
       - name: Upload Artifact
